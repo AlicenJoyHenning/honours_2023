@@ -1,3 +1,3 @@
 <h1 align="center">Honours 2023</h1>
 
-Analysis pipeline of scRNA-seq data 
+<h2 align="center"><strong>Analysis pipeline of scRNA-seq data</strong> 
