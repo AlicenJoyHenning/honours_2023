@@ -1,7 +1,12 @@
 # SASCRiP single cell RNA sequencing 
-Contents: [Installation](#section-1)
+Contents: 
+[(i) Installing dependencies](#section-1) 
+[(ii) Installing SASCRiP](#section-2) 
+[(iii) Preparing fastq files for SASCRiP](#section-3)
 
-## Installation 
+
+
+## (i) Installing dependencies 
 In order for the pipeline to be executed on a device, the following packages must be installed:
 + ***Python*** (greater than version 3.7)
 ``` python --version ``` if not updated, ``` sudo apt  update ``` / ``` sudo apt install python3 ```
@@ -49,10 +54,23 @@ In order for the pipeline to be executed on a device, the following packages mus
 ```
 </pre>
 
+
+## (ii) Installing SASCRiP  
 Once the dependcies are installed and updated, it is now time to install the pipeline itself 
 <pre>
   ```Ubuntu command prompt
   # Install package using pip
   pip install SASCRiP 
+
+  # Install additional R packages required for SASCRiP using the function 'install_R_packages'
+  import SASCRiP 
+  from SASCRiP import sascrip_functions 
+
+  sascrip_functions.install_R_packages()
+  
 ```
 </pre>
+
+## (iii) Preparing fastq files for SASCRiP 
+
+
