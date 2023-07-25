@@ -8,7 +8,7 @@ In order for the pipeline to be executed on a device, the following packages mus
 + ***R*** (greater than version 3.6) ``` R --version ```
 + ***Seurat R package*** R package used for the analysis and visualisation of scRNA-seq data providing a suite of functions including those for quality control and normalisation.
   <pre>
-    ``` R
+    ```R
     # first check is package is installed:
     library(Seurat)
 
@@ -20,7 +20,7 @@ In order for the pipeline to be executed on a device, the following packages mus
   
 + ***Tidyverse R package*** R package a collection of R packages for data manipulation
  <pre>
-    ``` R
+    ```R
     library(tidyverse)
    
    # Otherwise:
@@ -32,7 +32,7 @@ In order for the pipeline to be executed on a device, the following packages mus
   
 + ***kb-python*** (**kallisto|bustools**) for pseudo-alignment and quantification capabilities of Kallisto and the single-cell processing utilities of bustools
 <pre>
-  ``` Ubuntu command prompt
+  ```Ubuntu command prompt
   # Check the version available 
   kb --version 
 
@@ -51,7 +51,7 @@ In order for the pipeline to be executed on a device, the following packages mus
 
 Once the dependcies are installed and updated, it is now time to install the pipeline itself 
 <pre>
-  ```command prompt
+  ```Ubuntu command prompt
   # Install package using pip
   pip install SASCRiP 
 ```
