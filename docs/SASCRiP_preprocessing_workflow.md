@@ -9,9 +9,9 @@ Contents:
 ## (i) Installing dependencies 
 In order for the pipeline to be executed on a device, the following packages must be installed:
 + ***Python*** (greater than version 3.7)
-``` python --version ``` if not updated, ``` sudo apt  update ``` / ``` sudo apt install python3 ```
-+ ***R*** (greater than version 3.6) ``` R --version ```
-+ ***Seurat R package*** R package used for the analysis and visualisation of scRNA-seq data providing a suite of functions including those for quality control and normalisation.
+``` python --version ``` (in my case it was Python 3.10.11) if not updated, ``` sudo apt  update ``` / ``` sudo apt install python3 ```
++ ***R*** (greater than version 3.6) ``` R --version ``` (in my case it was R version 4.2.3)
++ ***Seurat R package*** (in my case it wasn't installed yet) R package used for the analysis and visualisation of scRNA-seq data providing a suite of functions including those for quality control and normalisation.
   <pre>
     ```R
     # first check is package is installed:
@@ -23,7 +23,7 @@ In order for the pipeline to be executed on a device, the following packages mus
     ```
   </pre>
   
-+ ***Tidyverse R package*** R package a collection of R packages for data manipulation
++ ***Tidyverse R package*** (in my case this was installed already) R package a collection of R packages for data manipulation
  <pre>
     ```R
     library(tidyverse)
