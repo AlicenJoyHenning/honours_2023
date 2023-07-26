@@ -43,17 +43,19 @@ In order for the pipeline to be executed on a device, the following packages mus
 
   # If not installed yet, first update **pip** 
 # pip is a package manager for python (Pip Installs Packages)
-  
+sudo apt update
+  sudo apt install python3-pip
   python3 -m pip install --upgrade pip
   
 # Install **kb-python** using **pip** 
-  sudo python3 -m pip install kb-python
-
+  # sudo python3 -m pip install kb-python
+pip install kb-python # this worked 
+  
   # To confirm the installation check the version available 
   kb --version 
 ```
 </pre>
-
+-
 
 ## (ii) Installing SASCRiP  
 Once the dependcies are installed and updated, it is now time to install the pipeline itself 
