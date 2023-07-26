@@ -75,4 +75,41 @@ Once the dependcies are installed and updated, it is now time to install the pip
 
 ## (iii) Preparing fastq files for SASCRiP 
 
+# (iv) kallisto_bustools_count
+Creating a jupyter notebook and creating variables in a cell to make it easier to add into the function:
+
+```python
+
+# create variables 
+
+sascrip_functions.kallisto_bustools_count(
+     list_of_fastqs,
+     single_cell_technology,
+     output_directory_path,
+     species_index,
+     species_t2g,
+     input_directory = False,
+     read_separator = None,
+     generate_index = False,
+     species_fasta = None,
+     species_gtf = None,
+     k_mer_length = 31,
+     intron = False,
+     filter = True,
+     UMI_bp = '0',
+     barcode_bp = '0',
+     transcript_bp = '0',
+     whitelist_path = None,
+     path_to_prefix_count_files = 'unfiltered_counts',
+     memory = '4G'
+)
+
+```
+
+# (v) include_ERCC_bus_count
+
+
+
+
+
 
