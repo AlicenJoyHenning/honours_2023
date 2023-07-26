@@ -1,3 +1,3 @@
-## Downloading the data
+# Downloading the data
 
-# 10X BAM to FASTQ converter
+## 10X BAM to FASTQ converter
