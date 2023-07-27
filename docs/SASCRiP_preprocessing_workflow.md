@@ -4,6 +4,32 @@ Contents:
 [(ii) Installing SASCRiP](#section-2) 
 [(iii) Preparing fastq files for SASCRiP](#section-3)
 
+__Overview of the pipeline functions :__
+
+- **kallisto_bustools_count** :
+INPUT: fastq files (R1 & R2)
+OUTPUT: Count_analysis_folder > filtered counts >
+filtered_counts.barcodes.txt
+filtered_counts.genes.txt
+filtered_counts.mtx
+
+Takes as input the short sequencing reads from the experiment and orders them to reflect their location in the reference genome of the organsism. Alignment algorithms compare short reads to a known reference genome (or transcriptome for RNA sequencing). In RNA-seq, psuedoalignment is used: this is when instead of mapping the individual reads directly to the reference transcriptome, the reference transcriptome is manipulated to create an *index*. The reads are then aligned to the *index* using Kallisto, through kb-python. Bustools is then used for gene quantification, in other words after ordering the reads to see which genes they are connected to, you need to quantify how many of each gene (transcripts) there are to be able to analyse gene expression. This is performed at a single cell level using the cell barcodes through bustools.
+
+- **seurat_matrix** :
+INPUT:transcripts_to_genes.txt, 
+OUTPUT: barcodes.tsv.gz, features.tsv.gz, features_gene_names.tsv, matrix.mtx.gz 
+ 
+Takes the input matrix from kallisto and bustools and the index and makes sure that they are in the correct format for seurat, if not will rearrange them.
+
+- **run_cqc** :
+INPUT: matrix in the correct format
+OUTPUT: images!! 
+Runs Seurart on the matrix to assess quality of cells and remove those that are of low quality, decided by the # of genes expressed and mitochondrial genes expressed. 
+
+- **sctransform_normalize** :
+INPUT: seurat object
+OUTPUT: images!!
+Uses the UMI counts from the healthy cells (after filtered out bad) and generates gene expression values & tells the 2000 most highly variable genes.
 
 
 ## (i) Installing dependencies 
@@ -76,7 +102,6 @@ NOTE: before using Juypter notebook (lab) on the Ubuntu computer, ensure that th
 
 ```
 
-
 ## (iii) Preparing fastq files for SASCRiP 
 
 This step was not necessary for the fastq files used in my project as they were obtained from the 10xv3 chemistry, not the 10xv1 chemistry. This function searches for the RA fastq file that contains both the UMI and transcript sequences that are then separated into their own fastq files to be used as input for the next stage of allignment. 
@@ -92,69 +117,6 @@ import SASCRiP
 Note that the technology used to generate the fastq files are essental where the format of the fastq file (order of transcript, UMI, and barcode) will be different, where **10xv3** fastqs are ordered as : barcode-UMI, transcript.
 
 Use jupyter, can stay in the same .ipynp throughout, to run the functions of the pipeline: 
-
-- **kallisto_bustools_count** :
-INPUT: fastq files (R1 & R2)
-OUTPUT: Count_analysis_folder > filtered counts >
-filtered_counts.barcodes.txt
-filtered_counts.genes.txt
-filtered_counts.mtx
-
-Takes as input the short sequencing reads from the experiment and orders them to reflect their location in the reference genome of the organsism. Alignment algorithms compare short reads to a known reference genome (or transcriptome for RNA sequencing). In RNA-seq, psuedoalignment is used: this is when instead of mapping the individual reads directly to the reference transcriptome, the reference transcriptome is manipulated to create an *index*. The reads are then aligned to the *index* using Kallisto, through kb-python. Bustools is then used for gene quantification, in other words after ordering the reads to see which genes they are connected to, you need to quantify how many of each gene (transcripts) there are to be able to analyse gene expression. This is performed at a single cell level using the cell barcodes through bustools.
-
-- **seurat_matrix** :
-INPUT:transcripts_to_genes.txt, 
-OUTPUT: barcodes.tsv.gz, features.tsv.gz, features_gene_names.tsv, matrix.mtx.gz 
- 
-Takes the input matrix from kallisto and bustools and the index and makes sure that they are in the correct format for seurat, if not will rearrange them.
-
-- **run_cqc** :
-INPUT: matrix in the correct format
-OUTPUT: images!! 
-Runs Seurart on the matrix to assess quality of cells and remove those that are of low quality, decided by the # of genes expressed and mitochondrial genes expressed. 
-
-- **sctransform_normalize** :
-INPUT: seurat object
-OUTPUT: images!!
-Uses the UMI counts from the healthy cells (after filtered out bad) and generates gene expression values & tells the 2000 most highly variable genes.
-
-# (v) Reference transcriptome 
-
-To run the pseudo alignment tool (kallisto), an index of the reference transcriptome is needed. Although the SASCRiP function **kallisto_bustools** is able to do this automatically by changing some parameters, I needed to know how to do this manually: 
-
-The full transcriptome from Ensembl (files ending in cdna.all.fa.gz) must be downloaded. To build the human transcriptome index, first download the transcriptome, which is available under cDNA on the Ensembl website, at ftp://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/, and execute the following in the command prompt : 
-
-```command promt 
-# Download the full transcriptome from ensemble : 
-curl -O ftp://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz
-
-# Run kallisto index. kallisto will work on .fa and .fz.gz files so there is no need to unzip the downloaded file:
-
-kallisto index -i 	Homo_sapiens.GRCh38.cdna.all.release-94_k31.idx	Homo_sapiens.GRCh38.cdna.all.fa.gz
-```
-
-Once the index is created, the transcripts to genes text file must also be compiled. This can be done using a function from **kb_python** called ***create_t2g_from_gtf*** . This requires gtf (gene transfer format) files as input that must be downloaded. 
-
-To download gtf files go to ensembl website > human > latest genome assembly > GRCh38 (or latest version) > access the gtf file (Homo_sapiens.GRCh38.110.gtf.gz). Once downloaded, store the gtf file in a specific directory. 
-
-```JUPYTER
-import kb_python
-import re
-
-# For assurance, view the packaged contained within kb_python : 
-from kb_python import ref
-print(dir(ref))
-
-# This should generate the output: 
-['COMBINED_FILENAME', 'FASTA', 'GTF', 'SORTED_FASTA_FILENAME', 'SORTED_GTF_FILENAME', '__builtins__', '__cached__', '__doc__', '__file__', '__loader__', '__name__', '__package__', '__spec__', 'concatenate_files', 'create_t2c', 'create_t2g_from_fasta', 'create_t2g_from_gtf', 'download_reference', 'generate_cdna_fasta', 'generate_intron_fasta', 'get_kallisto_binary_path', 'kallisto_index', 'logger', 'logging', 'open_as_text', 'os', 'ref', 'ref_lamanno', 'run_executable', 'sort_fasta', 'sort_gtf', 'tarfile', 'urlretrieve']
-
-# Then to create the transcripts to genes text file :
-path_to_gtf = "honours_2023/kallisto_index/Homo_sapiens.GRCh38.110.gtf.gz"
-path_to_output = "honours_2023/kallisto_index/transcripts_to_genes"
-ref.create_t2g_from_gtf(path_to_gtf, path_to_output, intron=False)
-
-```
-
 
 # (iv) kallisto_bustools_count
 
