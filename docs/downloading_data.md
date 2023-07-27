@@ -4,9 +4,9 @@
 
 ### Download BAM files 
 
-Download the bam files from the ena database, create a text file with the links to the bam files : 
-Untreated: ftp://ftp.sra.ebi.ac.uk/vol1/run/SRR107/SRR10769384/human_blood_untreated.bam.bam
-IFNalphatreated: ftp://ftp.sra.ebi.ac.uk/vol1/run/SRR107/SRR10769382/human_blood_ifnalpha.bam.bam
+Download the bam files from the ena database, create a text file with the links to the bam files :  
+Untreated: ftp://ftp.sra.ebi.ac.uk/vol1/run/SRR107/SRR10769384/human_blood_untreated.bam.bam  
+IFNalphatreated: ftp://ftp.sra.ebi.ac.uk/vol1/run/SRR107/SRR10769382/human_blood_ifnalpha.bam.bam  
 IFNlambdatreated: ftp://ftp.sra.ebi.ac.uk/vol1/run/SRR107/SRR10769383/human_blood_ifnlambda.bam.bam
 
 ```command prompt
