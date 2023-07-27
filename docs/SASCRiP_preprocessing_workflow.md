@@ -59,23 +59,37 @@ pip install kb-python # this worked
 
 ## (ii) Installing SASCRiP  
 Once the dependcies are installed and updated, it is now time to install the pipeline itself 
-<pre>
-  ```Ubuntu command prompt
+
+NOTE: before using Juypter notebook (lab) on the Ubuntu computer, ensure that the version of R being used by the command prompt (and hence also Juypter) is the one where the R packages above were installed. This can be done by finding the path where the correct version of R is stored and executing the command ```export PATH="/usr/bin:$PATH" ``` then check the version by  opening ``` R ```. After confirmation, close the R with the command ``` q() ``` followed by ``` no ```. 
+ 
+  ```Juypter-lab 
   # Install package using pip
   pip install SASCRiP 
 
-  # Install additional R packages required for SASCRiP using the function 'install_R_packages'
+  # Install additional R packages required for SASCRiP using the function (not necessary if you've already installed the package, 'install_R_packages'
   import SASCRiP 
   from SASCRiP import sascrip_functions 
 
   sascrip_functions.install_R_packages()
-  
+
 ```
-</pre>
+
 
 ## (iii) Preparing fastq files for SASCRiP 
+This step was not necessary for the fastq files used in my project as they were obtained from the 10xv3 chemistry, not the 10xv1 chemistry. This function searches for the RA fastq file that contains both the UMI and transcript sequences that are then separated into their own fastq files to be used as input for the next stage of allignment. 
+? How can I make sure 
+
+```juypter-lab
+edit_10xv1_fastq
+
+import SASCRiP
+
+```
+
 
 # (iv) kallisto_bustools_count
+
+
 Creating a jupyter notebook and creating variables in a cell to make it easier to add into the function:
 
 ```python
