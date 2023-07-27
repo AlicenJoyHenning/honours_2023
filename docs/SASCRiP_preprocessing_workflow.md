@@ -132,6 +132,13 @@ output_directory_path = "Alicen/test_files"
 species_index = "Alicen/kallisto_index.idx"
 species_t2g = "Alicen/transcripts_to_genes.txt"
 
+# alternatively for more than one set of fastqs :
+
+list_of_fastqs = "path/to/FastQ_directory"
+input_directory = True
+read_separator = ["R1", "R2"]
+
+
 # Run the function using the variables as inputs : 
 
 sascrip_functions.kallisto_bustools_count(
