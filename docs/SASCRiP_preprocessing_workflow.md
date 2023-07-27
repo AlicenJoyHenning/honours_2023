@@ -1,9 +1,40 @@
 # SASCRiP single cell RNA sequencing 
-Contents: 
-[(i) Installing dependencies](#section-1) 
-[(ii) Installing SASCRiP](#section-2) 
-[(iii) Preparing fastq files for SASCRiP](#section-3)
+*Contents:* <br>
+[(i) Installing dependencies](#section-1) <br>
+[(ii) Installing SASCRiP](#section-2) <br> 
+[(iii) Preparing fastq files for SASCRiP](#section-3) <br>
+[(iv) kallisto_bustools_count](#section-4) <br>  
+[(v) Seurat_matrix](#section-5) <br>   
+[(vi) run_cqc](#section-6) <br>  
+[(vii) sctransform_normalize](#section-7)
 
+
+_Overview of the pipeline functions :_
+
+- **kallisto_bustools_count** :
+INPUT: fastq files (R1 & R2)
+OUTPUT: Count_analysis_folder > filtered counts >
+filtered_counts.barcodes.txt
+filtered_counts.genes.txt
+filtered_counts.mtx
+
+Takes as input the short sequencing reads from the experiment and orders them to reflect their location in the reference genome of the organsism. Alignment algorithms compare short reads to a known reference genome (or transcriptome for RNA sequencing). In RNA-seq, psuedoalignment is used: this is when instead of mapping the individual reads directly to the reference transcriptome, the reference transcriptome is manipulated to create an *index*. The reads are then aligned to the *index* using Kallisto, through kb-python. Bustools is then used for gene quantification, in other words after ordering the reads to see which genes they are connected to, you need to quantify how many of each gene (transcripts) there are to be able to analyse gene expression. This is performed at a single cell level using the cell barcodes through bustools.
+
+- **seurat_matrix** :
+INPUT:transcripts_to_genes.txt, 
+OUTPUT: barcodes.tsv.gz, features.tsv.gz, features_gene_names.tsv, matrix.mtx.gz 
+ 
+Takes the input matrix from kallisto and bustools and the index and makes sure that they are in the correct format for seurat, if not will rearrange them.
+
+- **run_cqc** :
+INPUT: matrix in the correct format
+OUTPUT: images!! 
+Runs Seurart on the matrix to assess quality of cells and remove those that are of low quality, decided by the # of genes expressed and mitochondrial genes expressed. 
+
+- **sctransform_normalize** :
+INPUT: seurat object
+OUTPUT: images!!
+Uses the UMI counts from the healthy cells (after filtered out bad) and generates gene expression values & tells the 2000 most highly variable genes.
 
 
 ## (i) Installing dependencies 
@@ -76,7 +107,6 @@ NOTE: before using Juypter notebook (lab) on the Ubuntu computer, ensure that th
 
 ```
 
-
 ## (iii) Preparing fastq files for SASCRiP 
 
 This step was not necessary for the fastq files used in my project as they were obtained from the 10xv3 chemistry, not the 10xv1 chemistry. This function searches for the RA fastq file that contains both the UMI and transcript sequences that are then separated into their own fastq files to be used as input for the next stage of allignment. 
@@ -92,47 +122,6 @@ import SASCRiP
 Note that the technology used to generate the fastq files are essental where the format of the fastq file (order of transcript, UMI, and barcode) will be different, where **10xv3** fastqs are ordered as : barcode-UMI, transcript.
 
 Use jupyter, can stay in the same .ipynp throughout, to run the functions of the pipeline: 
-
-- **kallisto_bustools_count** :
-INPUT: fastq files (R1 & R2)
-OUTPUT: Count_analysis_folder > filtered counts >
-filtered_counts.barcodes.txt
-filtered_counts.genes.txt
-filtered_counts.mtx
-
-Takes as input the short sequencing reads from the experiment and orders them to reflect their location in the reference genome of the organsism. Alignment algorithms compare short reads to a known reference genome (or transcriptome for RNA sequencing). In RNA-seq, psuedoalignment is used: this is when instead of mapping the individual reads directly to the reference transcriptome, the reference transcriptome is manipulated to create an *index*. The reads are then aligned to the *index* using Kallisto, through kb-python. Bustools is then used for gene quantification, in other words after ordering the reads to see which genes they are connected to, you need to quantify how many of each gene (transcripts) there are to be able to analyse gene expression. This is performed at a single cell level using the cell barcodes through bustools.
-
-- **seurat_matrix** :
-INPUT:transcripts_to_genes.txt, 
-OUTPUT: barcodes.tsv.gz, features.tsv.gz, features_gene_names.tsv, matrix.mtx.gz 
- 
-Takes the input matrix from kallisto and bustools and the index and makes sure that they are in the correct format for seurat, if not will rearrange them.
-
-- **run_cqc** :
-INPUT: matrix in the correct format
-OUTPUT: images!! 
-Runs Seurart on the matrix to assess quality of cells and remove those that are of low quality, decided by the # of genes expressed and mitochondrial genes expressed. 
-
-- **sctransform_normalize** :
-INPUT: seurat object
-OUTPUT: images!!
-Uses the UMI counts from the healthy cells (after filtered out bad) and generates gene expression values & tells the 2000 most highly variable genes.
-
-# (v) Reference transcriptome 
-
-To run the pseudo alignment tool (kallisto), the reference transcriptome is needed. The full transcriptome from Ensembl (files ending in cdna.all.fa.gz) must be downloaded. To build the human transcriptome index, first download the transcriptome, which is available under cDNA on the Ensembl website, at ftp://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/:
-
-```
-# Download the full transcriptome from ensemble : 
-curl -O ftp://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz
-
-# Run kallisto index. kallisto will work on .fa and .fz.gz files so there is no need to unzip the downloaded file:
-
-kallisto index -i 	Homo_sapiens.GRCh38.cdna.all.release-94_k31.idx	Homo_sapiens.GRCh38.cdna.all.fa.gz
-
-
-
-```
 
 # (iv) kallisto_bustools_count
 
