@@ -1,0 +1,3 @@
+ftp://ftp.sra.ebi.ac.uk/vol1/run/SRR107/SRR10769384/human_blood_untreated.bam.bam
+ftp://ftp.sra.ebi.ac.uk/vol11/run/SRR107/SRR10769383/human_blood_ifnlambda.bam.bam
+ftp://ftp.sra.ebi.ac.uk/vol11/run/SRR107/SRR10769382/human_blood_ifnalpha.bam.bam
