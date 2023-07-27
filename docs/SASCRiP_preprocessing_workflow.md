@@ -3,6 +3,11 @@ Contents:
 [(i) Installing dependencies](#section-1) 
 [(ii) Installing SASCRiP](#section-2) 
 [(iii) Preparing fastq files for SASCRiP](#section-3)
+[(iv) kallisto_bustools_count](#section-4)
+[(v) Seurat_matrix](#section-5) 
+[(vi) run_cqc](#section-6)
+[(vii) sctransform_normalize](#section-7)
+
 
 __Overview of the pipeline functions :__
 
