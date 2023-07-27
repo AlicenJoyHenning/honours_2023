@@ -1,6 +1,5 @@
 # SASCRiP single cell RNA sequencing 
-*Contents:*     
-<br>
+*Contents:* <br>
 [(i) Installing dependencies](#section-1) <br>
 [(ii) Installing SASCRiP](#section-2) <br> 
 [(iii) Preparing fastq files for SASCRiP](#section-3) <br>
