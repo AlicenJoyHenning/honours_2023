@@ -123,15 +123,16 @@ Uses the UMI counts from the healthy cells (after filtered out bad) and generate
 To run the pseudo alignment tool (kallisto), the reference transcriptome is needed. The full transcriptome from Ensembl (files ending in cdna.all.fa.gz) must be downloaded. To build the human transcriptome index, first download the transcriptome, which is available under cDNA on the Ensembl website, at ftp://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/:
 
 ```
+# Download the full transcriptome from ensemble : 
 curl -O ftp://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz
-```
-Then run kallisto index. kallisto will work on .fa and .fz.gz files so there is no need to unzip the downloaded file:
 
-```
+# Run kallisto index. kallisto will work on .fa and .fz.gz files so there is no need to unzip the downloaded file:
+
 kallisto index -i 	Homo_sapiens.GRCh38.cdna.all.release-94_k31.idx	Homo_sapiens.GRCh38.cdna.all.fa.gz
+
+
+
 ```
-
-
 
 # (iv) kallisto_bustools_count
 
