@@ -2,6 +2,9 @@
 
 ## 10X BAM to FASTQ converter
 
+For the 10 X Genomics 
+
+
 ### Download BAM files 
 
 Download the bam files from the ena database, create a text file with the links to the bam files :  
@@ -35,7 +38,7 @@ cd /path/to/bamtofastq_linux
 ~/Alicen/tools/bamtofastq_linux/bamtofastq_linux ~/Alicen/raw_files/bam_files/human_blood_ifnalpha.bam ~/Alicen/raw_files/my_fastq_files/human_blood_ifnalpha
 
 ```
-Alternatively, this loop converts the bam files to fastq files without having to enter in the paths to each bam file individually : 
+Alternatively, this loop converts the bam files to fastq files without having to enter in the paths to each bam file individually (note this only works on a Linux based system as the command 'basename' that retrieves the end part of a path and outputs a string is only functionally in a Linux system) : 
 
 ```Linux command prompt
 # Create array containing the paths to the raw bam files :
