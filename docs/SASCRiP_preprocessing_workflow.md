@@ -152,7 +152,37 @@ sascrip_functions.kallisto_bustools_count(
     output_directory_path = output_directory_path, 
     species_index = species_index,
     species_t2g = species_t2g
-)                                        
+)
+```
+Alternatively, the kallisto_bustools_count function can generate an index and t2g file on its own. This means we need to speicfy more parameters that require both the gtf and fasta files to be downloaded for the human transcriptome (ensembl) :
+
+```
+# create variables :
+list_of_fastqs = "Alicen/raw_files/fastq/human_blood_ifnalpha"
+single_cell_technology = "10Xv3"
+output_directory_path = "Alicen/work_files/ifnalpha/kallisto_bustools_count"
+species_index = None
+species_t2g = None
+input_directory = True
+read_separator = ["R1", "R2"]
+generate_index = True
+species_fasta = "Alicen/work_files/index_files/human_reference.fa.gz"
+species_gtf = "Alicen/work_files/index_files/human_reference.gtf.gz"
+
+# execute the function :
+sascrip_functions.kallisto_bustools_count(
+list_of_fastqs = list_of_fastqs,
+single_cell_technology = single_cell_technology,
+output_directory_path = output_directory_path,
+species_index = species_index,
+species_t2g = species_t2g,
+input_directory = input_directory,
+read_separator = read_separator,
+generate_index = generate_index,
+species_fasta = species_fasta,
+species_gtf = species_gtf
+)
+                      
 
 ```
 
@@ -213,11 +243,41 @@ sascrip_functions.sctransform_normalize(
 )
 ```
 
+# (viii) sascrip_preprocess 
+
+Alternatively to running the individual functions, SASCRiP provides the option to run the entire pre=processing workflow alltogether with a single function. I did this for in addition to running the functions indiviudally to see if the results would be any different. This however is more complicated because there are no default ways to add the path to the directory where the fastq files are stored (knowledge of python and dictionary). 
 
 
+```
+# create variables for parameters (example shows naming for ifnalpha) : 
+output_directory_path = "Alicen/work_files/ifnalpha/sascrip_preprocess"
+sample_ID = "ifnalpha"
+list_of_fastqs = "Alicen/raw_files/fastq/human_blood_ifnalpha"
+single_cell_technology = 
+species_index =
+species_t2g = 
+input_directory = True
+read_separator = ["R1", "R2"]
 
 
+import SASCRiP
+from SASCRiP import sascrip_functions
 
+sascrip_functions.sascrip_preprocess(
+     output_directory_path,
+     sample_ID,
+     list_of_fastqs,
+     single_cell_technology,
+     species_index,
+     species_t2g,
+     input_directory = False,
+     read_separator = None,
+     filter = True,
+     include_checkpoints = False,
+     kallisto_bustools_count_parameters = None,
+     run_cqc_parameters = None,
+     additional_sctransform_arguments = None
+)
 
 
 
