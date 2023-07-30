@@ -32,6 +32,16 @@ write_tsv(features, "updated_features.tsv.gz")
 # check updated_features file : 
 updated_features <- read_tsv("updated_features.tsv.gz")
 
+
+# doing the opposite : 
+
+features$HGNC <- ifelse(grepl("^ENSG", features$HGNC), NA, features$HGNC)
+
+# back from the start to first remove the version number from the ensembl ID gene names before using them for the HGNC names : 
+
+features <- substring(features$Ensembl_ID, 1, 15)
+
+
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
