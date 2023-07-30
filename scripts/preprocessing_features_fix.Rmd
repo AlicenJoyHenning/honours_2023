@@ -17,13 +17,13 @@ features <- read_tsv("features.tsv.gz")
 colnames(features)
 
 # change the names of the headers : 
-colnames(features) <- c("ENSG", "GGNC")
+colnames(features) <- c("Ensembl_ID", "HGNC")
 
 # check if it worked :  
 colnames(features)
 
 # if else statement to change those 'NA' values in the GGNC column with corresponding ENSG name 
-features$GGNC <- ifelse(is.na(data$GGNC), data$ENSG, data$GGNC)
+features$HGc<- ifelse(is.na(features$HGNC),features$Ensembl_ID, features$HGNC)
 
 # save the updated version of the tsv file 
 
@@ -39,7 +39,12 @@ features$HGNC <- ifelse(grepl("^ENSG", features$HGNC), NA, features$HGNC)
 
 # back from the start to first remove the version number from the ensembl ID gene names before using them for the HGNC names : 
 
-features <- substring(features$Ensembl_ID, 1, 15)
+features$Ensembl_ID <- substring(features$Ensembl_ID, 1, 15)
+
+# other changes : 
+
+test <- read.c=tsv(features_gene_names.tsv)
+# see that this only contain known HCGN gene names 
 
 
 ```
