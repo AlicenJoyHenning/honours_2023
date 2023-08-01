@@ -1,11 +1,11 @@
 # SASCRiP single cell RNA sequencing 
 *Contents:* <br>
-[(i) Installing dependencies](#section-1) <br>
-[(ii) Installing SASCRiP](#section-2) <br> 
-[(iii) Preparing fastq files for SASCRiP](#section-3) <br>
-[(iv) kallisto_bustools_count](#section-4) <br>  
-[(v) Seurat_matrix](#section-5) <br>   
-[(vi) run_cqc](#section-6) <br>  
+[(i) Installing dependencies](#section-1)<br>
+[(ii) Installing SASCRiP](#section-2)<br>
+[(iii) Preparing fastq files for SASCRiP](#section-3)<br>
+[(iv) kallisto_bustools_count](#section-4)<br>
+[(v) Seurat_matrix](#section-5)<br>
+[(vi) run_cqc](#section-6)<br>
 [(vii) sctransform_normalize](#section-7)
 
 
