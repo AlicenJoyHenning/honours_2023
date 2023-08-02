@@ -7,9 +7,7 @@ output: html_notebook
 
 ```{r}
 # working on installing the packages
-av <- available.packages(filters=list())
-av[av[, "Package"] == pkg, ]
-
+av <- available.packages()
 # installing the packages 
 
 install.packages("TENxPBMCData")
