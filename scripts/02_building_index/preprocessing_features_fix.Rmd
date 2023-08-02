@@ -1,16 +1,15 @@
 ---
-title: "R Notebook"
+title: "Updated index problems"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r}
 install.packages("readr")
 library(readr)
 
+# calling in the data stored in the tsv file using read_tsv package and assigning the data to a 'variable'(check name)
 features <- read_tsv("features.tsv.gz")
 
 # check names of columns : 
@@ -22,8 +21,13 @@ colnames(features) <- c("Ensembl_ID", "HGNC")
 # check if it worked :  
 colnames(features)
 
+# Remove the version number from the ensembl ID gene names before using them for the HGNC names : 
+
+features$Ensembl_ID <- substring(features$Ensembl_ID, 1, 15)
+
 # if else statement to change those 'NA' values in the GGNC column with corresponding ENSG name 
-features$HGc<- ifelse(is.na(features$HGNC),features$Ensembl_ID, features$HGNC)
+# ifelse(test (what condition),yes (if condition holds do this),no (if condition doesn't hold do this))
+features$HGNC <- ifelse(is.na(features$HGNC),features$Ensembl_ID, features$HGNC)
 
 # save the updated version of the tsv file 
 
@@ -32,25 +36,12 @@ write_tsv(features, "updated_features.tsv.gz")
 # check updated_features file : 
 updated_features <- read_tsv("updated_features.tsv.gz")
 
-
-# doing the opposite : 
+/////
+  
+# I made a mistake with naming so to do the opposite, from the column where NA was replaced with ENSG names, I want the NA to be returned : 
 
 features$HGNC <- ifelse(grepl("^ENSG", features$HGNC), NA, features$HGNC)
 
-# back from the start to first remove the version number from the ensembl ID gene names before using them for the HGNC names : 
-
-features$Ensembl_ID <- substring(features$Ensembl_ID, 1, 15)
-
-# other changes : 
-
-test <- read.c=tsv(features_gene_names.tsv)
-# see that this only contain known HCGN gene names 
 
 
 ```
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
