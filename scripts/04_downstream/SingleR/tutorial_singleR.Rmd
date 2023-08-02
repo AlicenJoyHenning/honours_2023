@@ -1,0 +1,34 @@
+---
+title: "SingleR_tutorial"
+output: html_notebook
+---
+
+
+
+```{r}
+# working on installing the packages
+av <- available.packages(filters=list())
+av[av[, "Package"] == pkg, ]
+
+# installing the packages 
+
+install.packages("TENxPBMCData")
+install.packages("celldex")
+
+# loading the reference packages and assigning specific datasets to variables to be used by SingleR
+
+library(TENxPBMCData) # loads the package into the R environment
+available_datasets <- listData() # gets a list of the available datasets
+print(available_datasets)
+
+
+new.data <- TENxPBMCData("pbmc4") # using the function TENxPBMCData from the TENxPBMCData package to load a specific dataset
+
+
+
+library(celldex)
+ref.data <- HumanPrimaryCellAtlasData(emsembl=TRUE) 
+
+
+```
+
