@@ -49,6 +49,10 @@ library(SingleR)
 
 new.data <- TENxPBMCData("pbmc4") # using the function TENxPBMCData from the TENxPBMCData package to load a specific dataset
 ref.data <- HumanPrimaryCellAtlasData(ensembl=TRUE) # ensures that reference data has Ensembl annotations
+ref.data <- celldex::HumanPrimaryCellAtlasData() # alternative way to create reference object
+
+# for reference datasets, view the cell types to make sure you are using the correct reference for the query dataset : 
+View(as.data.frame(colData(ref.data)))
 
 # Using SingleR to perform predictions :
 
@@ -71,4 +75,12 @@ new.data <- TENxPBMCData("pbmc4k")
 
 ## Choice of reference 
 
+Most crucial step is choosing an appropriate dataset, this has a major impact on the annoation results. Choose a reference that contains a superset of the labels we expect to be present in query dataset. This data has PBMCs, reference must match this. Also preferred to use a reference that was generated using the same technology as your query samples. Also allows you to use custom reference datasets- must be log transformed before providing to singleR- doesn't apply to query set. 
+
+Cell dex package provides reference data sets that are derived from bulk RNA sequencing/ micro array data of cell populations that consist of pure cell types. 
+Human Primary Cell Atlas Dataset : human promary cells, blood subpopulations. 
+
 https://bioconductor.org/packages/3.17/data/experiment/vignettes/celldex/inst/doc/userguide.html
+
+
+
