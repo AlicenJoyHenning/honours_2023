@@ -1,9 +1,4 @@
----
-title: "SingleR to UMAP"
-output: html_notebook
----
 
-```{r}
 # 1 install required packages : 
 install.packages("SingleR")
 install.packages("scran")
@@ -44,4 +39,3 @@ table(test.predictions$labels)
 DimPlot(test.data, reduction = "umap", group.by = "SingleR.labels")
 
 
-```
