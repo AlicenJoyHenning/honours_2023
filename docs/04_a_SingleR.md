@@ -1,6 +1,8 @@
 # Assigning cell types with SingleR 
 ## Background
-SingleR: automated annotation method for scRNA-seq data _basically allows you to painlessly assign cell types to scRNA-seq data_
+SingleR: leverages reference transcriptomic datasets of pure cell types to infer the cell of origin of each of the single cell independently. Automated annotation method for scRNA-seq data _basically allows you to painlessly assign cell types to scRNA-seq data_
+
+
 
 The problem: Without RNA-seq data reference genome > run RNA-seq reads through an assembler to identify sequences > inspect each sequence to determine function (based on sequence motif). This is the case in scRNA-seq > run scRNA-seq cells through clustering protocols > identify cell types.
 In scRNA-seq analysis, like a reference genome, the clusters you use to assign cell types act as proxies for the biological states of interest and how accurately you are able to annotate the clusters (assign cell types) is essential. 
