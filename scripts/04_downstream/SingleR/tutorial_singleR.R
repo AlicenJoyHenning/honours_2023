@@ -1,11 +1,4 @@
----
-title: "SingleR_tutorial"
-output: html_notebook
----
 
-
-
-```{r}
 # Installing the packages, install.packages() not working : 
 
 if (!require("BiocManager", quietly = TRUE))
@@ -88,7 +81,4 @@ DimPlot(new.data, reduction = 'umap', group.by = 'SingleR.labels')
 
 
 
-
-
-```
 
