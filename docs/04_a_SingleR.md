@@ -67,3 +67,8 @@ table(predictions$labels)
 
 library(TENxPBMCData)
 new.data <- TENxPBMCData("pbmc4k")
+```
+
+## Choice of reference 
+
+https://bioconductor.org/packages/3.17/data/experiment/vignettes/celldex/inst/doc/userguide.html
