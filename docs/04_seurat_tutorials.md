@@ -1,5 +1,6 @@
 # Seurat -Guided Clustering Tutorial 
 # Contents
+- <span class="red-header">[(1) Setup the Seurat Object](#section-1)</span>
 - <span style="color: red;">[(1) Setup the Seurat Object](#section-1)</span>
 - <span style="color: orange;">[(2) Standard pre-processing workflow](#section-2)</span>
 - <span style="color: yellow;">[(3) Scaling the data](#section-3)</span>
