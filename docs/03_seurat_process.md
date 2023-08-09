@@ -124,6 +124,22 @@ In particular DimHeatmap() allows for easy exploration of the primary sources of
 
 ![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/9f67f1ab-1766-48cf-b795-b68ee890a7b6)
 
+## Determine dimensionality of the dataset 
+
+In scRNA-seq data, there can be a lot of noise (variability not related to biological differences) in the gene expression measurements. To make sense of the data and find meaningful patterns, it's important to reduce this noise. One way to do this is by using Principal Component Analysis (PCA), which finds the most important combinations of genes that capture the major sources of variation in the data.
+
+```R
+alpha <- JackStraw(alpha, num.replicate = 100)
+alpha <- ScoreJackStraw(alpha, dims = 1:20)
+```
+The JackStrawPlot() function provides a visualization tool for comparing the distribution of p-values for each PC with a uniform distribution (dashed line). ‘Significant’ PCs will show a strong enrichment of features with low p-values (solid curve above the dashed line). JackStraw Procedure: The JackStraw procedure involves randomly shuffling the data a bit (permuting) and then re-running PCA. By doing this multiple times, you create a "null distribution" of how the scores might look if there's no real signal. PCs that significantly deviate from this null distribution are considered significant.
+
+It shows the distribution of p-values for each PC. A p-value is a measure of how likely it is to observe a certain value by random chance. If a PC's p-value is very low (solid curve above the dashed line), it means that the observed score is unlikely to have occurred by random chance alone. These significant PCs are the ones you should pay attention to.
+
+By identifying the significant PCs, you're ensuring that the features (genes) you're using for clustering cells are meaningful and not dominated by noise. This step helps you focus on the most important sources of variation and makes your subsequent analyses, like clustering, more accurate and biologically relevant.
+
+![image](http://127.0.0.1:18611/graphics/6da99052-2642-4a4b-b6e2-a5ecc551e36c.png)
+
 
 
 
