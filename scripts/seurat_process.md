@@ -122,7 +122,8 @@ features = VariableFeatures(object = alpha): This part specifies the features (g
 Seurat provides several useful ways of visualizing both cells and features that define the PCA, including VizDimReduction(), DimPlot(), and DimHeatmap()
 In particular DimHeatmap() allows for easy exploration of the primary sources of heterogeneity in a dataset, and can be useful when trying to decide which PCs to include for further downstream analyses. Both cells and features are ordered according to their PCA scores. 
 
-!
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/9f67f1ab-1766-48cf-b795-b68ee890a7b6)
+
 
 
 
