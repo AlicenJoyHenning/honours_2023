@@ -134,7 +134,7 @@ total_expression <- rowSums(pbmc.normalized@assays$RNA)
 
 # To view this data we create a data frame : 
 gene_names <- rownames(pbmc.normalized@assays$RNA) # making it easier to enter next command based on existing data set
-total_expression_df <- data.frame(Gene = gene_names, Total_Expression = total_expression)
+total_expression_df <- data.frame(Gene = gene_names, Total_Expression = total_expression, row.names = NULL)
 head(total_expression_df)
 # Gene Total_Expression
 # AL627309.1       AL627309.1        14.338887
@@ -143,6 +143,30 @@ head(total_expression_df)
 # RP11-206L10.9 RP11-206L10.9         3.595927
 # LINC00115         LINC00115        28.892876
 # NOC2L                 NOC2L       427.861511
+
+# Now that we have the total expression for each gene, we can sort the genes according to expression :
+total_expression_ordered <- total_expression_df[order(-total_expression_df$Total_Expression), ] # Order the data frame by decreasing Total_Expression
+head(total_expression_ordered) # check how high the highest expression is : 
+# Gene Total_Expression
+# 7855  MALAT1         14673.51
+# 5541  TMSB4X         13986.50
+# 9782     B2M         13919.49
+# 5916   RPL10         13119.98
+# 12957 RPL13A         12691.38
+# 10710  RPL13         12683.03
+tail(total_expression_ordered)# check how low the lowest expression is :
+# Gene Total_Expression
+# 6036     PBK         3.003175
+# 9053    LHFP         2.999561
+# 6035   ESCO2         2.950549
+# 13272 VPREB1         2.876636
+# 10430 SHCBP1         2.872113
+# 11142   CDC6         1.996732
+```
+To practice, I tried plotting the top 10 highest and lowest expressed genes : 
+![Local Image](C:\Users\alice\honours_2023\R\plots\pbmc_dataset)
+
+
 
 ## 3) Scaling the data 
 
