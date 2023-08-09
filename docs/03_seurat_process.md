@@ -141,15 +141,128 @@ By identifying the significant PCs, you're ensuring that the features (genes) yo
 ```R
 JackStrawPlot(alpha, dims = 1:20)
 ```
-![image](
-
+![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_JackStraw.jpg)
+Using maximum dimensions it seems like all the PCAs are significant?
 
 ## Cluster cells 
 
 Seurat v3 applies a graph-based clustering approach, building upon initial strategies in (Macosko et al). Importantly, the distance metric which drives the clustering analysis (based on previously identified PCs) remains the same. However, our approach to partitioning the cellular distance matrix into clusters has dramatically improved. Our approach was heavily inspired by recent manuscripts which applied graph-based clustering approaches to scRNA-seq data [SNN-Cliq, Xu and Su, Bioinformatics, 2015] and CyTOF data [PhenoGraph, Levine et al., Cell, 2015]. Briefly, these methods embed cells in a graph structure - for example a K-nearest neighbor (KNN) graph, with edges drawn between cells with similar feature expression patterns, and then attempt to partition this graph into highly interconnected ‘quasi-cliques’ or ‘communities’.
 
 As in PhenoGraph, we first construct a KNN graph based on the euclidean distance in PCA space, and refine the edge weights between any two cells based on the shared overlap in their local neighborhoods (Jaccard similarity). This step is performed using the FindNeighbors() function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs).
+```R
+alpha <- FindNeighbors(alpha, dims = 1:20)
+# Computing nearest neighbor graph
+# Computing SNN
+```
+
+To cluster the cells, we next apply modularity optimization techniques such as the Louvain algorithm (default) or SLM [SLM, Blondel et al., Journal of Statistical Mechanics], to iteratively group cells together, with the goal of optimizing the standard modularity function. The FindClusters() function implements this procedure, and contains a resolution parameter that sets the ‘granularity’ of the downstream clustering, with increased values leading to a greater number of clusters. We find that setting this parameter between 0.4-1.2 typically returns good results for single-cell datasets of around 3K cells. Optimal resolution often increases for larger datasets. 
+```R
+alpha <- FindClusters(alpha, resolution = 0.5) 
+# Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
+# 
+# Number of nodes: 4742
+# Number of edges: 187903
+# 
+# Running Louvain algorithm...
+# 0%   10   20   30   40   50   60   70   80   90   100%
+#   [----|----|----|----|----|----|----|----|----|----|
+#      **************************************************|
+#      Maximum modularity in 10 random starts: 0.8603
+#    Number of communities: 11
+#    Elapsed time: 0 seconds
+```
+
+The clusters can be found using the Idents() function.
+
+## Run non-linear dimensional reduction (UMAP/tSNE) 
+
+Seurat offers several non-linear dimensional reduction techniques, such as tSNE and UMAP, to visualize and explore these datasets. The goal of these algorithms is to learn the underlying manifold of the data in order to place similar cells together in low-dimensional space. Cells within the graph-based clusters determined above should co-localize on these dimension reduction plots. As input to the UMAP and tSNE, we suggest using the same PCs as input to the clustering analysis.
+
+```R
+alpha <- RunUMAP(alpha, dims = 1:20)
+DimPlot(alpha, reduction = "umap")
+saveRDS(alpha, file = "Git/plots/alpha_UMAP.rds")
+```
+
+## Finding differentially expressed features (cluster biomarkers) 
+Seurat can help you find markers that define clusters via differential expression. By default, it identifies positive and negative markers of a single cluster (specified in ident.1), compared to all other cells. FindAllMarkers() automates this process for all clusters, but you can also test groups of clusters vs. each other, or against all cells.
+
+Using the  ```R FindMarkers()``` function, you can find the top markers for each cluster : 
+```R
+cluster1.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25)
+head(cluster1.markers, n = 5)
+# p_val avg_log2FC pct.1 pct.2     p_val_adj
+# S100A8   1.089219e-275   1.949636 0.975 0.437 1.927046e-271
+# SLC25A37 5.253270e-223   1.562825 0.960 0.456 9.294084e-219
+# LRRK2    4.276637e-217   1.673495 0.894 0.361 7.566227e-213
+# NAMPTP1  3.880641e-207   1.444335 0.982 0.518 6.865630e-203
+# VNN2     3.834474e-206   2.122229 0.610 0.152 6.783952e-202
+```
+
+Alternatively, you can look at the markers that distinguish one cluster from another. Here, we are distinguishing cluster 0 from cluster 1 (as they have grouped together on the plot) 
+
+```R
+# Distinguishing between cluster 0 and 1 : 
+cluster0v1.markers <- FindMarkers(alpha, ident.1 = 0, ident.2 = 1, min.pct =0.25)
+head(cluster0v1.markers, n = 5)
+
+# p_val avg_log2FC pct.1 pct.2    p_val_adj
+# VNN2   4.176859e-59 -1.2197463 0.295 0.610 7.389698e-55
+# S100A8 2.409076e-56 -0.7544300 0.898 0.975 4.262137e-52
+# CCL4L2 1.115124e-42  1.3563812 0.566 0.297 1.972877e-38
+# CCL4   1.665484e-40  1.1984775 0.665 0.418 2.946575e-36
+# ACTB   4.098977e-40 -0.7574825 0.675 0.862 7.251911e-36
+
+# This can also be done to distinguish one cluster from a number of other clusters :
+
+cluster0.markers <- FindMarkers(alpha, ident.1 = 0, ident.2 = c(1, 10), min.pct = 0.25)
+head(cluster0.markers, n = 5)
+# p_val avg_log2FC pct.1 pct.2    p_val_adj
+# VNN2   1.286096e-54 -1.1800757 0.295 0.593 2.275361e-50
+# S100A8 8.568999e-47 -0.7103968 0.898 0.951 1.516027e-42
+# CCL4L2 7.527496e-45  1.3885013 0.566 0.295 1.331765e-40
+# ACTB   1.014142e-44 -0.7992654 0.675 0.866 1.794220e-40
+# CCL4   3.556346e-43  1.2325919 0.665 0.413 6.291888e-39
 
 
+# find markers for every cluster compared to all remaining cells, report only the positive nes
+alpha.markers <- FindAllMarkers(alpha, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+
+alpha.markers %>%
+  group_by(cluster) %>%
+  slice_max(n=2, order_by = avg_log2FC)
+# CCL4L2, CCL4, VNN2, S100A8,  CCR7, RPS13 , MAF,  IL32 ,  PASK, NPM1
 
 
+# using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
+FeaturePlot(alpha, features = c("CCL4L2", "CCL4", "VNN2", "S100A8", "CCR7", "RPS13", "MAF", "IL32", "PASK", "NPM1"))
+
+# Alternatively, we can use DoHeatMap to show the top 20 markers for each cluster: (not working for me)
+
+ top10 <- alpha.markers   %>%
+  group_by(cluster) %>%
+  top_n(n = 10, wt = avg_log2FC)
+
+DoHeatmap(pbmc, features = top10$gene) + NoLegend()
+```
+
+## Assigning cell type identity to clusters 
+we can use canonical markers to match the unbiased clustering to known cell types:
+
+Cluster ID	Markers	Cell Type
+0	IL7R, CCR7	Naive CD4+ T
+1	CD14, LYZ	CD14+ Mono
+2	IL7R, S100A4	Memory CD4+
+3	MS4A1	B
+4	CD8A	CD8+ T
+5	FCGR3A, MS4A7	FCGR3A+ Mono
+6	GNLY, NKG7	NK
+7	FCER1A, CST3	DC
+8	PPBP	Platelet
+
+(for test dataset ) 
+
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet", "Other1", "Other2")
+names(new.cluster.ids) <- levels(alpha)
+alpha <- RenameIdents(alpha, new.cluster.ids)
+DimPlot(alpha, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
