@@ -138,9 +138,17 @@ It shows the distribution of p-values for each PC. A p-value is a measure of how
 
 By identifying the significant PCs, you're ensuring that the features (genes) you're using for clustering cells are meaningful and not dominated by noise. This step helps you focus on the most important sources of variation and makes your subsequent analyses, like clustering, more accurate and biologically relevant.
 
-![image](http://127.0.0.1:18611/graphics/6da99052-2642-4a4b-b6e2-a5ecc551e36c.png)
+```R
+JackStrawPlot(alpha, dims = 1:20)
+```
+![image](
 
 
+## Cluster cells 
+
+Seurat v3 applies a graph-based clustering approach, building upon initial strategies in (Macosko et al). Importantly, the distance metric which drives the clustering analysis (based on previously identified PCs) remains the same. However, our approach to partitioning the cellular distance matrix into clusters has dramatically improved. Our approach was heavily inspired by recent manuscripts which applied graph-based clustering approaches to scRNA-seq data [SNN-Cliq, Xu and Su, Bioinformatics, 2015] and CyTOF data [PhenoGraph, Levine et al., Cell, 2015]. Briefly, these methods embed cells in a graph structure - for example a K-nearest neighbor (KNN) graph, with edges drawn between cells with similar feature expression patterns, and then attempt to partition this graph into highly interconnected ‘quasi-cliques’ or ‘communities’.
+
+As in PhenoGraph, we first construct a KNN graph based on the euclidean distance in PCA space, and refine the edge weights between any two cells based on the shared overlap in their local neighborhoods (Jaccard similarity). This step is performed using the FindNeighbors() function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs).
 
 
 
