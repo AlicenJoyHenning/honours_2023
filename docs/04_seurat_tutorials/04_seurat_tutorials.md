@@ -164,6 +164,47 @@ tail(total_expression_ordered)# check how low the lowest expression is :
 # 11142   CDC6         1.996732
 ```
 To practice, I tried plotting the top 10 highest and lowest expressed genes :</span>
+```R
+
+
+# Create a custom color palette for highly expressed genes
+highly_expressed_palette <- colorRampPalette(c("#084594", "#2171b5", "#4292c6", "#6baed6"))
+
+# Create a custom color palette for lowest expressed genes
+lowest_expressed_palette <- colorRampPalette(c("#a50f15", "#de2d26", "#fb6a4a", "#fc9272"))
+
+# Create the first facet plot for highly expressed genes
+p1 <- ggplot(top_10_genes, aes(x = Gene, y = Total_Expression, fill = Total_Expression)) +
+  geom_bar(stat = "identity") +
+  scale_fill_gradientn(colors = highly_expressed_palette(10)) +
+  labs(title = "",
+       x = "Gene",
+       y = "Total Expression") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(hjust = 0.5))
+
+# Create the second facet plot for lowest expressed genes
+p2 <- ggplot(bottom_10_genes, aes(x = Gene, y = Total_Expression, fill = Total_Expression)) +
+  geom_bar(stat = "identity") +
+  scale_fill_gradientn(colors = lowest_expressed_palette(10)) +
+  labs(title = "",
+       x = "Gene",
+       y = "Total Expression") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(hjust = 0.5))
+
+# Combine the facet plots into a single grid with titles and borders
+combined_plot <- grid.arrange(p1, p2, ncol = 1, top = "PBMC DATASET")
+
+# Add borders around each plot
+bordered_combined_plot <- arrangeGrob(grobTree(rectGrob(), combined_plot), 
+                                      heights = unit(c(0.5, 0.5), "null"))
+
+# Print the final plot
+print(bordered_combined_plot)
+```
 ![Local Image](pbmc_dataset.jpg)
 
 
