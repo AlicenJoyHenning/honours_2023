@@ -1,4 +1,5 @@
 # Alpha Dataset Processing in R with Seurat 
+https://satijalab.org/seurat/articles/pbmc3k_tutorial
 
 ## Preprocessing Stages  
 After going through the first two functions of SASCRiP, the output folder containing barcodes, features, and matrix files were used to go through a manual preprocessing workflow offered by Seurat.
@@ -245,6 +246,9 @@ FeaturePlot(alpha, features = c("CCL4L2", "CCL4", "VNN2", "S100A8", "CCR7", "RPS
 
 DoHeatmap(pbmc, features = top10$gene) + NoLegend()
 ```
+
+![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_featuresplot_1.jpg)
+
 
 ## Assigning cell type identity to clusters 
 we can use canonical markers to match the unbiased clustering to known cell types:
