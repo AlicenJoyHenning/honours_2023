@@ -164,7 +164,7 @@ tail(total_expression_ordered)# check how low the lowest expression is :
 # 11142   CDC6         1.996732
 ```
 To practice, I tried plotting the top 10 highest and lowest expressed genes : 
-![Local Image](C:\Users\alice\honours_2023\R\plots\pbmc_dataset)
+![Local Image](pbmc_dataset.jpg)
 
 
 
