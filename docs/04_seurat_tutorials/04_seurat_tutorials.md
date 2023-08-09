@@ -208,8 +208,10 @@ print(bordered_combined_plot)
 ![Local Image](pbmc_dataset.jpg)
 
 
-
 ## 3) Scaling the data 
+
+
+
 
 ## 4) Perform linear dimensional reduction 
 
