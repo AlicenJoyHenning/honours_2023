@@ -1,5 +1,6 @@
 # Alpha Dataset Processing in R with Seurat 
 https://satijalab.org/seurat/articles/pbmc3k_tutorial
+Problema: after looking at the differentially expressed genes, I am unsure of how this can be used to annotate the cell types? At this stage the clusters have been labeled arbitrarily 
 
 ## Preprocessing Stages  
 After going through the first two functions of SASCRiP, the output folder containing barcodes, features, and matrix files were used to go through a manual preprocessing workflow offered by Seurat.
