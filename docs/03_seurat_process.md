@@ -266,7 +266,10 @@ Cluster ID	Markers	Cell Type
 
 (for test dataset ) 
 
+```R
 new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet", "Other1", "Other2")
 names(new.cluster.ids) <- levels(alpha)
 alpha <- RenameIdents(alpha, new.cluster.ids)
 DimPlot(alpha, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
+```
+![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_clusters_1.jpg)
