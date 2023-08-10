@@ -171,8 +171,8 @@ DimPlot(alpha.r25, reduction = "umap")
 alpha.r5 <- RunUMAP(alpha.r5, dims = 1:10)
 DimPlot(alpha.r5, reduction = "umap")
 
-alpha.r <- RunUMAP(alpha, dims = 1:10)
-DimPlot(alpha, reduction = "umap")
+alpha.r65 <- RunUMAP(alpha.r65, dims = 1:10)
+DimPlot(alpha.r65, reduction = "umap")
 
 
 ##### Finding differentially expressed features #####
