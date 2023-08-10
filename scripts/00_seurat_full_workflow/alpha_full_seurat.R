@@ -138,7 +138,10 @@ alpha <- FindNeighbors(alpha, dims = 1:20)
 # Computing nearest neighbor graph
 # Computing SNN
 
-alpha <- FindClusters(alpha, resolution = 0.5) 
+alpha.r25 <- FindClusters(alpha, resolution = 0.25) 
+alpha.r5 <- FindClusters(alpha, resolution = 0.5) 
+alpha.r65 <- FindClusters(alpha, resolution = 0.65) 
+
 # Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
 # 
 # Number of nodes: 4742
@@ -161,9 +164,16 @@ head(Idents(alpha), 5)
 
 
 ##### Run non-linear dimensional reduction #####
-alpha <- RunUMAP(alpha, dims = 1:20)
+alpha.r25 <- RunUMAP(alpha.r25, dims = 1:20)
+DimPlot(alpha.r25, reduction = "umap")
+# saveRDS(alpha.r25, file = "git_backup/plots/alpha.r25_UMAP")- too large to save 
+
+alpha.r5 <- RunUMAP(alpha.r5, dims = 1:10)
+DimPlot(alpha.r5, reduction = "umap")
+
+alpha.r <- RunUMAP(alpha, dims = 1:10)
 DimPlot(alpha, reduction = "umap")
-saveRDS(alpha, file = "Git/plots/alpha_UMAP.rds")
+
 
 ##### Finding differentially expressed features #####
 
@@ -196,12 +206,14 @@ head(cluster0.markers, n = 5)
 # CCL4   3.556346e-43  1.2325919 0.665 0.413 6.291888e-39
 
 # find markers for every cluster compared to all remaining cells, report only the positive nes
-alpha.markers <- FindAllMarkers(alpha, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+alpha.r25.markers <- FindAllMarkers(alpha.r25, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 
-alpha.markers %>%
+alpha.r25.markers %>%
   group_by(cluster) %>%
   slice_max(n=2, order_by = avg_log2FC)
 # CCL4L2, CCL4, VNN2, S100A8,  CCR7, RPS13 , MAF,  IL32 ,  PASK, NPM1 
+# 0.25 : IL1RN, SOD2, CCR7, RPS13, MAF, IL32, PASK, NPM1, IGKC, CD74, GNLY, GZMB, PRF1, CD8A, CCL2, CCL7, ATP10D, HDC, NRGN
+# 0.5 : 
 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
 FeaturePlot(alpha, features = c("CCL4L2", "CCL4", "VNN2", "S100A8", "CCR7", "RPS13", "MAF", "IL32", "PASK", "NPM1"))
@@ -228,3 +240,6 @@ names(new.cluster.ids) <- levels(alpha)
 alpha <- RenameIdents(alpha, new.cluster.ids)
 DimPlot(alpha, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 saveRDS(alpha, file = "honours_2023/4now/alpha.rds")
+
+
+
