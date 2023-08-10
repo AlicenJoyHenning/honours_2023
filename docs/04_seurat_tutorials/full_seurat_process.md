@@ -158,6 +158,7 @@ alpha <- FindNeighbors(alpha, dims = 1:20)
 ```
 
 To cluster the cells, we next apply modularity optimization techniques such as the Louvain algorithm (default) or SLM [SLM, Blondel et al., Journal of Statistical Mechanics], to iteratively group cells together, with the goal of optimizing the standard modularity function. The FindClusters() function implements this procedure, and contains a resolution parameter that sets the ‘granularity’ of the downstream clustering, with increased values leading to a greater number of clusters. We find that setting this parameter between 0.4-1.2 typically returns good results for single-cell datasets of around 3K cells. Optimal resolution often increases for larger datasets. 
+
 ```R
 alpha <- FindClusters(alpha, resolution = 0.5) 
 # Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
@@ -173,6 +174,15 @@ alpha <- FindClusters(alpha, resolution = 0.5)
 #    Number of communities: 11
 #    Elapsed time: 0 seconds
 ```
+Experimenting with different resolutions: 
+In the context of single-cell RNA sequencing (scRNA-seq) data analysis and clustering using community detection algorithms, such as the Louvain method or Leiden algorithm, the concept of "resolution" has a specific meaning that can sometimes be a bit counterintuitive.
+
+In these algorithms, the resolution parameter is used to control the granularity of the clusters that are identified in the data. A lower resolution value results in larger, more inclusive clusters, while a higher resolution value leads to smaller, more distinct clusters.
+
+Goal: make UMAP plots with markers identified for clusters in both high and low resolution 
+
+
+
 
 The clusters can be found using the Idents() function.
 
