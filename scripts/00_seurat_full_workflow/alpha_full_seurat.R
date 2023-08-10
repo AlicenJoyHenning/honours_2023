@@ -206,14 +206,16 @@ head(cluster0.markers, n = 5)
 # CCL4   3.556346e-43  1.2325919 0.665 0.413 6.291888e-39
 
 # find markers for every cluster compared to all remaining cells, report only the positive nes
-alpha.r25.markers <- FindAllMarkers(alpha.r25, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+alpha.r65.markers <- FindAllMarkers(alpha.r65, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 
-alpha.r25.markers %>%
+alpha.r65.markers %>%
   group_by(cluster) %>%
   slice_max(n=2, order_by = avg_log2FC)
-# CCL4L2, CCL4, VNN2, S100A8,  CCR7, RPS13 , MAF,  IL32 ,  PASK, NPM1 
+
+# 0.5 (round 1) : CCL4L2, CCL4, VNN2, S100A8,  CCR7, RPS13 , MAF,  IL32 ,  PASK, NPM1 
 # 0.25 : IL1RN, SOD2, CCR7, RPS13, MAF, IL32, PASK, NPM1, IGKC, CD74, GNLY, GZMB, PRF1, CD8A, CCL2, CCL7, ATP10D, HDC, NRGN
-# 0.5 : 
+# 0.5 : CCL4L2,  CCL4,  VNN2, S100A8, CCR7, RPS13,  MAF, IL32, PASK,NPM1  , 
+# 0.65 : CCL4L2, CCL4, IDO1, GBP5 , CCR7, RPS13, MAF, IL32,VNN2, S100A8   
 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
 FeaturePlot(alpha, features = c("CCL4L2", "CCL4", "VNN2", "S100A8", "CCR7", "RPS13", "MAF", "IL32", "PASK", "NPM1"))
