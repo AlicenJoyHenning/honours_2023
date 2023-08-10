@@ -218,7 +218,7 @@ alpha.r65.markers %>%
 # 0.65 : CCL4L2, CCL4, IDO1, GBP5 , CCR7, RPS13, MAF, IL32,VNN2, S100A8   
 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
-FeaturePlot(alpha, features = c("CCL4L2", "CCL4", "VNN2", "S100A8", "CCR7", "RPS13", "MAF", "IL32", "PASK", "NPM1"))
+FeaturePlot(alpha.r65, features = c("CCR7", "CD8A", "MS4A1", "CD14","FCGRA", "NKG7", "FCERIA", "PPBD"))
 
 # Alternatively, we can use DoHeatMap to show the top 20 markers for each cluster: 
 
