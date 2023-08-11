@@ -179,12 +179,6 @@ In the context of single-cell RNA sequencing (scRNA-seq) data analysis and clust
 
 In these algorithms, the resolution parameter is used to control the granularity of the clusters that are identified in the data. A lower resolution value results in larger, more inclusive clusters, while a higher resolution value leads to smaller, more distinct clusters.
 
-Goal: make UMAP plots with markers identified for clusters in both high and low resolution 
-
-
-
-
-
 
 ## Run non-linear dimensional reduction (UMAP/tSNE) 
 
@@ -247,8 +241,7 @@ ggplot(alpha.df, aes(x, y, colour = seurat_clusters)) +
     label.hjust = 1
   ))
 ```
-
-
+![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha.UMAP.good.colours.jpg)
 
 
 ## Finding differentially expressed features (cluster biomarkers) 
