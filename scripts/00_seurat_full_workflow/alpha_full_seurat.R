@@ -146,11 +146,6 @@ alpha.r65 <- FindClusters(alpha, resolution = 0.65)
 # the cluster information (assignments) obtained from the FindClusters function is stored in the seurat object as a new metadata column. Each cell in your dataset is assigned to a specific cluster, and this assignment is added as a metadata attribute to the seurat object.
 
 alpha.clusters <- as.data.frame(alpha@meta.data)
-# this showed me that the metadata doesn't contain cluster information 
-
-alpha.clusters <- as.data.frame(alpha$
-# empty dataframe 
-
 
 
 
@@ -178,16 +173,33 @@ head(Idents(alpha), 5)
 
 
 ##### Run non-linear dimensional reduction #####
+# using resolution 0.5 as my standard : 
+alpha <- RunUMAP(alpha, dims = 1:10)
+DimPlot(alpha, reduction = "umap")
+
 alpha.r25 <- RunUMAP(alpha.r25, dims = 1:20)
 DimPlot(alpha.r25, reduction = "umap")
 # saveRDS(alpha.r25, file = "git_backup/plots/alpha.r25_UMAP")- too large to save 
 
 
-alpha.r5 <- RunUMAP(alpha.r5, dims = 1:10)
-DimPlot(alpha.r5, reduction = "umap")
-
 alpha.r65 <- RunUMAP(alpha.r65, dims = 1:10)
 DimPlot(alpha.r65, reduction = "umap")
+
+
+# for the DimPlot, the clusters that are close together are presented in the same colour. This makes it difficult to view. To change this, 
+# I want to se the R Color Brewer palette : 
+install.packages("RColorBrewer")
+library(RColorBrewer)
+palette.a <- brewer.pal(11, "Paired")
+
+Seurat::DimPlot(
+  object = alpha,
+  reduction = 'umap',
+  group.by = 'seurat_clusters',
+  pt.size = 1,
+  label = FALSE,
+  cols = palette.a
+)
 
 
 ##### Finding differentially expressed features #####
