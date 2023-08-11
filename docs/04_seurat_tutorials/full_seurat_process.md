@@ -189,6 +189,8 @@ alpha <- RunUMAP(alpha, dims = 1:20)
 DimPlot(alpha, reduction = "umap")
 saveRDS(alpha, file = "Git/plots/alpha_UMAP.rds")
 ```
+![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_UMAP_0.5.jpg?raw=true)
+
 The colours and aesthetic of the DimPlot are not easily manipulated, so ggplot can be used as an alternative as follows : 
 
 ```R
