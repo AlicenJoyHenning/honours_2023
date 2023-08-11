@@ -137,10 +137,24 @@ JackStrawPlot(alpha, dims = 1:50)
 alpha <- FindNeighbors(alpha, dims = 1:20)
 # Computing nearest neighbor graph
 # Computing SNN
+# the first 20 principal components are being used to calculate the nearest neighbors for the cells in the alpha dataset.
 
 alpha.r25 <- FindClusters(alpha, resolution = 0.25) 
-alpha.r5 <- FindClusters(alpha, resolution = 0.5) 
+alpha <- FindClusters(alpha, resolution = 0.5) 
 alpha.r65 <- FindClusters(alpha, resolution = 0.65) 
+# clustering cells based on their similarity in a lower-dimensional space, typically after performing dimensionality reduction and finding nearest neighbors
+# the cluster information (assignments) obtained from the FindClusters function is stored in the seurat object as a new metadata column. Each cell in your dataset is assigned to a specific cluster, and this assignment is added as a metadata attribute to the seurat object.
+
+alpha.clusters <- as.data.frame(alpha@meta.data)
+# this showed me that the metadata doesn't contain cluster information 
+
+alpha.clusters <- as.data.frame(alpha$
+# empty dataframe 
+
+
+
+
+# /////
 
 # Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
 # 
@@ -167,6 +181,7 @@ head(Idents(alpha), 5)
 alpha.r25 <- RunUMAP(alpha.r25, dims = 1:20)
 DimPlot(alpha.r25, reduction = "umap")
 # saveRDS(alpha.r25, file = "git_backup/plots/alpha.r25_UMAP")- too large to save 
+
 
 alpha.r5 <- RunUMAP(alpha.r5, dims = 1:10)
 DimPlot(alpha.r5, reduction = "umap")
@@ -218,30 +233,73 @@ alpha.r65.markers %>%
 # 0.65 : CCL4L2, CCL4, IDO1, GBP5 , CCR7, RPS13, MAF, IL32,VNN2, S100A8   
 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
-FeaturePlot(alpha.r65, features = c("CCR7", "CD8A", "MS4A1", "CD14","FCGRA", "NKG7", "FCERIA", "PPBD"))
+FeaturePlot(alpha.r5, features = c("LYZ","FCER1A"))
 
-# Alternatively, we can use DoHeatMap to show the top 20 markers for each cluster: 
+##### Create data frame that stores all information about the differentially expressed features of each cluster ##### 
 
-top10 <- alpha.markers   %>%
-  group_by(cluster) %>%
-  top_n(n = 10, wt = avg_log2FC)
+cluster = c(seq(0, 10)) # column 1
+unique.markers = FindMarkers(alpha, ident.1 = i, min.pct = 0.25) | head n = 5
+cluster.comparision.markers <- FindMarkers(alpha, ident.1 = i, ident.2 = j, min.pct =0.25)
 
-DoHeatmap(pbmc, features = top10$gene) + NoLegend()
-# Error in DoHeatmap(pbmc, features = top10$gene) : 
-#   No requested features found in the scale.data slot for the RNA assay.
+diff.features <- data.frame(cluster, 
+                            unique.markers, 
+                            cluster.comparision.markers)
 
-##### Assigning cell type identity to clusters #####
 
-new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono","NK", "DC", "Platelet")
-names(new.cluster.ids) <- levels(alpha)
-# Error in names(new.cluster.ids) <- levels(alpha) : 
-#   'names' attribute [11] must be the same length as the vector [9]
+##### Annotate clusters #####
 
-new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet", "Other1", "Other2")
-names(new.cluster.ids) <- levels(alpha)
-alpha <- RenameIdents(alpha, new.cluster.ids)
-DimPlot(alpha, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
-saveRDS(alpha, file = "honours_2023/4now/alpha.rds")
+# Using the scAnnotatR package with pretrained models to classify cell types 
+
+BiocManager::install("devtools")
+BiocManager::install("scAnnotatR")
+
+library(scAnnotatR)
+
+default_models <- load_models("default") # loading the pre-trained models 
+names(default_models)
+# [1] "B cells"           "Plasma cells"      "NK"                "CD16 NK"           "CD56 NK"           "T cells"          
+# [7] "CD4 T cells"       "CD8 T cells"       "Treg"              "NKT"               "ILC"               "Monocytes"        
+# [13] "CD14 Mono"         "CD16 Mono"         "DC"                "pDC"               "Endothelial cells" "LEC"              
+# [19] "VEC"               "Platelets"         "RBC"               "Melanocyte"        "Schwann cells"     "Pericytes"        
+# [25] "Mast cells"        "Keratinocytes"     "alpha"             "beta"              "delta"             "gamma"            
+# [31] "acinar"            "ductal"            "Fibroblasts"
+
+# takes as input a seurat object : 
+is(alpha.r5, "Seurat")
+# [1] TRUE
+
+
+# To launch cell type identification, we simply call the `classify_cells`function : 
+alpha.r5.scannotatR <- classify_cells(classify_obj = alpha.r5, 
+                             assay = 'RNA', slot = 'counts',
+                             cell_types = c('NK', ), 
+                             path_to_models = 'default')
+
+#  returns the input object but with additional columns in the metadata table.
+# New columns are:
+#   
+#   * **predicted_cell_type**: The predicted cell type, also containing any 
+# ambiguous assignments. In these cases, the possible cell types are separated
+# by a "/"
+# 
+# * **most_probable_cell_type**: contains the most probably cell type ignoring any 
+# ambiguous assignments.
+# 
+# * columns with syntax `[celltype]_p`: probability of a cell to belong 
+# to a cell type. Unknown cell types are marked as NAs.
+
+# The predicted cell types can now simply be visualized using the matching plotting functions
+
+Seurat::DimPlot(alpha.r5.scannotatR, group.by = "most_probable_cell_type")
+
+# For a certain cell type, users can also view the prediction probability
+
+Seurat::FeaturePlot(seurat.obj, features = "B_cells_p")
+
+
+
+
+
 
 
 
