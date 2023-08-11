@@ -309,36 +309,3 @@ DoHeatmap(pbmc, features = top10$gene) + NoLegend()
 ```
 
 ![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_featuresplot_1.jpg)
-
-
-## Assigning cell type identity to clusters 
-we can use canonical markers to match the unbiased clustering to known cell types:
-
-Cluster ID	Markers	Cell Type
-0	IL7R, CCR7	Naive CD4+ T
-1	CD14, LYZ	CD14+ Mono
-2	IL7R, S100A4	Memory CD4+
-3	MS4A1	B
-4	CD8A	CD8+ T
-5	FCGR3A, MS4A7	FCGR3A+ Mono
-6	GNLY, NKG7	NK
-7	FCER1A, CST3	DC
-8	PPBP	Platelet
-
-(for test dataset ) 
-
-```R
-new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono", "NK", "DC", "Platelet", "Other1", "Other2")
-names(new.cluster.ids) <- levels(alpha)
-alpha <- RenameIdents(alpha, new.cluster.ids)
-DimPlot(alpha, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
-```
-![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_clusters_1.jpg)
-
-As an alternative, the scAnnotatR package performs automatic cluster annotation based on pretrained models. The problem I am having with this at the moment is that it is seems to assign cell types based on the presence of all marker genes, meaning that if a cluster doesn not have all the marker genes for a cell type it will not be classified as such. However, this resulted in no clusters being annotated because none of them displayed all marker genes. 
-
-```R
-
-
-
-
