@@ -284,3 +284,11 @@ alpha <- RenameIdents(alpha, new.cluster.ids)
 DimPlot(alpha, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 ```
 ![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_clusters_1.jpg)
+
+As an alternative, the scAnnotatR package performs automatic cluster annotation based on pretrained models. The problem I am having with this at the moment is that it is seems to assign cell types based on the presence of all marker genes, meaning that if a cluster doesn not have all the marker genes for a cell type it will not be classified as such. However, this resulted in no clusters being annotated because none of them displayed all marker genes. 
+
+```R
+
+
+
+
