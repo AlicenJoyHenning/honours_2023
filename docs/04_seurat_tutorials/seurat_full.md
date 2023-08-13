@@ -1,5 +1,5 @@
 # Dataset Processing in R with Seurat 
-https://satijalab.org/seurat/articles/pbmc3k_tutorial
+*Guide* : https://satijalab.org/seurat/articles/pbmc3k_tutorial <br>*NB* : remember to ```saveRDS(object, file= "path/to/object.rds")``` constantly to avoid soul crushing losses</br> 
 
 
 ## Preprocessing Stages  
@@ -192,42 +192,55 @@ It shows the distribution of p-values for each PC. A p-value is a measure of how
 
 By identifying the significant PCs, you're ensuring that the features (genes) you're using for clustering cells are meaningful and not dominated by noise. This step helps you focus on the most important sources of variation and makes your subsequent analyses, like clustering, more accurate and biologically relevant.
 
-
-
-![image](
-
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/20b6582b-796d-44b4-b482-ecd14c06e24e)
 
 ## Cluster cells 
 
-Seurat v3 applies a graph-based clustering approach, building upon initial strategies in (Macosko et al). Importantly, the distance metric which drives the clustering analysis (based on previously identified PCs) remains the same. However, our approach to partitioning the cellular distance matrix into clusters has dramatically improved. Our approach was heavily inspired by recent manuscripts which applied graph-based clustering approaches to scRNA-seq data [SNN-Cliq, Xu and Su, Bioinformatics, 2015] and CyTOF data [PhenoGraph, Levine et al., Cell, 2015]. Briefly, these methods embed cells in a graph structure - for example a K-nearest neighbor (KNN) graph, with edges drawn between cells with similar feature expression patterns, and then attempt to partition this graph into highly interconnected ‘quasi-cliques’ or ‘communities’.
+Seurat v3 applies a graph-based clustering approach : embed cells in a graph structure - for example a K-nearest neighbor (KNN) graph, with edges drawn between cells with similar feature expression patterns, and then attempt to partition this graph into highly interconnected ‘quasi-cliques’ or ‘communities’. 
+
+where the distance metric which drives the clustering analysis (based on previously identified PCs) remains the same. However, our approach to partitioning the cellular distance matrix into clusters has dramatically improved 
+[SNN-Cliq, Xu and Su, Bioinformatics, 2015] and CyTOF data [PhenoGraph, Levine et al., Cell, 2015]. 
 
 As in PhenoGraph, we first construct a KNN graph based on the euclidean distance in PCA space, and refine the edge weights between any two cells based on the shared overlap in their local neighborhoods (Jaccard similarity). This step is performed using the FindNeighbors() function, and takes as input the previously defined dimensionality of the dataset (first 10 PCs).
+
+After running FindNeighbors() on a Seurat object, several pieces of information are computed and stored to enable the identification of cell clusters and neighborhoods. Some of the key information stored in the Seurat object includes:
+
+* Neighbor Information: The function computes pairwise distances between cells based on the selected dimensions (often the first few principal components) using techniques like Euclidean distance or correlation. It then identifies the k-nearest neighbors for each cell, creating a graph that represents cell neighborhoods.
+
+* Shared Nearest Neighbors (SNN) Graph: Seurat constructs a shared nearest neighbors graph, where cells are connected if they share common neighbors. This helps capture local connectivity and cluster structure in the data.
+
+* Graph-based Clustering: Seurat assigns cells to clusters by applying graph-based clustering algorithms, such as the Louvain algorithm. These algorithms leverage the SNN graph to group similar cells together.
+
+* Distances and Connectivities: For each cell, the function calculates distances and connectivities to its neighbors. This information is useful for visualizing cell neighborhoods and understanding the degree of cell-cell interaction.
+
+* Embeddings: The function generates various embeddings, which are low-dimensional representations of cells in the graph. These embeddings can be used for visualization and further analysis.
+
 ```R
-alpha <- FindNeighbors(alpha, dims = 1:20)
-# Computing nearest neighbor graph
-# Computing SNN
+# the first 20 principal components are being used to calculate the nearest neighbors for the cells in the alpha dataset.
+
+alpha <- FindNeighbors(alpha, dims = 1:20) 
+lambda <- FindNeighbors(lambda, dims = 1:20)
+untreated <- FindNeighbors(untreated, dims = 1:20)
+
+
+
 ```
 
 To cluster the cells, we next apply modularity optimization techniques such as the Louvain algorithm (default) or SLM [SLM, Blondel et al., Journal of Statistical Mechanics], to iteratively group cells together, with the goal of optimizing the standard modularity function. The FindClusters() function implements this procedure, and contains a resolution parameter that sets the ‘granularity’ of the downstream clustering, with increased values leading to a greater number of clusters. We find that setting this parameter between 0.4-1.2 typically returns good results for single-cell datasets of around 3K cells. Optimal resolution often increases for larger datasets. 
 
+clustering cells based on their similarity in a lower-dimensional space, typically after performing dimensionality reduction and finding nearest neighbors. The cluster information (assignments) obtained from the FindClusters function is stored in the seurat object as a new metadata column. Each cell in your dataset is assigned to a specific cluster, and this assignment is added as a metadata attribute to the seurat object that can be accessed using ```as.data.frame(object@meta.data)```.
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/d90d239b-a0ef-4430-af04-673ecfa333a8)
+
+
 ```R
 alpha <- FindClusters(alpha, resolution = 0.5) 
-# Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
-# 
-# Number of nodes: 4742
-# Number of edges: 187903
-# 
-# Running Louvain algorithm...
-# 0%   10   20   30   40   50   60   70   80   90   100%
-#   [----|----|----|----|----|----|----|----|----|----|
-#      **************************************************|
-#      Maximum modularity in 10 random starts: 0.8603
-#    Number of communities: 11
-#    Elapsed time: 0 seconds
+lambda <- FindClusters(lambda, resolution = 0.5) 
+untreated <- FindClusters(untreated, resolution = 0.5) 
 ```
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/9887c723-c801-468a-88cc-37b4eda98ac6)
+
 Experimenting with different resolutions: 
 In the context of single-cell RNA sequencing (scRNA-seq) data analysis and clustering using community detection algorithms, such as the Louvain method or Leiden algorithm, the concept of "resolution" has a specific meaning that can sometimes be a bit counterintuitive.
-
 In these algorithms, the resolution parameter is used to control the granularity of the clusters that are identified in the data. A lower resolution value results in larger, more inclusive clusters, while a higher resolution value leads to smaller, more distinct clusters.
 
 
@@ -262,71 +275,6 @@ library(gridExtra)
 grid.arrange(umap_p1, umap_p2, umap_p3, ncol = 3)
 ```
 ![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/35744a8a-964e-4b43-870a-5691077975c3)
-
-## Run non-linear dimensional reduction (UMAP/tSNE) 
-
-Seurat offers several non-linear dimensional reduction techniques, such as tSNE and UMAP, to visualize and explore these datasets. The goal of these algorithms is to learn the underlying manifold of the data in order to place similar cells together in low-dimensional space. Cells within the graph-based clusters determined above should co-localize on these dimension reduction plots. As input to the UMAP and tSNE, we suggest using the same PCs as input to the clustering analysis.
-
-```R
-alpha <- RunUMAP(alpha, dims = 1:20)
-DimPlot(alpha, reduction = "umap")
-saveRDS(alpha, file = "Git/plots/alpha_UMAP.rds")
-```
-![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_UMAP_0.5.jpg?raw=true)
-
-The colours and aesthetic of the DimPlot are not easily manipulated, so ggplot can be used as an alternative as follows : 
-
-```R
-# Alternatively, using ggplot :   
-
-# Extract UMAP coordinates and cluster information
-alpha.umap.coords <- as.data.frame(alpha@reductions$umap@cell.embeddings)
-clusters <- alpha$seurat_clusters
-
-# Create a dataframe for ggplot
-alpha.df <- data.frame(
-  x = alpha.umap.coords$UMAP_1,
-  y = alpha.umap.coords$UMAP_2,
-  seurat_clusters = factor(clusters)
-)
-
-# Define color palette
-palette.a <- RColorBrewer::brewer.pal(11, "Paired")
-
-# Create the ggplot plot
-ggplot(alpha.df, aes(x, y, colour = seurat_clusters)) +
-  geom_point(size = 1) +
-  scale_colour_manual(values = palette.a) +
-  labs(#title = "IFN alpha",
-       x = "UMAP 1",  # Rename x-axis label
-       y = "UMAP 2",
-       color = "")  + 
-  theme_minimal() + 
-  theme(#panel.background = element_rect(fill = "lightgrey"),  # Set background color
-       panel.grid.minor = element_blank(),  # Remove minor gridlines
-      panel.grid.major = element_blank(),
-        axis.text = element_text(size = 12),  # Increase axis label size
-        axis.title = element_text(size = 14), 
-        plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
-        panel.border = element_rect(color = "black", fill = NA),
-        #legend.background = element_rect(color = "black", fill = "white"),
-        legend.position = "right", 
-        legend.title = element_text(size =  14),
-        legend.text = element_text(size = 14),
-        plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))) + 
-  guides(color = guide_legend(
-    override.aes = list(
-      #hape = rep(22, length(palette.a)),  # Use squares (blocks)
-      fill = palette.a, 
-      size = 3.5),  # Color the squares with the same palette
-      key_height = unit(1, "npc"),  # Spread the legend dots across the vertical length
-      key_width = unit(4, "cm"),   # Adjust the width of the legend blocks
-      title.theme = element_text(hjust = 0.5),  # Center the legend title
-    label.position = "right",
-    label.hjust = 1
-  ))
-```
-![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha.UMAP.good.colours.jpg)
 
 
 ## Finding differentially expressed features (cluster biomarkers) 
