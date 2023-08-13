@@ -105,8 +105,19 @@ saveRDS(untreated, file= "honours/untreated/untreated.rds")
 
 
 alpha <- JackStraw(alpha, num.replicate = 100)
-alpha <- ScoreJackStraw(alpha, dims = 1:20)
-JackStrawPlot(alpha, dims = 1:50)
+alpha <- ScoreJackStraw(alpha, dims = 1:20) # looks at scores for the first 20 PC
+js_p1 <- JackStrawPlot(alpha, dims = 1:20)# Max dimension is 20
+
+
+lambda <- JackStraw(lambda, num.replicate = 100)
+lambda <- ScoreJackStraw(lambda, dims = 1:20)
+js_p2 <- JackStrawPlot(lambda, dims = 1:20)
+
+untreated <- JackStraw(untreated, num.replicate = 100)
+untreated <- ScoreJackStraw(untreated, dims = 1:20)
+js_p3 <- JackStrawPlot(untreated, dims = 1:20)
+
+grid.arrange(js_p1, js_p2, js_p3, ncol = 3)
 
 ##### Cluster cells ##### 
 
