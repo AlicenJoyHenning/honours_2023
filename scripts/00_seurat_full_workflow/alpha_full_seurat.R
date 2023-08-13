@@ -6,23 +6,16 @@ library(patchwork)
 library(ggplot2)
 library(grid)
 
-getwd()
-
 alpha.data <-  Read10X(data.dir = "honours/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha.data, project='ifnalpha', min.cells=3, min.features=200)
 # output : Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
 
-alpha
-# An object of class Seurat 
-# 17692 features across 6158 samples within 1 assay 
-# Active assay: RNA (17692 features, 0 variable features)
+lambda.data <-  Read10X(data.dir = "honours/ifnlambda/seurat_matrix/")
+lambda <- CreateSeuratObject(counts=lambda.data, project='ifnlambda', min.cells=3, min.features=200)
 
-alpha.data[1:3, 1:3]
-# 3 x 3 sparse Matrix of class "dgCMatrix"
-# AAACCCAAGACTCATC AAACCCACAACGTATC AAACCCACAATTGCTG
-# HGNC                  .                .                .
-# PRDM16                .                .                .
-# PEX10                 .                .                .
+untreated.data <-  Read10X(data.dir = "honours/untreated/seurat_matrix/")
+untreated <- CreateSeuratObject(counts=untreated.data, project='untrearted', min.cells=3, min.features=200)
+
 
 ##### Removing unwanted cells based on # genes expressed and mito chondrial gene xpression #####
 
@@ -198,14 +191,14 @@ Seurat::DimPlot(
   group.by = 'seurat_clusters',
   pt.size = 1,
   label = FALSE,
-  # cols = palette.a
+  cols = palette.a
 )
 
 # ///
   
 # Alternatively, using ggplot :   
 
-# Extract UMAP coordinates and cluster information
+# Extract UMAP coordinatesb and cluster information
 alpha.umap.coords <- as.data.frame(alpha@reductions$umap@cell.embeddings)
 clusters <- alpha$seurat_clusters
 
@@ -374,14 +367,15 @@ names(default_models)
 # [31] "acinar"            "ductal"            "Fibroblasts"
 
 # takes as input a seurat object : 
-is(alpha.r5, "Seurat")
+is(alpha, "Seurat")
 # [1] TRUE
 
 
 # To launch cell type identification, we simply call the `classify_cells`function : 
-alpha.r5.scannotatR <- classify_cells(classify_obj = alpha.r5, 
-                             assay = 'RNA', slot = 'counts',
-                             cell_types = c('NK', ), 
+alpha.scannotatR <- classify_cells(classify_obj = alpha, 
+                             assay = 'RNA', 
+                             slot = 'counts',
+                             cell_types = 'all', 
                              path_to_models = 'default')
 
 #  returns the input object but with additional columns in the metadata table.
@@ -410,5 +404,80 @@ Seurat::FeaturePlot(seurat.obj, features = "B_cells_p")
 
 
 
+
+
+
+##### Annotate clsters using SingleR #####
+BiocManager::install("celldex")
+BiocManager::install("ensembldb")
+
+library(celldex)
+library(SingleR)
+
+ref.data <- celldex::HumanPrimaryCellAtlasData(ensembl=TRUE) # reference dataset appropriate for PBMCs
+
+# alpha.singleR <- alpha@assays$RNA@counts 
+
+alpha.singleR <- as.SingleCellExperiment(alpha)
+ref.singleR <- as.SingleCellExperiment(ref.data)
+
+  
+dim(alpha.singleR)
+# [1] 17692  4742
+
+
+dim(ref.data)
+# 17893   713
+
+alpha.pred <- SingleR(test = alpha.singleR,
+                      ref = ref.data,
+                      labels = ref.data$label.main)
+
+
+# testing to see if making the objects have equal # of genes will fix it : 
+# Assuming that 'common_genes' is a vector of gene names that are present in both datasets
+common_genes <- intersect(rownames(alpha.singleR), rownames(ref.data))
+
+# Subset both datasets to include only the common genes
+alpha.singleR_subset <- alpha.singleR[common_genes, ]
+ref.data_subset <- ref.data[common_genes, ]
+dim(alpha.singleR_subset)
+dim(ref.data_subset)
+
+# fix : seeing if the inconsistent ggene naming could be the problem 
+genes <- read_tsv("honours_2023/kallisto_index/transcripts_to_genes")
+genes <- subset(genes, select = -ENST00000624431.2) # remove column 
+genes$ENSG00000279928.2 <- substring(genes$ENSG00000279928.2, 1, 15) # take out version numbers 
+colnames(genes) <- c("Ensembl_ID", "HGNC_ID") # changing column names 
+genes$HGNC_ID <- ifelse(is.na(genes$HGNC_ID),genes$Ensembl_ID, genes$HGNC_ID)
+
+
+
+# Now you can use the SingleR function with the subsetted datasets
+alpha.pred <- SingleR(
+  test = alpha.singleR_subset,
+  ref = ref.data_subset,
+  labels = ref.data$label.main
+)
+
+
+
+# output is cell barcodes as rows with columns for predictions 
+
+# Now to visualize this, save the labels assigned by SingleR into the Seurat object 
+
+alpha.pbmc.counts$singleR.labels <- alpha.pred$labels[match(rownames(alpha@meta.data), rownames(alpha.pred))]
+
+# Plot this with labels : 
+
+palette.a <- brewer.pal(11, "Paired")
+
+Seurat::DimPlot(
+  object = alpha,
+  reduction = 'umap',
+  group.by = 'singleR.labels',
+  pt.size = 1,
+  cols = palette.a
+)
 
 
