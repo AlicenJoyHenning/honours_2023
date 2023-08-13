@@ -120,17 +120,19 @@ js_p3 <- JackStrawPlot(untreated, dims = 1:20)
 grid.arrange(js_p1, js_p2, js_p3, ncol = 3)
 
 ##### Cluster cells ##### 
-
-alpha <- FindNeighbors(alpha, dims = 1:20)
-# Computing nearest neighbor graph
-# Computing SNN
 # the first 20 principal components are being used to calculate the nearest neighbors for the cells in the alpha dataset.
+alpha <- FindNeighbors(alpha, dims = 1:20) 
+lambda <- FindNeighbors(lambda, dims = 1:20)
+untreated <- FindNeighbors(untreated, dims = 1:20)
 
-alpha.r25 <- FindClusters(alpha, resolution = 0.25) 
+
 alpha <- FindClusters(alpha, resolution = 0.5) 
-alpha.r65 <- FindClusters(alpha, resolution = 0.65) 
-# clustering cells based on their similarity in a lower-dimensional space, typically after performing dimensionality reduction and finding nearest neighbors
-# the cluster information (assignments) obtained from the FindClusters function is stored in the seurat object as a new metadata column. Each cell in your dataset is assigned to a specific cluster, and this assignment is added as a metadata attribute to the seurat object.
+lambda <- FindClusters(lambda, resolution = 0.5) 
+untreated <- FindClusters(untreated, resolution = 0.5) 
+
+
+DimPlot(alpha, group.by = "seurat_clusters")
+
 
 alpha.clusters <- as.data.frame(alpha@meta.data)
 
