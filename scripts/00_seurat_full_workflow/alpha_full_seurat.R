@@ -5,6 +5,7 @@ library(Seurat)
 library(patchwork)
 library(ggplot2)
 library(grid)
+library(gridExtra)
 
 alpha.data <-  Read10X(data.dir = "honours/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha.data, project='ifnalpha', min.cells=3, min.features=200)
@@ -16,6 +17,13 @@ lambda <- CreateSeuratObject(counts=lambda.data, project='ifnlambda', min.cells=
 untreated.data <-  Read10X(data.dir = "honours/untreated/seurat_matrix/")
 untreated <- CreateSeuratObject(counts=untreated.data, project='untrearted', min.cells=3, min.features=200)
 
+saveRDS(alpha, file= "honours/ifnalpha/alpha.rds")
+saveRDS(lambda, file= "honours/ifnlambda/lambda.rds")
+saveRDS(untreated, file= "honours/untreated/untreated.rds")
+
+alpha <- readRDS("honours/ifnalpha/alpha.rds")
+lambda <- readRDS("honours/ifnlambda/lambda.rds")
+untreated <- readRDS("honours/untreated/untreated.rds")
 
 ##### Removing unwanted cells based on # genes expressed and mito chondrial gene xpression #####
 
@@ -67,8 +75,8 @@ DimHeatmap(alpha, dims = 1, cells = 500, balanced = TRUE)
 pca_p1 <- DimPlot(alpha, reduction ="pca", cols = c("darkblue"))
 pca_p2 <- DimPlot(lambda, reduction ="pca", cols = c("blue"))
 pca_p3 <- DimPlot(untreated, reduction ="pca", cols = c("lightblue"))
+
 # Alternatively, the plots can be done together: 
-library(gridExtra)
 grid.arrange(pca_p1, pca_p2, pca_p3, ncol = 3)
 
 # tSNE 
@@ -95,12 +103,6 @@ grid.arrange(umap_p1, umap_p2, umap_p3, ncol = 3)
 
 # At this point I want to save the seurat ojects : 
 
-saveRDS(alpha, file= "honours/ifnalpha/alpha.rds")
-saveRDS(lambda, file= "honours/ifnlambda/lambda.rds")
-saveRDS(untreated, file= "honours/untreated/untreated.rds")
-
-
-
 ##### Determine dimensionality of the dataset ####
 
 
@@ -124,7 +126,8 @@ grid.arrange(js_p1, js_p2, js_p3, ncol = 3)
 library(ggplot2)
 install.packages("RColorBrewer")
 library(RColorBrewer)
-palette.a <- brewer.pal(11, "Paired")
+palette.a <- brewer.pal(12, "Paired")
+palette.b <- c(palette.a, "purple")
 
 alpha <- FindNeighbors(alpha, dims = 1:20) 
 lambda <- FindNeighbors(lambda, dims = 1:20)
@@ -138,128 +141,9 @@ untreated <- FindClusters(untreated, resolution = 0.5)
 
 dim_p1 <- DimPlot(alpha, group.by = "seurat_clusters", cols = palette.a) + ggtitle("IFN alpha")
 dim_p2 <- DimPlot(lambda, group.by = "seurat_clusters", cols = palette.a)  + ggtitle("IFN lambda")
-dim_p3 <- DimPlot(untreated, group.by = "seurat_clusters", cols = palette.a)  + ggtitle("Untreated")
+dim_p3 <- DimPlot(untreated, group.by = "seurat_clusters", cols = palette.b)  + ggtitle("Untreated")
 
 grid.arrange(dim_p1, dim_p2, dim_p3, ncol = 3)
-
-# /////
-
-# Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
-# 
-# Number of nodes: 4742
-# Number of edges: 187903
-# 
-# Running Louvain algorithm...
-# 0%   10   20   30   40   50   60   70   80   90   100%
-#   [----|----|----|----|----|----|----|----|----|----|
-#      **************************************************|
-#      Maximum modularity in 10 random starts: 0.8603
-#    Number of communities: 11
-#    Elapsed time: 0 seconds
-# Look at cluster IDs of the first 5 cells
-head(Idents(alpha), 5)
-# AAACCCAAGACTCATC AAACCCACAATTGCTG AAACCCACAGCAAGAC AAACCCATCATTCATC 
-# 1                3                1                2 
-# AAACGAACAAAGGCTG 
-# 2 
-# Levels: 0 1 2 3 4 5 6 7 8 9 10
-
-
-##### Run non-linear dimensional reduction #####
-# Alternatively, using ggplot :   
-# Extract UMAP coordinatesb and cluster information
-alpha.umap.coords <- as.data.frame(alpha@reductions$umap@cell.embeddings)
-clusters <- alpha$seurat_clusters
-
-# Create a dataframe for ggplot
-alpha.df <- data.frame(
-  x = alpha.umap.coords$UMAP_1,
-  y = alpha.umap.coords$UMAP_2,
-  seurat_clusters = factor(clusters)
-)
-
-# Define color palette
-palette.a <- RColorBrewer::brewer.pal(11, "Paired")
-
-# Create the ggplot plot
-ggplot(alpha.df, aes(x, y, colour = seurat_clusters)) +
-  geom_point(size = 1) +
-  scale_colour_manual(values = palette.a) +
-  labs(#title = "IFN alpha",
-       x = "UMAP 1",  # Rename x-axis label
-       y = "UMAP 2",
-       color = "")  + 
-  theme_minimal() + 
-  theme(#panel.background = element_rect(fill = "lightgrey"),  # Set background color
-       panel.grid.minor = element_blank(),  # Remove minor gridlines
-      panel.grid.major = element_blank(),
-        axis.text = element_text(size = 12),  # Increase axis label size
-        axis.title = element_text(size = 14), 
-        plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
-        panel.border = element_rect(color = "black", fill = NA),
-        #legend.background = element_rect(color = "black", fill = "white"),
-        legend.position = "right", 
-        legend.title = element_text(size =  14),
-        legend.text = element_text(size = 14),
-        plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))) + 
-  guides(color = guide_legend(
-    override.aes = list(
-      #hape = rep(22, length(palette.a)),  # Use squares (blocks)
-      fill = palette.a, 
-      size = 3.5),  # Color the squares with the same palette
-      key_height = unit(1, "npc"),  # Spread the legend dots across the vertical length
-      key_width = unit(4, "cm"),   # Adjust the width of the legend blocks
-      title.theme = element_text(hjust = 0.5),  # Center the legend title
-    label.position = "right",
-    label.hjust = 1
-  ))
-
-# panel.background = element_rect(fill = "grey"),
-
-# working on facet plot 
-
-# custom_color <- function(x, cluster) {
-#   ifelse(x == cluster, palette.a[cluster], "grey")
-# }
-# 
-# # Create the facet plot
-# ggplot(alpha.df, aes(x, y)) +
-#   geom_point(aes(colour = seurat_clusters), size = 1) +
-#   scale_colour_manual(values = palette.a) +
-#   labs(title = "IFN alpha",
-#        x = "UMAP 1",
-#        y = "UMAP 2",
-#        color = "Seurat Clusters") +
-#   theme_minimal() +
-#   theme(
-#     panel.grid.major = element_blank(),
-#     axis.text = element_text(size = 18),
-#     axis.title = element_text(size = 18),
-#     plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
-#     panel.border = element_rect(color = "black", fill = NA),
-#     legend.background = element_rect(fill = "white"),  # Remove legend box
-#     legend.position = "right",
-#     legend.title = element_text(size = 16),
-#     legend.text = element_text(size = 12),
-#     plot.title = element_text(size = 18, face = "bold", hjust = 0.5)
-#   ) +
-#   guides(color = guide_legend(
-#     override.aes = list(
-#       shape = rep(22, length(palette.a)),  # Use squares (blocks)
-#       fill = palette.a  # Color the squares with the same palette
-#     ),
-#     key_height = unit(2, "cm"),  # Adjust the height of the legend blocks
-#     key_width = unit(2, "cm"),   # Adjust the width of the legend blocks,
-#     title.theme = element_text(hjust = 0.5)  # Center the legend title
-#   )) +
-#   facet_wrap(~ ifelse(seurat_clusters %in% c(10, 11), "10-11", as.character(seurat_clusters)), ncol = 5) +
-#   scale_colour_manual(values = sapply(1:11, custom_color, cluster = 1))
-
-
-
-
-
-
 
 ##### Finding differentially expressed features #####
 
