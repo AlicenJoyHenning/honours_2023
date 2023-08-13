@@ -160,60 +160,42 @@ Each point represents a cell that is projected against the top principal compone
 ```DimPlot(object, reduction ="pca", cols = c("blue"))```
 ![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/3d458aac-ddc4-4eef-bf12-1206689978dd)
 
-
-
-
-
-
-_t-SNE Plots_
-Dimensionality reduction technique that highlights cells in close proximity (well not as good at capturing global structure as UMAP). 
-```R
-alpha <- RunTSNE(alpha)
-lambda <- RunTSNE(lambda)
-untreated <- RunTSNE(untreated)
-
-tsne_p1 <- DimPlot(alpha, reduction = "tsne", cols = "darkblue")
-tsne_p2 <- DimPlot(lambda, reduction = "tsne", cols = "blue")
-tsne_p3 <- DimPlot(untreated, reduction = "tsne", cols = "lightblue")
-library(gridExtra)
-grid.arrange(tsne_p1, tsne_p2, tsne_p3, ncol = 3)
-```
-![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/5b51811c-397e-400d-a35f-06e8cf8b00f5)
-
-_UMAP Plots_
-UMAP (Uniform Manifold Approximation and Projection) is another dimensionality reduction technique that often provides better separation and global structure preservation than t-SNE. UMAP is especially helpful for revealing subtle population differences and identifying clusters.
-```R
-alpha <- RunUMAP(alpha, dims = 1:10)
-lambda <- RunUMAP(lambda, dims = 1:10)
-untreated <- RunUMAP(untreated, dims = 1:10)
-
-umap_p1 <- DimPlot(alpha, reduction = "umap", cols = "darkblue")
-umap_p2 <- DimPlot(lambda, reduction = "umap", cols = "blue")
-umap_p3 <- DimPlot(untreated, reduction = "umap", cols = "lightblue")
-library(gridExtra)
-grid.arrange(umap_p1, umap_p2, umap_p3, ncol = 3)
-```
-![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/35744a8a-964e-4b43-870a-5691077975c3)
-
 ## Determine dimensionality of the dataset 
 
 In scRNA-seq data, there can be a lot of noise (variability not related to biological differences) in the gene expression measurements. To make sense of the data and find meaningful patterns, it's important to reduce this noise. One way to do this is by using Principal Component Analysis (PCA), which finds the most important combinations of genes that capture the major sources of variation in the data.
+After performing dimensionality reduction (like PCA) on your single-cell data, you end up with principal components that capture different levels of information. Some PCs might capture meaningful biological variation, while others might capture random noise. By running JackStraw, you can identify which PCs have more significant variation than expected by chance alone. 
+
+The statistical test known as "JackStraw" can be performed on a seurat object that helps you determine if any of the principal components are significant when compared to random noise. After the statistical test has been performed, the _score_ for each principal component based on how much it deviates from random noise
+
+
+
 
 ```R
 alpha <- JackStraw(alpha, num.replicate = 100)
 alpha <- ScoreJackStraw(alpha, dims = 1:20)
+js_p1 <- JackStrawPlot(alpha, dims = 1:20)
+
+
+lambda <- JackStraw(lambda, num.replicate = 100)
+lambda <- ScoreJackStraw(lambda, dims = 1:20)
+js_p2 <- JackStrawPlot(lambda, dims = 1:20)
+
+untreated <- JackStraw(untreated, num.replicate = 100)
+untreated <- ScoreJackStraw(untreated, dims = 1:20)
+js_p3 <- JackStrawPlot(untreated, dims = 1:20)
+
+grid.arrange(js_p1, js_p2, js_p3, ncol = 3)
 ```
 The JackStrawPlot() function provides a visualization tool for comparing the distribution of p-values for each PC with a uniform distribution (dashed line). ‘Significant’ PCs will show a strong enrichment of features with low p-values (solid curve above the dashed line). JackStraw Procedure: The JackStraw procedure involves randomly shuffling the data a bit (permuting) and then re-running PCA. By doing this multiple times, you create a "null distribution" of how the scores might look if there's no real signal. PCs that significantly deviate from this null distribution are considered significant.
 
-It shows the distribution of p-values for each PC. A p-value is a measure of how likely it is to observe a certain value by random chance. If a PC's p-value is very low (solid curve above the dashed line), it means that the observed score is unlikely to have occurred by random chance alone. These significant PCs are the ones you should pay attention to.
+It shows the distribution of p-values for each PC. A p-value is a measure of how likely it is to observe a certain value by random chance. If a PC's p-value is very low (solid curve above the dashed line), it means that the observed score is unlikely to have occurred by random chance alone. These significant PCs are the ones you should pay attention to. Lower p-values indicate more significant PCs, suggesting that the genes driving those PCs have biological relevance. This plot helps you identify a "gap" where the observed p-values separate from random noise p-values, indicating the PCs that are likely to be biologically relevant.
 
 By identifying the significant PCs, you're ensuring that the features (genes) you're using for clustering cells are meaningful and not dominated by noise. This step helps you focus on the most important sources of variation and makes your subsequent analyses, like clustering, more accurate and biologically relevant.
 
-```R
-JackStrawPlot(alpha, dims = 1:20)
-```
-![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_JackStraw.jpg)
-Using maximum dimensions it seems like all the PCAs are significant?
+
+
+![image](
+
 
 ## Cluster cells 
 
@@ -248,6 +230,38 @@ In the context of single-cell RNA sequencing (scRNA-seq) data analysis and clust
 
 In these algorithms, the resolution parameter is used to control the granularity of the clusters that are identified in the data. A lower resolution value results in larger, more inclusive clusters, while a higher resolution value leads to smaller, more distinct clusters.
 
+
+
+
+_t-SNE Plots_
+Dimensionality reduction technique that highlights cells in close proximity (well not as good at capturing global structure as UMAP). 
+```R
+alpha <- RunTSNE(alpha)
+lambda <- RunTSNE(lambda)
+untreated <- RunTSNE(untreated)
+
+tsne_p1 <- DimPlot(alpha, reduction = "tsne", cols = "darkblue")
+tsne_p2 <- DimPlot(lambda, reduction = "tsne", cols = "blue")
+tsne_p3 <- DimPlot(untreated, reduction = "tsne", cols = "lightblue")
+library(gridExtra)
+grid.arrange(tsne_p1, tsne_p2, tsne_p3, ncol = 3)
+```
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/5b51811c-397e-400d-a35f-06e8cf8b00f5)
+
+_UMAP Plots_
+UMAP (Uniform Manifold Approximation and Projection) is another dimensionality reduction technique that often provides better separation and global structure preservation than t-SNE. UMAP is especially helpful for revealing subtle population differences and identifying clusters.
+```R
+alpha <- RunUMAP(alpha, dims = 1:10)
+lambda <- RunUMAP(lambda, dims = 1:10)
+untreated <- RunUMAP(untreated, dims = 1:10)
+
+umap_p1 <- DimPlot(alpha, reduction = "umap", cols = "darkblue")
+umap_p2 <- DimPlot(lambda, reduction = "umap", cols = "blue")
+umap_p3 <- DimPlot(untreated, reduction = "umap", cols = "lightblue")
+library(gridExtra)
+grid.arrange(umap_p1, umap_p2, umap_p3, ncol = 3)
+```
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/35744a8a-964e-4b43-870a-5691077975c3)
 
 ## Run non-linear dimensional reduction (UMAP/tSNE) 
 
