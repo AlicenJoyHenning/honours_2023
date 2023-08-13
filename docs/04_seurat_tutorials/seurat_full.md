@@ -145,9 +145,8 @@ Performing PCA using the RunPCA() function in Seurat will add new attributes to 
 
 ```R
 alpha <- RunPCA(alpha, features = VariableFeatures(object = alpha))
-
-
-
+lambda <- RunPCA(lambda, features = VariableFeatures(object = lambda))
+untreated <- RunPCA(untreated, features = VariableFeatures(object = untreated))
 ```
 
 This generates an output that gives the PC components (1:5) and lists underneath it the Positive and Negative genes (30 each). This is stored in the pca slot that can be viewed as follows, ```print(alpha[["pca"]], dims = 1:5, nfeatures = 5)```. Alternatively, you can manually enter the output as a dataframe stored in the seurat object under the assays section (see script : PCA_additions.R ) 
@@ -157,29 +156,37 @@ You can visualize the effect of PCA using various techniques such as scatter plo
 _PCA Scatter Plots_
 Each point represents a cell that is projected against the top principal components. 
 ```DimPlot(object, reduction ="pca", cols = c("blue"))```
-
-
-
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/3d458aac-ddc4-4eef-bf12-1206689978dd)
 
 _t-SNE Plots_
 Dimensionality reduction technique that highlights cells in close proximity (well not as good at capturing global structure as UMAP). 
 ```R
 alpha <- RunTSNE(alpha)
-DimPlot(object, reduction = 
+lambda <- RunTSNE(lambda)
+untreated <- RunTSNE(untreated)
+
+tsne_p1 <- DimPlot(alpha, reduction = "tsne", cols = "darkblue")
+tsne_p2 <- DimPlot(lambda, reduction = "tsne", cols = "blue")
+tsne_p3 <- DimPlot(untreated, reduction = "tsne", cols = "lightblue")
+library(gridExtra)
+grid.arrange(tsne_p1, tsne_p2, tsne_p3, ncol = 3)
 ```
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/5b51811c-397e-400d-a35f-06e8cf8b00f5)
+
 _UMAP Plots_
 UMAP (Uniform Manifold Approximation and Projection) is another dimensionality reduction technique that often provides better separation and global structure preservation than t-SNE. UMAP is especially helpful for revealing subtle population differences and identifying clusters.
 ```R
-alpha <- RunUMAP(alpha)
-DimPlot(alpha, 
+alpha <- RunUMAP(alpha, dims = 1:10)
+lambda <- RunUMAP(lambda, dims = 1:10)
+untreated <- RunUMAP(untreated, dims = 1:10)
+
+umap_p1 <- DimPlot(alpha, reduction = "umap", cols = "darkblue")
+umap_p2 <- DimPlot(lambda, reduction = "umap", cols = "blue")
+umap_p3 <- DimPlot(untreated, reduction = "umap", cols = "lightblue")
+library(gridExtra)
+grid.arrange(umap_p1, umap_p2, umap_p3, ncol = 3)
 ```
-
-
-
-
-
-
-![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/9f67f1ab-1766-48cf-b795-b68ee890a7b6)
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/35744a8a-964e-4b43-870a-5691077975c3)
 
 ## Determine dimensionality of the dataset 
 
