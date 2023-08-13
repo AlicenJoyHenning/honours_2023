@@ -21,34 +21,36 @@ untreated <- CreateSeuratObject(counts=untreated.data, project='untrearted', min
 
 
 alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
+lambda[["percent.mt"]] <- PercentageFeatureSet(lambda, pattern = "^MT-")
+untreated[["percent.mt"]] <- PercentageFeatureSet(untreated, pattern = "^MT-")
+
 alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+
 
 ##### Normalizing the data #####
 
 # 1 : actual normalization 
 alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.factor = 10000)
-# Performing log-normalization
-# 0%   10   20   30   40   50   60   70   80   90   100%
-#   [----|----|----|----|----|----|----|----|----|----|
-#      **************************************************|
+lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
+untreated <- NormalizeData(untreated, normalization.method = "LogNormalize", scale.factor = 10000)
 
-# 2 : feature selection 
+
+# 2 : feature selection (check dim(object@assays$RNA@counts)[2] to view genes and length(oject@assays$RNA@var.features) to view 2000 variable genes)
 alpha <- FindVariableFeatures(alpha, selection.method = "vst", nfeatures = 2000)
-# Calculating gene variances
-# 0%   10   20   30   40   50   60   70   80   90   100%
-#   [----|----|----|----|----|----|----|----|----|----|
-#      **************************************************|
-#      Calculating feature variances of standardized and clipped values
-#    0%   10   20   30   40   50   60   70   80   90   100%
-#      [----|----|----|----|----|----|----|----|----|----|
-#         **************************************************|
+lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 2000)
+untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
 
 # 3 : scaling the data 
-all.genes <- rownames(alpha)
-alpha <- ScaleData(alpha, features = all.genes)
-# Centering and scaling data matrix
-# |==========================================================================| 100%
-# The results of this are stored in pbmc[["RNA"]]@scale.data
+# The results of this are stored in object[["RNA"]]@scale.data
+
+all.alpha.genes <- rownames(alpha)
+alpha <- ScaleData(alpha, features = all.alpha.genes)
+all.lambda.genes <- rownames(lambda)
+lambda <- ScaleData(lambda, features = all.lambda.genes)
+all.untreated.genes <- rownames(untreated)
+untreated <- ScaleData(untreated, features = all.untreated.genes)
 
 
 ##### Perform Linear Dimensional Reduction #####
