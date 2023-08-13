@@ -82,6 +82,18 @@ tsne_p3 <- DimPlot(untreated, reduction = "tsne", cols = "lightblue")
 library(gridExtra)
 grid.arrange(tsne_p1, tsne_p2, tsne_p3, ncol = 3)
 
+# UMAP 
+alpha <- RunUMAP(alpha, dims = 1:10)
+lambda <- RunUMAP(lambda, dims = 1:10)
+untreated <- RunUMAP(untreated, dims = 1:10)
+
+umap_p1 <- DimPlot(alpha, reduction = "umap", cols = "darkblue")
+umap_p2 <- DimPlot(lambda, reduction = "umap", cols = "blue")
+umap_p3 <- DimPlot(untreated, reduction = "umap", cols = "lightblue")
+library(gridExtra)
+grid.arrange(umap_p1, umap_p2, umap_p3, ncol = 3)
+
+
 
 ##### Determine dimensionality of the dataset ####
 
