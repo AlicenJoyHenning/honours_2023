@@ -5,7 +5,9 @@ https://satijalab.org/seurat/articles/pbmc3k_tutorial
 ## Preprocessing Stages  
 ### _Loading the datasets_
 
-After going through the first two functions of SASCRiP, the output folder containing barcodes, features, and matrix files were used to go through a manual preprocessing workflow offered by Seurat.
+After going through the first two functions of SASCRiP, the output folder containing barcodes, features, and matrix files were used to go through a manual preprocessing workflow offered by Seurat. 
+
+The ```Read10X()``` function from 10X Genomics takes as input the ouptput of 10X cellranger and returns a UMI count matrix: a matrix that represents the number of molecules for each feature (meaning gene > row) that is detected in each cell (column). The count matrix is then used to create a ```Seurat object``` that stores raw and analysis data for a single cell dataset.
 
 ```R
 # Load the dependencies :
@@ -157,6 +159,11 @@ _PCA Scatter Plots_
 Each point represents a cell that is projected against the top principal components. 
 ```DimPlot(object, reduction ="pca", cols = c("blue"))```
 ![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/3d458aac-ddc4-4eef-bf12-1206689978dd)
+
+
+
+
+
 
 _t-SNE Plots_
 Dimensionality reduction technique that highlights cells in close proximity (well not as good at capturing global structure as UMAP). 
