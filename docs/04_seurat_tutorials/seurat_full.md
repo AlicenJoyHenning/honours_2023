@@ -1,11 +1,12 @@
-# Alpha Dataset Processing in R with Seurat 
+# Dataset Processing in R with Seurat 
 https://satijalab.org/seurat/articles/pbmc3k_tutorial
-Problema: after looking at the differentially expressed genes, I am unsure of how this can be used to annotate the cell types? At this stage the clusters have been labeled arbitrarily 
+
 
 ## Preprocessing Stages  
 After going through the first two functions of SASCRiP, the output folder containing barcodes, features, and matrix files were used to go through a manual preprocessing workflow offered by Seurat.
 
 ```R
+# Load the dependencies :
 
 library(dplyr)
 library(Seurat)
@@ -13,11 +14,23 @@ library(patchwork)
 library(ggplot2)
 library(grid)
 
-getwd()
+# Load the data :
 
 alpha.data <-  Read10X(data.dir = "honours/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha.data, project='ifnalpha', min.cells=3, min.features=200)
+
+lambda.data <-  Read10X(data.dir = "honours/ifnlambda/seurat_matrix/")
+lambda <- CreateSeuratObject(counts=lambda.data, project='ifnlambda', min.cells=3, min.features=200)
+
+untreated.data <-  Read10X(data.dir = "honours/untreated/seurat_matrix/")
+untreated <- CreateSeuratObject(counts=untreated.data, project='untrearted', min.cells=3, min.features=200)
+
 # output : Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
+```
+
+To view and explore the Seurat objects : 
+
+```R 
 
 alpha
 # An object of class Seurat 
