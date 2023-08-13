@@ -45,15 +45,21 @@ alpha.data[1:3, 1:3]
 # PEX10       
 ```
 
-Next, the dataset must be altered to remove low quality cells that are determined by the number of features expressed and the mitochondrial percentage
+Next, the datasets must be altered to remove low quality cells, determined by the number of features expressed and the mitochondrial percentage
 
 ```R
 
-# The [[ operator can add columns to object metadata. This is a great place to stash QC stats
-alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
+# The [[ operator adds columns to object metadata to stash QC stats
+alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-") # The [[ operator adds columns to object metadata to stash QC stats
 
 alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+
+
+
 ```
+![image]
+
+
 After quality control, the dataset is normalized : 
 
 ```R
