@@ -76,24 +76,32 @@ lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & per
 18272 4811
 untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10) # 18188 5349
 ```
-![image]("https://github.com/AlicenJoyHenning/honours_2023/blob/main/images/cell_quality_control.jpg")
+![image]("git_backup/images/cell_quality_control.jpg")
 
 
 After quality control, the dataset must be normalized. 
 
-**Log Normalization**
+** 1) Log Normalization**
 
 This means applying a logarithm transformation to the raw counts of gene expression to reduce the impact of high-variance genes. High-variance genes are those that exhibit large differences in expression levels across cells. In scRNA-seq datasets, some genes might have very high expression in a few cells while being expressed at lower levels in others. These high-variance genes can introduce noise and dominate the overall variability in the dataset. Log-normalization helps reduce the impact of high-variance genes by compressing their expression values. Since the logarithm function compresses high values more than low values, the resulting log-transformed values tend to have a more balanced distribution, which reduces the dominance of extreme values. Log normalization also reduces the effect of differences in library sizes (total counts) across cells. 
 
 Log-normalization will be applied using a function in the Seurat package (LogNormalize). Log-transforming the data allows for the representation of fold changes in expression on a linear scale. A 2-fold change in expression corresponds to a difference of 1 unit on the logarithmic scale. This is particularly useful for visualizations and downstream analyses. A 10 000 scaling factor (default) was chosen. 
 
-**Finding variable genes**
+** 2) Finding variable genes**
 
 The functions FindVariableFeatures() with the selection.method = "vst" argument will identify e a subset of highly variable genes (features) from the RNA matrix data stored in the Seurat object. These functions will result in a reduced number of genes/features for downstream analyses - it it does not alter the total number of genes, ```dim(object@assays$RNA@counts0[2]```, in your original expression matrix, only adds new information to the variable gene identification : ```length(object@assays$RNA@var.features)```
 
 The function FindVariableFeatures() from the Seurat package in R is used to identify highly variable features (genes) in a dataset, essentially identifying the most informative genes that contribute to cell-to-cell variability. . Highly variable features is important because not all genes have the same level of biological variability across cells. Some genes are highly expressed and exhibit significant variation, while others have lower expression and variability. Identifying these highly variable features helps focus downstream analyses on genes that carry more biologically relevant information.
 
 This used the "vst" (Variance Stabilizing Transformation), which calculates the coefficient of variation (CV) and uses it to measure variability in gene expression. The selection.method = "vst" argument indicates that the function will calculate the coefficient of variation (CV) after applying a variance stabilizing transformation (VST) to the data. The VST helps stabilize the variance across the dynamic range of expression, making the data more suitable for detecting true biological variability. nfeatures sets the maximum number of variable features to identify. In this case, it's set to 2000, indicating that the function will identify up to 2000 most variable features.
+
+ ** 3) Scaling the data **
+
+The function ScaleData() from the Seurat package in R is used to perform data scaling on the gene expression data. Scaling the data involves centering and rescaling each gene's expression values in a way that makes them comparable across cells. This is important because the absolute expression values can vary widely between cells due to technical factors such as sequencing depth or capture efficiency. Scaling ensures that the differences in expression are driven by biology rather than technical variability. This transformation centers the data around the mean of each gene, and it rescales the data to have a consistent unit of measurement (standard deviation).
+
+Scaling data is often a prerequisite for downstream analyses like principal component analysis (PCA), t-distributed stochastic neighbor embedding (t-SNE), and clustering. These analyses benefit from scaled data because they focus on patterns of relative expression rather than absolute expression levels.
+
+![image]("")
 
 ```R
 
@@ -109,11 +117,16 @@ lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 200
 untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
 
 # 3 : scaling the data 
-all.genes <- rownames(alpha)
-alpha <- ScaleData(alpha, features = all.genes)
-
+all.alpha.genes <- rownames(alpha)
+alpha <- ScaleData(alpha, features = all.alpha.genes)
+all.lambda.genes <- rownames(lambda)
+lambda <- ScaleData(lambda, features = all.lambda.genes)
+all.untreated.genes <- rownames(untreated)
+untreated <- ScaleData(untreated, features = all.untreated.genes)
 
 ```
+
+
 
 ## Linear dimensional reduction 
 
