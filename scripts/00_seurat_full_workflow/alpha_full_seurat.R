@@ -17,9 +17,13 @@ lambda <- CreateSeuratObject(counts=lambda.data, project='ifnlambda', min.cells=
 untreated.data <-  Read10X(data.dir = "honours/untreated/seurat_matrix/")
 untreated <- CreateSeuratObject(counts=untreated.data, project='untrearted', min.cells=3, min.features=200)
 
+# To save the seurat objects :  
+
 saveRDS(alpha, file= "honours/ifnalpha/alpha.rds")
 saveRDS(lambda, file= "honours/ifnlambda/lambda.rds")
 saveRDS(untreated, file= "honours/untreated/untreated.rds")
+
+# To load the saved seurat objects : 
 
 alpha <- readRDS("honours/ifnalpha/alpha.rds")
 lambda <- readRDS("honours/ifnlambda/lambda.rds")
@@ -146,6 +150,11 @@ dim_p3 <- DimPlot(untreated, group.by = "seurat_clusters", cols = palette.b)  + 
 grid.arrange(dim_p1, dim_p2, dim_p3, ncol = 3)
 
 ##### Finding differentially expressed features #####
+
+alpha.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25) # identifying markers and their differential expression information & store in seurat object
+alpha <- AddMetaData(findmarkers = alpha.markers) # create a new slot named "markers" within the alpha Seurat object and assign the markers_result to it
+
+
 
 cluster1.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25)
 head(cluster1.markers, n = 5)
