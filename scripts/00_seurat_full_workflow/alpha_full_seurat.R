@@ -71,6 +71,18 @@ pca_p3 <- DimPlot(untreated, reduction ="pca", cols = c("lightblue"))
 library(gridExtra)
 grid.arrange(pca_p1, pca_p2, pca_p3, ncol = 3)
 
+# tSNE 
+alpha <- RunTSNE(alpha)
+lambda <- RunTSNE(lambda)
+untreated <- RunTSNE(untreated)
+
+tsne_p1 <- DimPlot(alpha, reduction = "tsne", cols = "darkblue")
+tsne_p2 <- DimPlot(lambda, reduction = "tsne", cols = "blue")
+tsne_p3 <- DimPlot(untreated, reduction = "tsne", cols = "lightblue")
+library(gridExtra)
+grid.arrange(tsne_p1, tsne_p2, tsne_p3, ncol = 3)
+
+
 ##### Determine dimensionality of the dataset ####
 
 alpha <- JackStraw(alpha, num.replicate = 100)
