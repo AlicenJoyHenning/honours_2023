@@ -93,14 +93,19 @@ umap_p3 <- DimPlot(untreated, reduction = "umap", cols = "lightblue")
 library(gridExtra)
 grid.arrange(umap_p1, umap_p2, umap_p3, ncol = 3)
 
+# At this point I want to save the seurat ojects : 
+
+saveRDS(alpha, file= "honours/ifnalpha/alpha.rds")
+saveRDS(lambda, file= "honours/ifnlambda/lambda.rds")
+saveRDS(untreated, file= "honours/untreated/untreated.rds")
+
 
 
 ##### Determine dimensionality of the dataset ####
 
+
 alpha <- JackStraw(alpha, num.replicate = 100)
-
 alpha <- ScoreJackStraw(alpha, dims = 1:20)
-
 JackStrawPlot(alpha, dims = 1:50)
 
 ##### Cluster cells ##### 
