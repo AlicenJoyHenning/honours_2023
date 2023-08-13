@@ -47,7 +47,7 @@ alpha.data[1:3, 1:3]
 # PEX10       
 ```
 
-### _Quality_control_
+### _Quality control_
 Next, the datasets must be altered to remove low quality cells, determined by the number of features expressed and the mitochondrial percentage. 
 
 1. nFeature_RNA > 200:
@@ -85,13 +85,13 @@ untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500
 
 After quality control, the dataset must be normalized. 
 
-** 1) Log Normalization**
+**1) Log Normalization**
 
 This means applying a logarithm transformation to the raw counts of gene expression to reduce the impact of high-variance genes. High-variance genes are those that exhibit large differences in expression levels across cells. In scRNA-seq datasets, some genes might have very high expression in a few cells while being expressed at lower levels in others. These high-variance genes can introduce noise and dominate the overall variability in the dataset. Log-normalization helps reduce the impact of high-variance genes by compressing their expression values. Since the logarithm function compresses high values more than low values, the resulting log-transformed values tend to have a more balanced distribution, which reduces the dominance of extreme values. Log normalization also reduces the effect of differences in library sizes (total counts) across cells. 
 
 Log-normalization will be applied using a function in the Seurat package (LogNormalize). Log-transforming the data allows for the representation of fold changes in expression on a linear scale. A 2-fold change in expression corresponds to a difference of 1 unit on the logarithmic scale. This is particularly useful for visualizations and downstream analyses. A 10 000 scaling factor (default) was chosen. 
 
-** 2) Finding variable genes**
+**2) Finding variable genes**
 
 The functions FindVariableFeatures() with the selection.method = "vst" argument will identify e a subset of highly variable genes (features) from the RNA matrix data stored in the Seurat object. These functions will result in a reduced number of genes/features for downstream analyses - it it does not alter the total number of genes, ```dim(object@assays$RNA@counts0[2]```, in your original expression matrix, only adds new information to the variable gene identification : ```length(object@assays$RNA@var.features)```
 
@@ -99,7 +99,7 @@ The function FindVariableFeatures() from the Seurat package in R is used to iden
 
 This used the "vst" (Variance Stabilizing Transformation), which calculates the coefficient of variation (CV) and uses it to measure variability in gene expression. The selection.method = "vst" argument indicates that the function will calculate the coefficient of variation (CV) after applying a variance stabilizing transformation (VST) to the data. The VST helps stabilize the variance across the dynamic range of expression, making the data more suitable for detecting true biological variability. nfeatures sets the maximum number of variable features to identify. In this case, it's set to 2000, indicating that the function will identify up to 2000 most variable features.
 
- ** 3) Scaling the data **
+ **3) Scaling the data**
 
 The function ScaleData() from the Seurat package in R is used to perform data scaling on the gene expression data. Scaling the data involves centering and rescaling each gene's expression values in a way that makes them comparable across cells. This is important because the absolute expression values can vary widely between cells due to technical factors such as sequencing depth or capture efficiency. Scaling ensures that the differences in expression are driven by biology rather than technical variability. This transformation centers the data around the mean of each gene, and it rescales the data to have a consistent unit of measurement (standard deviation).
 
@@ -131,59 +131,53 @@ untreated <- ScaleData(untreated, features = all.untreated.genes)
 
 ```
 
-
-### _Linear_dimensional_reduction_
+### _Linear dimensional reduction_
 ## Linear dimensional reduction 
 
-Next perform PCA on the scaled data. By default, only the previously determined variable features are used as input
+Next perform PCA on the scaled data. By default, only the previously determined variable features (```object@assays$RNA@var.features```) are used as input. The function RunPCA() from the Seurat package in R is used to perform principal component analysis (PCA) on the gene expression data.  PCA reduces the dimensionality of the gene expression data while retaining the most informative patterns of variation. It transforms the original high-dimensional gene expression space into a new set of orthogonal (uncorrelated) axes called principal components. Each principal component captures different sources of variability in the data.
 
-```R alpha <- RunPCA(alpha, features = VariableFeatures(object = alpha))```
+By retaining only the top principal components that explain the most variance, PCA helps to identify key patterns such as biological variability, batch effects, or other sources of variation across cells. PCA is commonly used as a preprocessing step for downstream analyses like clustering, visualization (e.g., t-SNE), and differential gene expression analysis. It provides a reduced-dimensional representation of the data that is more manageable and informative for these analyses.
 
-This generates the output: 
+The features argument specifies which genes will be used to perform PCA. By setting features to the variable features identified using VariableFeatures(), you are focusing PCA on the most informative genes that exhibit high biological variability.
+
+Performing PCA using the RunPCA() function in Seurat will add new attributes to the Seurat object and store the results of the PCA analysis. 
+
+
 ```R
-PC_ 1 
-Positive:  RPL23A, RPL3, RPL13A, RPL26, RPS3A, RPL18A, RPS23, RPL7A, RPS18, RPL35 
-ENSG00000237550, RPSA, RPL10A, RPL5, RPL10, RPS4X, EEF1B2, RPL6, RPS7, RPS8 
-RPS5, RPL18, RPS20, RPL37A, RPS15A, RPL12, RPL24, RPL35A, RPS6, RPS3 
-Negative:  IL1RN, S100A8, FTH1, FFAR2, MNDA, ACSL1, APOBEC3A, TYROBP, NCF1C, NINJ1 
-GLUL, SNX10, IFITM3, FCER1G, SPI1, NCF1, TYMP, C15orf48, IER3, TLR2 
-CCL4, CLEC7A, CCL4L2, LST1, S100A11, NCF2, VNN2, SAMSN1, ISG15, BASP1 
-PC_ 2 
-Positive:  LEF1, LDHB, IL7R, BCL11B, IKZF1, TCF7, GPR155, ADTRP, ITGA6, CAMK4 
-GIMAP4, CMTM8, LEPROTL1, C12orf57, MAL, PRMT2, PDCD4, CD3G, CCR7, TNFRSF25 
-MYC, SCML1, LTB, STING1, GIMAP5, FHIT, FAM184A, GIMAP6, PASK, ABLIM1 
-Negative:  HLA-DPA1, HLA-DRA, CD74, MYOF, KYNU, HLA-DQB1, LILRB1, CD86, RGL1, HLA-DQA1 
-LGALS1, ADAM28, EPB41L3, CPVL, CYP1B1, OLR1, ANXA2, LACC1, EMP1, LY86 
-BANK1, MS4A1, TCF4, MS4A7, RIN2, CCL2, CCL7, SWAP70, ENG, FGD2 
-PC_ 3 
-Positive:  MS4A1, IGHM, BANK1, BCL11A, IGHD, IGKC, HLA-DQA1, HLA-DPA1, ADAM28, HLA-DRA 
-TCF4, IGKJ5, CCSER1, CD19, PLEKHG7, RAB30, BCL2, MEF2C, NAPSB, EAF2 
-HLA-DQB1, CCR7, IGLC2, CD79B, HLA-DPB1, STAP1, CD24, ACSM3, CD74, C7orf50 
-Negative:  NKG7, PRF1, GNLY, ANXA1, GZMB, CLIC3, SAMD3, MYBL1, METRNL, SYTL2 
-CD8A, FYN, SH2D2A, C1orf21, KLRD1, IL18RAP, GZMM, CD96, PYHIN1, PLAAT4 
-SYTL3, AUTS2, EOMES, KLRF1, IQGAP2, PIK3R1, LAG3, MAF, TNFRSF18, TRGC2 
-PC_ 4 
-Positive:  NKG7, PRF1, GNLY, GZMB, CLIC3, SAMD3, KLRD1, MS4A1, KLRF1, BANK1 
-IGHM, BCL11A, IL18RAP, MYBL1, CD38, C1orf21, IGHD, SH2D2A, EOMES, ADAM28 
-CD8A, IGKC, STAP1, TNFRSF18, SYTL2, CCSER1, PYHIN1, FGFBP2, GZMM, AUTS2 
-Negative:  MYOF, EPB41L3, RGL1, CYP1B1, CPVL, EMP1, OLR1, CCL2, CCL7, LACC1 
-CD86, CXCL11, ENG, MS4A7, PLA2G7, CTSB, P2RY6, LYZ, MSR1, LILRB4 
-TGFBI, LILRB1, LEF1, SRC, LGALS1, CST3, KYNU, RIN2, THBS1, RGS10 
-PC_ 5 
-Positive:  ENSG00000284874, NRGN, ACRBP, TSC22D1, DAB2, PTCRA, TUBA4A, CMTM5, MMD, TMEM40 
-C2orf88, ENKUR, CLU, PGRMC1, CTTN, H2BC11, MPIG6B, MTURN, SPARC, PDE5A 
-GTF3C2, MAP3K7CL, H2AJ, TNFSF4, CLDN5, BEX3, H2AC6, CTSA, SSX2IP, TSPAN33 
-Negative:  ISG15, MYOF, RGL1, LGALS1, S100A11, APOBEC3A, LILRB1, TYROBP, OLR1, MS4A7 
-LACC1, RIN2, LILRB4, CPVL, KYNU, EMP1, IL1RN, ANXA5, CTSB, S100A4 
-IFITM3, ENG, CYP1B1, MT2A, CCL4, PLA2G7, S100A6, GCH1, IL4I1, CD86 
-```
-This code performs Principal Component Analysis (PCA) on a Seurat object named alpha.
-alpha: This is the Seurat object on which you want to perform PCA.
-RunPCA(): This is a function provided by the Seurat package that performs PCA. PCA is a dimensionality reduction technique that is commonly used to reduce the complexity of high-dimensional data while retaining as much information as possible.
-features = VariableFeatures(object = alpha): This part specifies the features (genes) to be used for PCA. It uses the VariableFeatures() function to select the highly variable features from the Seurat object alpha. Highly variable features are those that exhibit the most biological variation across cells, making them important for capturing cell-to-cell differences.
+alpha <- RunPCA(alpha, features = VariableFeatures(object = alpha))
 
-Seurat provides several useful ways of visualizing both cells and features that define the PCA, including VizDimReduction(), DimPlot(), and DimHeatmap()
-In particular DimHeatmap() allows for easy exploration of the primary sources of heterogeneity in a dataset, and can be useful when trying to decide which PCs to include for further downstream analyses. Both cells and features are ordered according to their PCA scores. 
+
+
+```
+
+This generates an output that gives the PC components (1:5) and lists underneath it the Positive and Negative genes (30 each). This is stored in the pca slot that can be viewed as follows, ```print(alpha[["pca"]], dims = 1:5, nfeatures = 5)```. Alternatively, you can manually enter the output as a dataframe stored in the seurat object under the assays section (see script : PCA_additions.R ) 
+
+You can visualize the effect of PCA using various techniques such as scatter plots, t-SNE, or UMAP, which will help you see how cells are distributed in the reduced-dimensional space. Seurat provides several useful ways of visualizing both cells and features that define the PCA
+
+_PCA Scatter Plots_
+Each point represents a cell that is projected against the top principal components. 
+```DimPlot(object, reduction ="pca", cols = c("blue"))```
+
+
+
+
+_t-SNE Plots_
+Dimensionality reduction technique that highlights cells in close proximity (well not as good at capturing global structure as UMAP). 
+```R
+alpha <- RunTSNE(alpha)
+DimPlot(object, reduction = 
+```
+_UMAP Plots_
+UMAP (Uniform Manifold Approximation and Projection) is another dimensionality reduction technique that often provides better separation and global structure preservation than t-SNE. UMAP is especially helpful for revealing subtle population differences and identifying clusters.
+```R
+alpha <- RunUMAP(alpha)
+DimPlot(alpha, 
+```
+
+
+
+
+
 
 ![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/9f67f1ab-1766-48cf-b795-b68ee890a7b6)
 
