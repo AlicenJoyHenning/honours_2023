@@ -19,9 +19,8 @@ untreated <- CreateSeuratObject(counts=untreated.data, project='untrearted', min
 
 ##### Removing unwanted cells based on # genes expressed and mito chondrial gene xpression #####
 
-# The [[ operator can add columns to object metadata. This is a great place to stash QC stats
-alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
 
+alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
 alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 
 ##### Normalizing the data #####
