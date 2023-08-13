@@ -3,6 +3,8 @@ https://satijalab.org/seurat/articles/pbmc3k_tutorial
 
 
 ## Preprocessing Stages  
+### _Loading the datasets_
+
 After going through the first two functions of SASCRiP, the output folder containing barcodes, features, and matrix files were used to go through a manual preprocessing workflow offered by Seurat.
 
 ```R
@@ -45,6 +47,7 @@ alpha.data[1:3, 1:3]
 # PEX10       
 ```
 
+### _Quality_control_
 Next, the datasets must be altered to remove low quality cells, determined by the number of features expressed and the mitochondrial percentage. 
 
 1. nFeature_RNA > 200:
@@ -76,8 +79,9 @@ lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & per
 18272 4811
 untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10) # 18188 5349
 ```
-![image]("git_backup/images/cell_quality_control.jpg")
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/065e352d-7f02-4171-90dd-fd81b050ce93)
 
+### _Normalization_
 
 After quality control, the dataset must be normalized. 
 
@@ -101,7 +105,8 @@ The function ScaleData() from the Seurat package in R is used to perform data sc
 
 Scaling data is often a prerequisite for downstream analyses like principal component analysis (PCA), t-distributed stochastic neighbor embedding (t-SNE), and clustering. These analyses benefit from scaled data because they focus on patterns of relative expression rather than absolute expression levels.
 
-![image]("")
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/80e02fda-0b34-4c62-80ae-a126e650861d)
+
 
 ```R
 
@@ -127,7 +132,7 @@ untreated <- ScaleData(untreated, features = all.untreated.genes)
 ```
 
 
-
+### _Linear_dimensional_reduction_
 ## Linear dimensional reduction 
 
 Next perform PCA on the scaled data. By default, only the previously determined variable features are used as input
