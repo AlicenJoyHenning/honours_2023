@@ -243,6 +243,7 @@ Experimenting with different resolutions:
 In the context of single-cell RNA sequencing (scRNA-seq) data analysis and clustering using community detection algorithms, such as the Louvain method or Leiden algorithm, the concept of "resolution" has a specific meaning that can sometimes be a bit counterintuitive.
 In these algorithms, the resolution parameter is used to control the granularity of the clusters that are identified in the data. A lower resolution value results in larger, more inclusive clusters, while a higher resolution value leads to smaller, more distinct clusters.
 
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/08521e1f-47d5-441e-bb37-bf999836746d)
 
 
 
@@ -282,7 +283,7 @@ Seurat can help you find markers that define clusters via differential expressio
 
 Using the  ```R FindMarkers()``` function, you can find the top markers for each cluster : 
 ```R
-cluster1.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25)
+alpha.cluster.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25)
 head(cluster1.markers, n = 5)
 # p_val avg_log2FC pct.1 pct.2     p_val_adj
 # S100A8   1.089219e-275   1.949636 0.975 0.437 1.927046e-271
