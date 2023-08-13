@@ -121,6 +121,11 @@ grid.arrange(js_p1, js_p2, js_p3, ncol = 3)
 
 ##### Cluster cells ##### 
 # the first 20 principal components are being used to calculate the nearest neighbors for the cells in the alpha dataset.
+library(ggplot2)
+install.packages("RColorBrewer")
+library(RColorBrewer)
+palette.a <- brewer.pal(11, "Paired")
+
 alpha <- FindNeighbors(alpha, dims = 1:20) 
 lambda <- FindNeighbors(lambda, dims = 1:20)
 untreated <- FindNeighbors(untreated, dims = 1:20)
@@ -131,12 +136,11 @@ lambda <- FindClusters(lambda, resolution = 0.5)
 untreated <- FindClusters(untreated, resolution = 0.5) 
 
 
-DimPlot(alpha, group.by = "seurat_clusters")
+dim_p1 <- DimPlot(alpha, group.by = "seurat_clusters", cols = palette.a) + ggtitle("IFN alpha")
+dim_p2 <- DimPlot(lambda, group.by = "seurat_clusters", cols = palette.a)  + ggtitle("IFN lambda")
+dim_p3 <- DimPlot(untreated, group.by = "seurat_clusters", cols = palette.a)  + ggtitle("Untreated")
 
-
-alpha.clusters <- as.data.frame(alpha@meta.data)
-
-
+grid.arrange(dim_p1, dim_p2, dim_p3, ncol = 3)
 
 # /////
 
@@ -162,38 +166,7 @@ head(Idents(alpha), 5)
 
 
 ##### Run non-linear dimensional reduction #####
-# using resolution 0.5 as my standard : 
-alpha <- RunUMAP(alpha, dims = 1:10)
-DimPlot(alpha, reduction = "umap")
-
-alpha.r25 <- RunUMAP(alpha.r25, dims = 1:20)
-DimPlot(alpha.r25, reduction = "umap")
-# saveRDS(alpha.r25, file = "git_backup/plots/alpha.r25_UMAP")- too large to save 
-
-
-alpha.r65 <- RunUMAP(alpha.r65, dims = 1:10)
-DimPlot(alpha.r65, reduction = "umap")
-
-
-# for the DimPlot, the clusters that are close together are presented in the same colour. This makes it difficult to view. To change this, 
-# I want to se the R Color Brewer palette : 
-install.packages("RColorBrewer")
-library(RColorBrewer)
-palette.a <- brewer.pal(11, "Paired")
-
-Seurat::DimPlot(
-  object = alpha,
-  reduction = 'umap',
-  group.by = 'seurat_clusters',
-  pt.size = 1,
-  label = FALSE,
-  cols = palette.a
-)
-
-# ///
-  
 # Alternatively, using ggplot :   
-
 # Extract UMAP coordinatesb and cluster information
 alpha.umap.coords <- as.data.frame(alpha@reductions$umap@cell.embeddings)
 clusters <- alpha$seurat_clusters
