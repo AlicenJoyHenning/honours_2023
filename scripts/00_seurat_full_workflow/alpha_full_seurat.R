@@ -163,52 +163,33 @@ alpha.markers <- FindAllMarkers(alpha,
                                     min.pct = 0.1, 
                                     only.pos = TRUE)
 
-alpha.markers.df <- as.data.frame(alpha.markers)
-write.csv(alpha.markers.df, file = "honours/ifnalpha/alpha.markers.csv", row.names = FALSE)
+# alpha.markers.df <- as.data.frame(alpha.markers) it is a dataframe already 
+write.csv(alpha.markers, file = "honours/ifnalpha/alpha.markers.csv", row.names = FALSE)
 
+lambda.markers <- FindAllMarkers(lambda, 
+                                logfc.threshold = 0.25, 
+                                min.pct = 0.1, 
+                                only.pos = TRUE)
+write.csv(lambda.markers, file = "honours/ifnlambda/lambda.markers.csv", row.names = FALSE)
 
-cluster1.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25)
-head(cluster1.markers, n = 5)
-# p_val avg_log2FC pct.1 pct.2     p_val_adj
-# S100A8   1.089219e-275   1.949636 0.975 0.437 1.927046e-271
-# SLC25A37 5.253270e-223   1.562825 0.960 0.456 9.294084e-219
-# LRRK2    4.276637e-217   1.673495 0.894 0.361 7.566227e-213
-# NAMPTP1  3.880641e-207   1.444335 0.982 0.518 6.865630e-203
-# VNN2     3.834474e-206   2.122229 0.610 0.152 6.783952e-202
+untreated.markers <- FindAllMarkers(untreated, 
+                                logfc.threshold = 0.25, 
+                                min.pct = 0.1, 
+                                only.pos = TRUE)
 
-# distinguishing between cluster 0 and 1 : 
-cluster0v1.markers <- FindMarkers(alpha, ident.1 = 0, ident.2 = 1, min.pct =0.25)
-head(cluster0v1.markers, n = 5)
-# p_val avg_log2FC pct.1 pct.2    p_val_adj
-# VNN2   4.176859e-59 -1.2197463 0.295 0.610 7.389698e-55
-# S100A8 2.409076e-56 -0.7544300 0.898 0.975 4.262137e-52
-# CCL4L2 1.115124e-42  1.3563812 0.566 0.297 1.972877e-38
-# CCL4   1.665484e-40  1.1984775 0.665 0.418 2.946575e-36
-# ACTB   4.098977e-40 -0.7574825 0.675 0.862 7.251911e-36
+write.csv(untreated.markers, file = "honours/untreated/untreated.markers.csv", row.names = FALSE)
 
-cluster0.markers <- FindMarkers(alpha, ident.1 = 0, ident.2 = c(1, 10), min.pct = 0.25)
-head(cluster0.markers, n = 5)
-# p_val avg_log2FC pct.1 pct.2    p_val_adj
-# VNN2   1.286096e-54 -1.1800757 0.295 0.593 2.275361e-50
-# S100A8 8.568999e-47 -0.7103968 0.898 0.951 1.516027e-42
-# CCL4L2 7.527496e-45  1.3885013 0.566 0.295 1.331765e-40
-# ACTB   1.014142e-44 -0.7992654 0.675 0.866 1.794220e-40
-# CCL4   3.556346e-43  1.2325919 0.665 0.413 6.291888e-39
-
-# find markers for every cluster compared to all remaining cells, report only the positive nes
-alpha.r65.markers <- FindAllMarkers(alpha.r65, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
-
-alpha.r65.markers %>%
-  group_by(cluster) %>%
-  slice_max(n=2, order_by = avg_log2FC)
-
-# 0.5 (round 1) : CCL4L2, CCL4, VNN2, S100A8,  CCR7, RPS13 , MAF,  IL32 ,  PASK, NPM1 
-# 0.25 : IL1RN, SOD2, CCR7, RPS13, MAF, IL32, PASK, NPM1, IGKC, CD74, GNLY, GZMB, PRF1, CD8A, CCL2, CCL7, ATP10D, HDC, NRGN
-# 0.5 : CCL4L2,  CCL4,  VNN2, S100A8, CCR7, RPS13,  MAF, IL32, PASK,NPM1  , 
-# 0.65 : CCL4L2, CCL4, IDO1, GBP5 , CCR7, RPS13, MAF, IL32,VNN2, S100A8   
+Idents(alpha)
 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
 FeaturePlot(alpha.r5, features = c("LYZ","FCER1A"))
+
+
+
+
+
+
+
 
 ##### Create data frame that stores all information about the differentially expressed features of each cluster ##### 
 
