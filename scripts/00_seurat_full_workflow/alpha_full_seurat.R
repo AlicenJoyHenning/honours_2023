@@ -187,8 +187,8 @@ Idents(alpha)
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
 alpha.fp.cluster0 <- FeaturePlot(alpha, features = c("CCL4L2","CCL4", "IL1RN","TNFAIP2","IDO1","GBP1", "TNFAIP6", "C15orf48", "FFAR2", "GBP5"),min.cutoff = 'q10')
 alpha.fp.cluster1 <- FeaturePlot(alpha, features = c("VNN21","S100A81", "BASP11","LRRK21","MNDA1", "GLUL1", "SLC25A371","FPR11","S100A6", "FCER1G1","TNFRSF1B1","ALOX5AP1","NAMPTP11","SLC2A3","MYO1F1"), min.cutoff = 'q10')  
-                            
-alpha.fp.cluster2 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster2 <- FeaturePlot(alpha, features = c("CCR7","RPS13"," RPS3A","RPL5","RPL32", "RPS23", "ENSG00000237550", "RPL35A", " RPS14", "RPL23", "RPL31", "RPS15A", "RPL30", "RPL21","EEF1B2") , min.cutoff = 'q10')
+
 alpha.fp.cluster3 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
 alpha.fp.cluster4 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
 alpha.fp.cluster5 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
