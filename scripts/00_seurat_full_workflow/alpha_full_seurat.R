@@ -6,6 +6,7 @@ library(patchwork)
 library(ggplot2)
 library(grid)
 library(gridExtra)
+library.install("DESeq2")
 
 alpha.data <-  Read10X(data.dir = "honours/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha.data, project='ifnalpha', min.cells=3, min.features=200)
@@ -127,6 +128,10 @@ grid.arrange(js_p1, js_p2, js_p3, ncol = 3)
 
 ##### Cluster cells ##### 
 # the first 20 principal components are being used to calculate the nearest neighbors for the cells in the alpha dataset.
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("DESeq2")
+
 library(ggplot2)
 install.packages("RColorBrewer")
 library(RColorBrewer)
@@ -150,10 +155,16 @@ dim_p3 <- DimPlot(untreated, group.by = "seurat_clusters", cols = palette.b)  + 
 grid.arrange(dim_p1, dim_p2, dim_p3, ncol = 3)
 
 ##### Finding differentially expressed features #####
+# Use the FindAllMarkers() function to identify markers for each cluster : 
 
-alpha.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25) # identifying markers and their differential expression information & store in seurat object
-alpha <- AddMetaData(findmarkers = alpha.markers) # create a new slot named "markers" within the alpha Seurat object and assign the markers_result to it
+# alpha.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25) # identifying markers and their differential expression information & store in seurat object
+alpha.markers <- FindAllMarkers(alpha, 
+                                    logfc.threshold = 0.25, 
+                                    min.pct = 0.1, 
+                                    only.pos = TRUE)
 
+alpha.markers.df <- as.data.frame(alpha.markers)
+write.csv(alpha.markers.df, file = "honours/ifnalpha/alpha.markers.csv", row.names = FALSE)
 
 
 cluster1.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25)
