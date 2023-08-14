@@ -188,15 +188,14 @@ Idents(alpha)
 alpha.fp.cluster0 <- FeaturePlot(alpha, features = c("CCL4L2","CCL4", "IL1RN","TNFAIP2","IDO1","GBP1", "TNFAIP6", "C15orf48", "FFAR2", "GBP5"),min.cutoff = 'q10')
 alpha.fp.cluster1 <- FeaturePlot(alpha, features = c("VNN21","S100A81", "BASP11","LRRK21","MNDA1", "GLUL1", "SLC25A371","FPR11","S100A6", "FCER1G1","TNFRSF1B1","ALOX5AP1","NAMPTP11","SLC2A3","MYO1F1"), min.cutoff = 'q10')  
 alpha.fp.cluster2 <- FeaturePlot(alpha, features = c("CCR7","RPS13"," RPS3A","RPL5","RPL32", "RPS23", "ENSG00000237550", "RPL35A", " RPS14", "RPL23", "RPL31", "RPS15A", "RPL30", "RPL21","EEF1B2") , min.cutoff = 'q10')
-
-alpha.fp.cluster3 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
-alpha.fp.cluster4 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
-alpha.fp.cluster5 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
-alpha.fp.cluster6 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
-alpha.fp.cluster7 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
-alpha.fp.cluster8 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
-alpha.fp.cluster9 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
-alpha.fp.cluster10 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster3 <- FeaturePlot(alpha, features = c("MAF","IL321","IL7R1","CLDND1","ANXA1","RGS1","FYN","SPOCK21", "ARL4C1", "RPL13A1", "RPL361", "RPS181", "RPS4X1","RPS291", "EEF1A11", "RPL23A1"), min.cutoff = 'q10')
+# alpha.fp.cluster4 <- FeaturePlot(alpha, features = c("RPS62","RPL10A2", "RPS132", "RPS52", "RPS182", "RPS82", "RPL52", "RPL132", "RPL322","RPS142"), min.cutoff = 'q10') 
+alpha.fp.cluster5 <- FeaturePlot(alpha, features = c("IGKC", "CD74", "IGHM","HLA-DRA", "IGLC2","BCL11A","HLA-DPA1", "HLA-DQA1","TCF4","MS4A1","BANK1","HLA-DQB1","MEF2C","IGHD","ZBTB201","CD831","ADAM28","BCL21"), min.cutoff = 'q10')
+alpha.fp.cluster6 <- FeaturePlot(alpha, features = c("GNLY","GZMB","PRF1","NKG7", "KLRD1","CLIC3", "PLAAT41", "SAMD3","CD381","ANXA12","CD8A1","METRNL", "CD73","FYN1","GZMM1","CCSER23","CMC1","SYTL2"), min.cutoff = 'q10')
+alpha.fp.cluster7 <- FeaturePlot(alpha, features = c("CXCR6","SYTL21","IL7R3","SEC61B3"), min.cutoff = 'q10')
+alpha.fp.cluster8 <- FeaturePlot(alpha, features = c("NRGN","ENSG00000284874","TSC22D1","H2AC6","ACRBP","DAB2","PTCRA","TMEM40","CLU","TUBA4A","MPIG6B","MAP3K7CL","RUFY1","C2orf88"), min.cutoff = 'q10')
+alpha.fp.cluster9 <- FeaturePlot(alpha, features = c("CCL2","CCL7","MS4A7","RIN2","CTSB", "MSR1","SERPINB2"), min.cutoff = 'q10')
+alpha.fp.cluster10 <- FeaturePlot(alpha, features = c("ATP10D","HDC","AKAP12","RFLNB","GATA2","IL4", "FCER1A","CCR3"), min.cutoff = 'q10')
 
 
 
