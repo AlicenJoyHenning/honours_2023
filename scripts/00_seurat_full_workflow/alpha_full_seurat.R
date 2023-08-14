@@ -165,6 +165,9 @@ alpha.markers <- FindAllMarkers(alpha,
 
 # alpha.markers.df <- as.data.frame(alpha.markers) it is a dataframe already 
 write.csv(alpha.markers, file = "honours/ifnalpha/alpha.markers.csv", row.names = FALSE)
+alpha.ranked.markers <- alpha.markers[order(-abs(alpha.markers$avg_logFC)), ]
+
+
 
 lambda.markers <- FindAllMarkers(lambda, 
                                 logfc.threshold = 0.25, 
@@ -182,7 +185,24 @@ write.csv(untreated.markers, file = "honours/untreated/untreated.markers.csv", r
 Idents(alpha)
 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
-FeaturePlot(alpha.r5, features = c("LYZ","FCER1A"))
+alpha.fp.cluster0 <- FeaturePlot(alpha, features = c("CCL4L2","CCL4", "IL1RN","TNFAIP2","IDO1","GBP1", "TNFAIP6", "C15orf48", "FFAR2", "GBP5"),min.cutoff = 'q10')
+alpha.fp.cluster1 <- FeaturePlot(alpha, features = c("VNN21","S100A81", "BASP11","LRRK21","MNDA1", "GLUL1", "SLC25A371","FPR11","S100A6", "FCER1G1","TNFRSF1B1","ALOX5AP1","NAMPTP11","SLC2A3","MYO1F1"), min.cutoff = 'q10')  
+                            
+alpha.fp.cluster2 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster3 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster4 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster5 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster6 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster7 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster8 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster9 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+alpha.fp.cluster10 <- FeaturePlot(alpha, features = c(), min.cutoff = 'q10')
+
+
+
+
+
+
 
 
 
