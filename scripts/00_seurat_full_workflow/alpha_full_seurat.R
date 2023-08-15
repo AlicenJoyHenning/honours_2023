@@ -213,6 +213,10 @@ lambda.fp.cluster9 <- FeaturePlot(lambda, features = c("CTSD","VEGFA","LGALS3","
 lambda.fp.cluster10 <- FeaturePlot(lambda, features = c("ATP10D","HDC","GATA2","IL3RA","AKAP12","MS4A2","FCER1A","MS4A3","IL1RL1","CCR3","PALLD"), min.cutoff = 'q10')
 lambda.fp.cluster11 <- FeaturePlot(lambda, features = c("VCAN","CYP1B1","OLR1","SLC7A11"), min.cutoff = 'q10')
 
+View(untreated)
+
+
+
 ##### Create data frame that stores all information about the differentially expressed features of each cluster ##### 
 
 cluster = c(seq(0, 10)) # column 1
