@@ -198,17 +198,20 @@ alpha.fp.cluster9 <- FeaturePlot(alpha, features = c("CCL2","CCL7","MS4A7","RIN2
 alpha.fp.cluster10 <- FeaturePlot(alpha, features = c("ATP10D","HDC","AKAP12","RFLNB","GATA2","IL4", "FCER1A","CCR3"), min.cutoff = 'q10')
 
 
-
-
-
-
-
-
-
-
-
-
-
+# using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
+lambda.fp.cluster0 <- FeaturePlot(lambda, features = c("CCL4","CCL4L2","CCL3","IL1RN","TNFAIP2","NFKBIA","BCL2A1","PTAFR","C15orf48","CCL3L3","CLEC4E","CXCL8","TNFAIP3"),min.cutoff = 'q10')
+lambda.fp.cluster1 <- FeaturePlot(lambda, features = c("RGS2","CDA","S100A6","S100A4","MGAM","ACSL11"), min.cutoff = 'q10')
+lambda.fp.cluster2 <- FeaturePlot(lambda, features = c("RPS13","CCR7","RPS3A","RPL32","ENSG00000237550","RPS23","RPS14","RPL35A","RPL31","RPL11","RPL5","RPS15A","EEF1B2"), min.cutoff = 'q10')
+lambda.fp.cluster3 <- FeaturePlot(lambda, features = c("ANXA1","MAF"), min.cutoff = 'q10')
+lambda.fp.cluster4 <- FeaturePlot(lambda, features = c("CD8B","KLRK1","CD8A"), min.cutoff = 'q10')
+lambda.fp.cluster5 <- FeaturePlot(lambda, features = c("IFIT2","IFIT3","IFIT1","ISG15","MX1","PARP14","GBP5","HERC5","RNF213","IFI6","PARP9","STAT1","SAMD9L","TNFSF10","PLSCR1","MX2"), min.cutoff = 'q10')
+lambda.fp.cluster6 <- FeaturePlot(lambda, features = c("GNLY","NKG7","GZMB","CLIC3","PRF1"), min.cutoff = 'q10')
+lambda.fp.cluster7 <- FeaturePlot(lambda, features = c("IGKC","CD74","IGHM","HLA-DRA","HLA-DPA1","IGLC2","HLA-DQA1","MS4A1","HLA-DQB1","IGHA2","TCF4","IGHD","BCL11A","ADAM28","CD79B","MEF2C","CD37"), min.cutoff = 'q10')
+lambda.fp.cluster8.1 <- FeaturePlot(lambda, features = c("NRGN","ENSG00000284874","TSC22D1","ACRBP","C2orf88","DAB2","MMD","PTCRA","TMEM40","RUFY1","CLU","MPIG6B"), min.cutoff = 'q10')
+lambda.fp.cluster8.2 <- FeaturePlot(lambda, features = c("ENKUR","NEXN","TUBA4A","PGRMC1","HEMGN","MTURN","CMTM5","RAP1B"), min.cutoff = 'q10')
+lambda.fp.cluster9 <- FeaturePlot(lambda, features = c("CTSD","VEGFA","LGALS3","KATNBL1","SLC25A13","SLAMF7","NSMAF"), min.cutoff = 'q10')
+lambda.fp.cluster10 <- FeaturePlot(lambda, features = c("ATP10D","HDC","GATA2","IL3RA","AKAP12","MS4A2","FCER1A","MS4A3","IL1RL1","CCR3","PALLD"), min.cutoff = 'q10')
+lambda.fp.cluster11 <- FeaturePlot(lambda, features = c("VCAN","CYP1B1","OLR1","SLC7A11"), min.cutoff = 'q10')
 
 ##### Create data frame that stores all information about the differentially expressed features of each cluster ##### 
 
