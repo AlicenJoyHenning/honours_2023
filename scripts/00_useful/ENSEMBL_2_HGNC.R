@@ -36,12 +36,14 @@ write.csv(gene_data, file = "honours/gene_data.csv", row.names = FALSE)
 ensembl_to_hgnc_map <- setNames(gene_data$HGNC_Name, gene_data$ENSEMBL_Gene_ID)
 
 # Update the feature metadata slot in your Seurat object :
-
-untreated@assays[["RNA"]]@meta.features$gene <- ensembl_to_hgnc_map[rownames(untreated@assays[["RNA"]]@meta.features)]
+untreated@assays[["RNA"]]@meta.features$gene <- ensembl_to_hgnc_map[match(rownames(untreated@assays[["RNA"]]@counts), ensembl_to_hgnc_map)]
+#untreated@assays[["RNA"]]@meta.features$gene <- ensembl_to_hgnc_map[rownames(untreated@assays[["RNA"]]@meta.features)]
+rownames(untreated@assays[["RNA"]]@meta.features) <- untreated@assays[["RNA"]]@meta.features$HGNC_Name
 
 # Update gene names in the count matrix based on the mapping : 
 
 rownames(untreated@assays[["RNA"]]@counts) <- untreated@assays[["RNA"]]@meta.features$gene
+rownames(untreated@assays[["RNA"]]@counts) <- untreated@assays[["RNA"]]@meta.features$HGNC_Name
 
 View(untreated) # look 
 

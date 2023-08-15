@@ -177,9 +177,13 @@ write.csv(lambda.markers, file = "honours/ifnlambda/lambda.markers.csv", row.nam
 
 untreated.markers <- FindAllMarkers(untreated, 
                                 logfc.threshold = 0.25, 
-                                min.pct = 0.1, 
-                                only.pos = TRUE)
+                                min.pct = 0.1,
+                                only.pos = TRUE,
+                                gene.names.column = "HGNC_Name")
+# Add a new column "HGNC_Name" containing corresponding HGNC gene names
 
+# Merge gene_data with untreated.markers based on ENSEMBL_Gene_ID
+# merged_data <- merge(untreated.markers, gene_data, by.x = "gene", by.y = "ENSEMBL_Gene_ID", all.x = TRUE)
 write.csv(untreated.markers, file = "honours/untreated/untreated.markers.csv", row.names = FALSE)
 
 Idents(alpha)
@@ -213,9 +217,20 @@ lambda.fp.cluster9 <- FeaturePlot(lambda, features = c("CTSD","VEGFA","LGALS3","
 lambda.fp.cluster10 <- FeaturePlot(lambda, features = c("ATP10D","HDC","GATA2","IL3RA","AKAP12","MS4A2","FCER1A","MS4A3","IL1RL1","CCR3","PALLD"), min.cutoff = 'q10')
 lambda.fp.cluster11 <- FeaturePlot(lambda, features = c("VCAN","CYP1B1","OLR1","SLC7A11"), min.cutoff = 'q10')
 
-View(untreated)
-
-
+# untreated data set 
+untreated.fp.cluster0 <- FeaturePlot(untreated, features = c("ENSG00000291237","ENSG00000143546","ENSG00000188906","ENSG00000119535","ENSG00000147454","ENSG00000163563","ENSG00000185201","ENSG00000136689","ENSG00000171051","ENSG00000185215"), min.cutoff = 'q10')
+untreated.fp.cluster1 <- FeaturePlot(untreated, features = c("ENSG00000126353","ENSG00000160310","ENSG00000110700","ENSG00000145425","ENSG00000144713""ENSG00000111716","ENSG00000138795","ENSG00000182899","ENSG00000237550","ENSG00000122026"), min.cutoff = 'q10') 
+untreated.fp.cluster2 <- FeaturePlot(untreated, features = c("ENSG00000008517","ENSG00000135046","ENSG00000178573","ENSG00000010810", "ENSG00000188042","ENSG00000168685","ENSG00000213145","ENSG00000107742","ENSG00000089327","ENSG00000130255"), min.cutoff = 'q10')
+untreated.fp.cluster3 <- FeaturePlot(untreated, features = c("ENSG00000115687","ENSG00000172116","ENSG00000126353","ENSG00000213809","ENSG00000168685","ENSG00000138795","ENSG00000148908","ENSG00000111716","ENSG00000114942","ENSG00000160310"), min.cutoff = 'q10')
+untreated.fp.cluster4 <- FeaturePlot(untreated, features = c("ENSG00000211592","ENSG00000019582","ENSG00000211899","ENSG00000204287","ENSG00000231389","ENSG00000196735","ENSG00000211677","ENSG00000156738","ENSG00000211898"), min.cutoff = 'q10')
+untreated.fp.cluster5 <- FeaturePlot(untreated, features = c("ENSG00000153563","ENSG00000173457","ENSG00000172215","ENSG00000112419","ENSG00000069667","ENSG00000115523","ENSG00000204475","ENSG00000134333","ENSG00000112486","ENSG00000165929"), min.cutoff = 'q10')
+untreated.fp.cluster6 <- FeaturePlot(untreated, features = c("ENSG00000105374","ENSG00000115523","ENSG00000153563","ENSG00000227191","ENSG00000145675","ENSG00000213809","ENSG00000134539","ENSG00000164483","ENSG00000145220","ENSG00000211829"), min.cutoff = 'q10')
+untreated.fp.cluster7 <- FeaturePlot(untreated, features = c("ENSG00000119917","ENSG00000185745","ENSG00000119922","ENSG00000187608","ENSG00000157601","ENSG00000173193","ENSG00000126709","ENSG00000154451","ENSG00000115415"), min.cutoff = 'q10')  
+untreated.fp.cluster8 <- FeaturePlot(untreated, features = c("ENSG00000115523","ENSG00000100453","ENSG00000105374","ENSG00000134539","ENSG00000169583","ENSG00000150045","ENSG00000180644","ENSG00000164483","ENSG00000186891"), min.cutoff = 'q10')   
+untreated.fp.cluster9 <- FeaturePlot(untreated, features = c("ENSG00000038427","ENSG00000100097","ENSG00000166927","ENSG00000197632","ENSG00000138061","ENSG00000137801","ENSG00000164111","ENSG00000268173","ENSG00000125538"), min.cutoff = 'q10')
+untreated.fp.cluster10 <- FeaturePlot(untreated, features = c("ENSG00000145246","ENSG00000140287","ENSG00000183688","ENSG00000179348","ENSG00000131016","ENSG00000185291","ENSG00000149534","ENSG00000179639","ENSG00000115602","ENSG00000125898"), min.cutoff = 'q10')
+untreated.fp.cluster11<- FeaturePlot(untreated, features = c("ENSG00000154146","ENSG00000284874","ENSG00000180573","ENSG00000102804","ENSG00000120885","ENSG00000111644","ENSG00000204420","ENSG00000156265","ENSG00000176783"), min.cutoff = 'q10')
+untreated.fp.cluster12 <- FeaturePlot(untreated, features = c("ENSG00000160310","ENSG00000127152","ENSG00000071082","ENSG00000185811","ENSG00000149311","ENSG00000135976","ENSG00000122026","ENSG00000285437","ENSG00000125691","ENSG00000155657"), min.cutoff = 'q10')
 
 ##### Create data frame that stores all information about the differentially expressed features of each cluster ##### 
 
