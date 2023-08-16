@@ -7,6 +7,9 @@ library(ggplot2)
 library(grid)
 library(gridExtra)
 library.install("DESeq2")
+BiocManager::install("turbo")
+library(viridis)
+
 
 alpha.data <-  Read10X(data.dir = "honours/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha.data, project='ifnalpha', min.cells=3, min.features=200)
@@ -165,8 +168,7 @@ alpha.markers <- FindAllMarkers(alpha,
 
 # alpha.markers.df <- as.data.frame(alpha.markers) it is a dataframe already 
 write.csv(alpha.markers, file = "honours/ifnalpha/alpha.markers.csv", row.names = FALSE)
-alpha.ranked.markers <- alpha.markers[order(-abs(alpha.markers$avg_logFC)), ]
-
+# alpha.ranked.markers <- alpha.markers[order(-abs(alpha.markers$avg_logFC)), ]
 
 
 lambda.markers <- FindAllMarkers(lambda, 
@@ -186,8 +188,6 @@ untreated.markers <- FindAllMarkers(untreated,
 # merged_data <- merge(untreated.markers, gene_data, by.x = "gene", by.y = "ENSEMBL_Gene_ID", all.x = TRUE)
 write.csv(untreated.markers, file = "honours/untreated/untreated.markers.csv", row.names = FALSE)
 
-Idents(alpha)
-
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
 alpha.fp.cluster0 <- FeaturePlot(alpha, features = c("CCL4L2","CCL4", "IL1RN","TNFAIP2","IDO1","GBP1", "TNFAIP6", "C15orf48", "FFAR2", "GBP5"),min.cutoff = 'q10')
 alpha.fp.cluster1 <- FeaturePlot(alpha, features = c("VNN21","S100A81", "BASP11","LRRK21","MNDA1", "GLUL1", "SLC25A371","FPR11","S100A6", "FCER1G1","TNFRSF1B1","ALOX5AP1","NAMPTP11","SLC2A3","MYO1F1"), min.cutoff = 'q10')  
@@ -203,6 +203,7 @@ alpha.fp.cluster10 <- FeaturePlot(alpha, features = c("ATP10D","HDC","AKAP12","R
 
 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
+
 lambda.fp.cluster0 <- FeaturePlot(lambda, features = c("CCL4","CCL4L2","CCL3","IL1RN","TNFAIP2","NFKBIA","BCL2A1","PTAFR","C15orf48","CCL3L3","CLEC4E","CXCL8","TNFAIP3"),min.cutoff = 'q10')
 lambda.fp.cluster1 <- FeaturePlot(lambda, features = c("RGS2","CDA","S100A6","S100A4","MGAM","ACSL11"), min.cutoff = 'q10')
 lambda.fp.cluster2 <- FeaturePlot(lambda, features = c("RPS13","CCR7","RPS3A","RPL32","ENSG00000237550","RPS23","RPS14","RPL35A","RPL31","RPL11","RPL5","RPS15A","EEF1B2"), min.cutoff = 'q10')
@@ -232,16 +233,75 @@ untreated.fp.cluster10 <- FeaturePlot(untreated, features = c("ENSG00000145246",
 untreated.fp.cluster11<- FeaturePlot(untreated, features = c("ENSG00000154146","ENSG00000284874","ENSG00000180573","ENSG00000102804","ENSG00000120885","ENSG00000111644","ENSG00000204420","ENSG00000156265","ENSG00000176783"), min.cutoff = 'q10')
 untreated.fp.cluster12 <- FeaturePlot(untreated, features = c("ENSG00000160310","ENSG00000127152","ENSG00000071082","ENSG00000185811","ENSG00000149311","ENSG00000135976","ENSG00000122026","ENSG00000285437","ENSG00000125691","ENSG00000155657"), min.cutoff = 'q10')
 
-##### Create data frame that stores all information about the differentially expressed features of each cluster ##### 
+##### Manually annotate the clusters based on above markers #####
+# allows us to view the current cluster annotations (just numbers)
 
-cluster = c(seq(0, 10)) # column 1
-unique.markers = FindMarkers(alpha, ident.1 = i, min.pct = 0.25) | head n = 5
-cluster.comparision.markers <- FindMarkers(alpha, ident.1 = i, ident.2 = j, min.pct =0.25)
+Idents(alpha) 
+Idents(lambda)
+Idents(untreated)
 
-diff.features <- data.frame(cluster, 
-                            unique.markers, 
-                            cluster.comparision.markers)
+# rename the clusters based on research on markers :(to undo : alpha <- FindClusters(alpha, resolution = 0.5) ) 
+alpha <- RenameIdents(alpha, '0' = 'CD14 mono')
+alpha <- RenameIdents(alpha, '1' = 'CD16 mono')
+alpha <- RenameIdents(alpha, '2' = 'CD4 Memory T')
+alpha <- RenameIdents(alpha, '3' = 'CD8 T')
+alpha <- RenameIdents(alpha, '4' = 'CD4 Naiive T')
+alpha <- RenameIdents(alpha, '5' = 'B cells')
+alpha <- RenameIdents(alpha, '6' = 'NK cells')
+alpha <- RenameIdents(alpha, '7' = 'CD8 effector T')
+alpha <- RenameIdents(alpha, '8' = 'DC')
+alpha <- RenameIdents(alpha, '9' = '9')
+alpha <- RenameIdents(alpha, '10' = 'pDC')
 
+library(turbo)
+library(RColorBrewer)
+YlGnBu <- brewer.pal(9, "YlGnBu") 
+my_palette <- c(YlGnBu, c("#b491c8","#b4bcb4"))
+                          #3c1361", "52307c"
+YlGnBu
+palette <- c( "#2E8B57","#7FCDBB","#41B6C4","#1D91C0","#225EA8","#253494","#081D50","#80198C", "#BA0072","#FF9AA2","#E7FFAC")
+#"#2E8B57","#7FCDBB" "#41B6C4" "#1D91C0" "#225EA8" "#253494" "#081D58""#80198C", "#BA0072","#FF9AA2","#FFB7B2",
+# "#80198C", "#BA0072","#FF9AA2","#FFB7B2"
+electric_rainbow <- c("#fff100", "#ff8c00","#e81123", "#ec008c","#68217a","#4B2164", "#00188f", "#225EA8", "#00b294", "#009e49", "#65BF79")
+
+turbo_p <- mako(11)
+DimPlot(alpha, 
+        reduction = 'umap', 
+        label = FALSE,
+        cols = electric_rainbow)
+        
+        
+       
+
+
+# rename the clusters based on research on markers : 
+lambda <- RenameIdents(lambda, '0' = 'CD14 mono')
+lambda <- RenameIdents(lambda, '1' = 'CD16 mono')
+lambda <- RenameIdents(lambda, '2' = '')
+lambda <- RenameIdents(lambda, '3' = '')
+lambda <- RenameIdents(lambda, '4' = '')
+lambda <- RenameIdents(lambda, '5' = 'mono')
+lambda <- RenameIdents(lambda, '6' = '')
+lambda <- RenameIdents(lambda, '7' = 'B cells')
+lambda <- RenameIdents(lambda, '8' = 'DC') 
+lambda <- RenameIdents(lambda, '9' = '')
+lambda <- RenameIdents(lambda, '10' = '')
+lambda <- RenameIdents(lambda, '11' = '')
+
+# Rename clusters 
+untreated <- RenameIdents(untreated, '0' = 'CD14 mono')
+untreated <- RenameIdents(untreated, '1' = '')
+untreated <- RenameIdents(untreated, '2' = '')
+untreated <- RenameIdents(untreated, '3' = '')
+untreated <- RenameIdents(untreated, '4' = 'B cells')
+untreated <- RenameIdents(untreated, '5' = '')
+untreated <- RenameIdents(untreated, '6' = '')
+untreated <- RenameIdents(untreated, '7' = 'mono')
+untreated <- RenameIdents(untreated, '8' = 'NK')
+untreated <- RenameIdents(untreated, '9' = '')
+untreated <- RenameIdents(untreated, '10' = '')
+untreated <- RenameIdents(untreated, '11' = 'DC')
+untreated <- RenameIdents(untreated, '12' = '')
 
 ##### Annotate clusters #####
 
@@ -300,79 +360,5 @@ Seurat::FeaturePlot(seurat.obj, features = "B_cells_p")
 
 
 
-
-
-##### Annotate clsters using SingleR #####
-BiocManager::install("celldex")
-BiocManager::install("ensembldb")
-
-library(celldex)
-library(SingleR)
-
-ref.data <- celldex::HumanPrimaryCellAtlasData(ensembl=TRUE) # reference dataset appropriate for PBMCs
-
-# alpha.singleR <- alpha@assays$RNA@counts 
-
-alpha.singleR <- as.SingleCellExperiment(alpha)
-ref.singleR <- as.SingleCellExperiment(ref.data)
-
-  
-dim(alpha.singleR)
-# [1] 17692  4742
-
-
-dim(ref.data)
-# 17893   713
-
-alpha.pred <- SingleR(test = alpha.singleR,
-                      ref = ref.data,
-                      labels = ref.data$label.main)
-
-
-# testing to see if making the objects have equal # of genes will fix it : 
-# Assuming that 'common_genes' is a vector of gene names that are present in both datasets
-common_genes <- intersect(rownames(alpha.singleR), rownames(ref.data))
-
-# Subset both datasets to include only the common genes
-alpha.singleR_subset <- alpha.singleR[common_genes, ]
-ref.data_subset <- ref.data[common_genes, ]
-dim(alpha.singleR_subset)
-dim(ref.data_subset)
-
-# fix : seeing if the inconsistent ggene naming could be the problem 
-genes <- read_tsv("honours_2023/kallisto_index/transcripts_to_genes")
-genes <- subset(genes, select = -ENST00000624431.2) # remove column 
-genes$ENSG00000279928.2 <- substring(genes$ENSG00000279928.2, 1, 15) # take out version numbers 
-colnames(genes) <- c("Ensembl_ID", "HGNC_ID") # changing column names 
-genes$HGNC_ID <- ifelse(is.na(genes$HGNC_ID),genes$Ensembl_ID, genes$HGNC_ID)
-
-
-
-# Now you can use the SingleR function with the subsetted datasets
-alpha.pred <- SingleR(
-  test = alpha.singleR_subset,
-  ref = ref.data_subset,
-  labels = ref.data$label.main
-)
-
-
-
-# output is cell barcodes as rows with columns for predictions 
-
-# Now to visualize this, save the labels assigned by SingleR into the Seurat object 
-
-alpha.pbmc.counts$singleR.labels <- alpha.pred$labels[match(rownames(alpha@meta.data), rownames(alpha.pred))]
-
-# Plot this with labels : 
-
-palette.a <- brewer.pal(11, "Paired")
-
-Seurat::DimPlot(
-  object = alpha,
-  reduction = 'umap',
-  group.by = 'singleR.labels',
-  pt.size = 1,
-  cols = palette.a
-)
 
 
