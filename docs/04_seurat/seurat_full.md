@@ -1,5 +1,5 @@
 # Dataset Processing in R with Seurat 
-*Guide* : https://satijalab.org/seurat/articles/pbmc3k_tutorial <br>*NB* : remember to ```saveRDS(object, file= "path/to/object.rds")``` constantly to avoid soul crushing losses</br> 
+*Guides* : https://satijalab.org/seurat/articles/pbmc3k_tutorial, https://www.youtube.com/watch?v=1i6T9hpvwg0&t=1795s <br>*NB* : remember to ```saveRDS(object, file= "path/to/object.rds")``` constantly to avoid soul crushing losses</br> 
 
 
 ## Preprocessing Stages  
@@ -281,19 +281,34 @@ grid.arrange(umap_p1, umap_p2, umap_p3, ncol = 3)
 ## Finding differentially expressed features (cluster biomarkers) 
 Seurat can help you find markers that define clusters via differential expression. By default, it identifies positive and negative markers of a single cluster (specified in ident.1), compared to all other cells. FindAllMarkers() automates this process for all clusters, but you can also test groups of clusters vs. each other, or against all cells.
 
-Using the  ```R FindMarkers()``` function, you can find the top markers for each cluster : 
+Using the  ```R FindAllMarkers()``` function, you can find the top markers for each cluster : 
 ```R
-alpha.cluster.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25)
-head(cluster1.markers, n = 5)
-# p_val avg_log2FC pct.1 pct.2     p_val_adj
-# S100A8   1.089219e-275   1.949636 0.975 0.437 1.927046e-271
-# SLC25A37 5.253270e-223   1.562825 0.960 0.456 9.294084e-219
-# LRRK2    4.276637e-217   1.673495 0.894 0.361 7.566227e-213
-# NAMPTP1  3.880641e-207   1.444335 0.982 0.518 6.865630e-203
-# VNN2     3.834474e-206   2.122229 0.610 0.152 6.783952e-202
+ # identifying markers for cluster 1 and their differential expression information & store in seurat object
+alpha.markers <- FindMarkers(alpha, ident.1 = 1, min.pct = 0.25)
+
+# finding markers for all clusters in one step : 
+alpha.markers <- FindAllMarkers(alpha, 
+                                    logfc.threshold = 0.25, 
+                                    min.pct = 0.1, 
+                                    only.pos = TRUE)
+write.csv(alpha.markers, file = "honours/ifnalpha/alpha.markers.csv", row.names = FALSE) # it is a dataframe already 
+
+lambda.markers <- FindAllMarkers(lambda, 
+                                logfc.threshold = 0.25, 
+                                min.pct = 0.1, 
+                                only.pos = TRUE)
+write.csv(lambda.markers, file = "honours/ifnlambda/lambda.markers.csv", row.names = FALSE)
+
+untreated.markers <- FindAllMarkers(untreated, 
+                                logfc.threshold = 0.25, 
+                                min.pct = 0.1,
+                                only.pos = TRUE,
+                                gene.names.column = "HGNC_Name")
+write.csv(untreated.markers, file = "honours/untreated/untreated.markers.csv", row.names = FALSE)
+
 ```
 
-Alternatively, you can look at the markers that distinguish one cluster from another. Here, we are distinguishing cluster 0 from cluster 1 (as they have grouped together on the plot) 
+Alternatively, you can look at the markers that distinguish one cluster from another. Here, we are distinguishing cluster 0 from cluster 1 (as they have grouped together on the MAP plot) 
 
 ```R
 # Distinguishing between cluster 0 and 1 : 
@@ -339,5 +354,13 @@ FeaturePlot(alpha, features = c("CCL4L2", "CCL4", "VNN2", "S100A8", "CCR7", "RPS
 
 DoHeatmap(pbmc, features = top10$gene) + NoLegend()
 ```
-
 ![image](https://github.com/AlicenJoyHenning/honours_2023/blob/main/plots/alpha_featuresplot_1.jpg)
+
+Once a list of feature for each cluster have been identified and ranked according to log fold changes, the features can be visualised in a FeaturePlot. These plot add an additional view to the UMAP plot whereby the only colour in the plot arises from the expression of a paticular feature in the cells of the clusters. In this way, if  a feature is coloured in only one cluster relative to the others, it has the potential to be a good marker for that cluster. 
+
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/2347c157-e1bf-42a2-a465-020e871f2df2)
+
+Using reference databases, the potential markers for each cluster are searched to see if they are markers for immune cell types. Once the identity of the clusters was identified, the labels for the clusters were manually changed resulting in the following : 
+
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/5bfe4451-bfe5-4f97-8a33-312dc7f1be90)
+
