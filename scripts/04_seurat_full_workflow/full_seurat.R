@@ -11,14 +11,14 @@ BiocManager::install("turbo")
 library(viridis)
 
 
-alpha.data <-  Read10X(data.dir = "honours/ifnalpha/seurat_matrix/")
+alpha.data <-  Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha.data, project='ifnalpha', min.cells=3, min.features=200)
 # output : Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
 
-lambda.data <-  Read10X(data.dir = "honours/ifnlambda/seurat_matrix/")
+lambda.data <-  Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
 lambda <- CreateSeuratObject(counts=lambda.data, project='ifnlambda', min.cells=3, min.features=200)
 
-untreated.data <-  Read10X(data.dir = "honours/untreated/seurat_matrix/")
+untreated.data <-  Read10X(data.dir = "honours/work/untreated/seurat_matrix/")
 untreated <- CreateSeuratObject(counts=untreated.data, project='untrearted', min.cells=3, min.features=200)
 
 # To save the seurat objects :  
@@ -33,7 +33,7 @@ alpha <- readRDS("honours/ifnalpha/alpha.rds")
 lambda <- readRDS("honours/ifnlambda/lambda.rds")
 untreated <- readRDS("honours/untreated/untreated.rds")
 
-##### Removing unwanted cells based on # genes expressed and mito chondrial gene xpression #####
+##### Removing unwanted cells based on # genes expressed and mitochondrial gene expression #####
 
 
 alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")

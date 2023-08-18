@@ -2,67 +2,102 @@
 
 ##### Loading dependencies and datasets #####
 
+getwd()
+
+BiocManager::install("SeuratData")
+
+library(dplyr)
+library(ggplot2)
+library(grid)
 library(Seurat)
 library(SeuratData)
 library(patchwork)
 
+
 # Load datasets: alpha, lambda, and untreated
 # can i do readRDS instead ?
-alpha <- Read10X(data.dir = "path/to/alpha/data")  
-lambda <- Read10X(data.dir = "path/to/lambda/data")
-untreated <- Read10X(data.dir = "path/to/untreated/data")
 
-# Create a list of Seurat objects
-treatment.list <- list(alpha, lambda, untreated)
+alpha <- Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
+alpha <- CreateSeuratObject(counts=alpha, project='ifnalpha', min.cells=3, min.features=200)
+lambda <- Read10X(data.dir = "honours/work/ifnlambda/seurat_matrix/")
+lambda <- CreateSeuratObject(counts=lambda, project='ifnlambda', min.cells=3, min.features=200)
+untreated <- Read10X(data.dir = "honours/work/untreated/seurat_matrix/")
+untreated <- CreateSeuratObject(counts=untreated, project='untrearted', min.cells=3, min.features=200)
 
-##### Normalization before integration #####
+##### Perform quality control independently on the datasets #####
 
-# Normalize, find variable features, and select integration features for each dataset
+# Removing unwanted cells based on # genes expressed and mitochondrial gene expression
 
-treatment.list <- lapply(
-  datasets, # list containing 3 datasets 
-  function(x) {
-    x <- NormalizeData(x)  # normalizes each dataset independently 
-    x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000) # identifies variable features for each dataset independently 
-    return(x)
-}) # here our output is the same list containing the same seurat objects that themselves have been modified. 
+alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
+lambda[["percent.mt"]] <- PercentageFeatureSet(lambda, pattern = "^MT-")
+untreated[["percent.mt"]] <- PercentageFeatureSet(untreated, pattern = "^MT-")
 
-##### Prepare for integration #####
+alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 
-# Select features that are repeatedly variable across datasets for integration : 
-treatment.features <- SelectIntegrationFeatures(object.list = treatment.list)
+# Normalising according to LOG scale (good for integration)
+
+# 1 : actual normalization 
+alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.factor = 10000)
+lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
+untreated <- NormalizeData(untreated, normalization.method = "LogNormalize", scale.factor = 10000)
+
+
+# 2 : feature selection (check dim(object@assays$RNA@counts)[2] to view genes and length(oject@assays$RNA@var.features) to view 2000 variable genes)
+alpha <- FindVariableFeatures(alpha, selection.method = "vst", nfeatures = 2000)
+lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 2000)
+untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
+# 
+# # 3 : scaling the data : NO! actually doing this afterwards !!!
+# # The results of this are stored in object[["RNA"]]@scale.data
+# 
+# all.alpha.genes <- rownames(alpha)
+# alpha <- ScaleData(alpha, features = all.alpha.genes)
+# all.lambda.genes <- rownames(lambda)
+# lambda <- ScaleData(lambda, features = all.lambda.genes)
+# all.untreated.genes <- rownames(untreated)
+# untreated <- ScaleData(untreated, features = all.untreated.genes)
+
+##### Prepare datasets for integration #####
+
+treatment.list <- list(alpha, lambda) #, untreated) # Create a list of Seurat objects
+
+treatment.features <- SelectIntegrationFeatures(object.list = treatment.list) # Select features that are repeatedly variable across datasets for integration : 
+# electing features (genes) that are consistently variable across multiple datasets for the purpose of integrating those datasets into a single analysis
 # function does not directly modify the Seurat objects themselves. Instead, it processes the gene expression data within the Seurat objects to identify a set of integration features, which are then used for subsequent integration steps. The Seurat objects remain unchanged, but the integration features selected based on these objects play a crucial role in guiding the integration process.
-
-
-
-
-
-
-
-
+# it goes as separate input into the integration function
 
 ##### perform integration #####
 
-# Identify integration anchors 
+# Identify integration anchors : 
+
 anchors <- FindIntegrationAnchors(
-  object.list = dataset.list, 
-  anchor.features = features
+  object.list = treatment.list, 
+  anchor.features = treatment.features
 )
 
-# Integrate datasets
-combined <- IntegrateData(anchorset = anchors)
+# Integrate data sets using the anchors : 
+treatment <- IntegrateData(anchorset = anchors)
 
-# Specify integrated data assay
-DefaultAssay(combined) <- "integrated"
+# Specify integrated data assay : 
+DefaultAssay(treatment) <- "integrated"  
+# designating an integrated data assay for a Seurat object. This step is crucial for integrating multiple scRNA-seq datasets and performing downstream analyses on the integrated data
+
 
 # Run standard workflow for visualization and clustering
-combined <- ScaleData(combined, verbose = FALSE)
-combined <- RunPCA(combined, npcs = 30, verbose = FALSE)
-combined <- RunUMAP(combined, reduction = "pca", dims = 1:30)
-combined <- FindNeighbors(combined, reduction = "pca", dims = 1:30)
-combined <- FindClusters(combined, resolution = 0.5)
+treatment <- ScaleData(treatment, verbose = FALSE)
+treatment <- RunPCA(treatment, npcs = 30, verbose = FALSE)
+treatment <- RunUMAP(treatment, reduction = "pca", dims = 1:30) # 30
+treatment <- FindNeighbors(treatment, reduction = "pca", dims = 1:30) # 30 
+treatment <- FindClusters(treatment, resolution = 0.5)
 
 # Visualization
-p1 <- DimPlot(combined, reduction = "umap", group.by = "stim")
-p2 <- DimPlot(combined, reduction = "umap", label = TRUE, repel = TRUE)
+# getting an error for 'stim' , clustered by seurat_clusters = wack, 
+# changed name of metadata column header to stim
+colnames(treatment@meta.data)[1] <- "stim"
+
+
+p1 <- DimPlot(treatment, reduction = "umap", group.by = "stim")
+p2 <- DimPlot(treatment, reduction = "umap", label = TRUE, repel = TRUE)
 p1 + p2
