@@ -11,6 +11,7 @@ library(ggplot2)
 library(grid)
 library(Seurat)
 library(SeuratData)
+library(tidyverse)
 library(patchwork)
 
 
@@ -23,6 +24,11 @@ lambda <- Read10X(data.dir = "honours/work/ifnlambda/seurat_matrix/")
 lambda <- CreateSeuratObject(counts=lambda, project='ifnlambda', min.cells=3, min.features=200)
 untreated <- Read10X(data.dir = "honours/work/untreated/seurat_matrix/")
 untreated <- CreateSeuratObject(counts=untreated, project='untrearted', min.cells=3, min.features=200)
+
+alpha <- saveRDS(alpha, "honours/work/RObjects/")
+lambda <- saveRDS(lambda, "honours/work/RObjects/")
+untreated <- saveRDS(untreated, "honours/work/RObjects/")
+
 
 ##### Perform quality control independently on the datasets #####
 
@@ -61,7 +67,7 @@ untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures
 
 ##### Prepare datasets for integration #####
 
-treatment.list <- list(alpha, lambda) #, untreated) # Create a list of Seurat objects
+treatment.list <- list(alpha, lambda, untreated) # Create a list of Seurat objects
 
 treatment.features <- SelectIntegrationFeatures(object.list = treatment.list) # Select features that are repeatedly variable across datasets for integration : 
 # electing features (genes) that are consistently variable across multiple datasets for the purpose of integrating those datasets into a single analysis

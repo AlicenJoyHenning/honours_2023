@@ -10,6 +10,7 @@ library.install("DESeq2")
 BiocManager::install("turbo")
 library(viridis)
 
+setwd("~")
 
 alpha.data <-  Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha.data, project='ifnalpha', min.cells=3, min.features=200)
@@ -18,7 +19,7 @@ alpha <- CreateSeuratObject(counts=alpha.data, project='ifnalpha', min.cells=3, 
 lambda.data <-  Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
 lambda <- CreateSeuratObject(counts=lambda.data, project='ifnlambda', min.cells=3, min.features=200)
 
-untreated.data <-  Read10X(data.dir = "honours/work/untreated/seurat_matrix/")
+untreated.data <-  Read10X(data.dir = "honours/work/untreated/sm/seurat_matrix/")
 untreated <- CreateSeuratObject(counts=untreated.data, project='untrearted', min.cells=3, min.features=200)
 
 # To save the seurat objects :  
