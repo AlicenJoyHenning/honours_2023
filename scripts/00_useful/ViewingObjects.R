@@ -3,6 +3,7 @@
 
 library(readr)
 library(dplyr)
+library(Matrix)
 
 
 barcodes <- read_tsv("honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz")
@@ -10,7 +11,7 @@ head(barcodes)
 length(barcodes)
 dim(barcodes)
 
-features <- read_tsv("honours/work/untreated/sm/seurat_matrix/features.tsv")
+features <- read_tsv("honours/work/s/features.tsv.gz")
 dim(features)
 # [1] 69535 2 
 # error on reading in the folder containing all these in Read10X() said : 
@@ -61,8 +62,24 @@ length(duplicated)
 #featuresNoReplicates <- features %>% distinct(HGNC)
 #dim(featuresNoReplicates) # ouput is a subset of distinct entries OF THAT column, not the entire dataset 
 # I am going to use this as input for the Read10X function
+features <- features[1:35639, ] 
 
-featuresNew <- write_tsv(features,"honours/work/untreated/sm/seurat_matrix/newfeatures.tsv.gz")
+featuresNew <- w
 
+#####
+
+# After addressing problems with the features file, lets look at the problems with the matrix file " 
+
+matrix <- ReadMtx("honours/work/untreated/sm/seurat_matrix/matrix.mtx.gz", "honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz", "honours/work/untreated/sm/seurat_matrix/features.tsv.gz", skip.feature = 2)
+# Error: Matrix has 35639 rows but found 69537 features. Try increasing `skip.feature`. 
+
+matrixx <- writeMM(matrix, "honours/work/untreated/sm/seurat_matrix/newmatrix.mtx.gz")
+dim(matrix)
+matrix
+# 35639 x 5939 sparse Matrix of class "dgCMatrix"
+
+
+untreated <- CreateSeuratObject( matrix, project='untreated', min.cells=3, min.features=200)
+untreated <- CreateSeuratObject(counts=untreated, project='untreated', min.cells=3, min.features=200)
 
 

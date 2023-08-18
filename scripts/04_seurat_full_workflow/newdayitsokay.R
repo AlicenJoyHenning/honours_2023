@@ -3,7 +3,7 @@
 ##### Loading dependencies and datasets #####
 
 getwd()
-
+library(BiocManager)
 BiocManager::install("SeuratData")
 
 library(dplyr)
@@ -13,17 +13,23 @@ library(Seurat)
 library(SeuratData)
 library(tidyverse)
 library(patchwork)
+library(readr)
 
 
 # Load datasets: alpha, lambda, and untreated
-# can i do readRDS instead ?
 
 alpha <- Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha, project='ifnalpha', min.cells=3, min.features=200)
 lambda <- Read10X(data.dir = "honours/work/ifnlambda/seurat_matrix/")
 lambda <- CreateSeuratObject(counts=lambda, project='ifnlambda', min.cells=3, min.features=200)
-untreated <- Read10X(data.dir = "honours/work/untreated/seurat_matrix/")
-untreated <- CreateSeuratObject(counts=untreated, project='untrearted', min.cells=3, min.features=200)
+untreated <- Read10X(data.dir = "honours/work/s/")
+untreated <- CreateSeuratObject(counts=untreated, project='untreated', min.cells=3, min.features=200)
+# noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
+
+# matrix <- ReadMtx("honours/work/untreated/sm/seurat_matrix/matrix.mtx.gz", "honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz", "honours/work/untreated/sm/seurat_matrix/features.tsv.gz", skip.feature = 2)
+# # Error: Matrix has 35639 rows but found 69537 features. Try increasing `skip.feature`. 
+
+
 
 alpha <- saveRDS(alpha, "honours/work/RObjects/")
 lambda <- saveRDS(lambda, "honours/work/RObjects/")
