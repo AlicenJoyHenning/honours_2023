@@ -22,8 +22,11 @@ alpha <- Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha, project='ifnalpha', min.cells=3, min.features=200)
 lambda <- Read10X(data.dir = "honours/work/ifnlambda/seurat_matrix/")
 lambda <- CreateSeuratObject(counts=lambda, project='ifnlambda', min.cells=3, min.features=200)
-untreated <- Read10X(data.dir = "honours/work/s/")
-untreated <- CreateSeuratObject(counts=untreated, project='untreated', min.cells=3, min.features=200)
+
+# untreated object first requires the matrix to be made : 
+matrix <- ReadMtx("honours/work/untreated/seurat_matrix_unsuccessful/matrix.mtx.gz", "honours/work/untreated/seurat_matrix_unsuccessful/barcodes.tsv.gz", "honours/work/untreated/seurat_matrix_unsuccessful/features.tsv.gz")
+untreated <- CreateSeuratObject(matrix, project='untreated', min.cells=3, min.features=200)
+
 # noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
 
 # matrix <- ReadMtx("honours/work/untreated/sm/seurat_matrix/matrix.mtx.gz", "honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz", "honours/work/untreated/sm/seurat_matrix/features.tsv.gz", skip.feature = 2)

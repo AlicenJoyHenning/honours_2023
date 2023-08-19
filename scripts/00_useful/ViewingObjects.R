@@ -1,9 +1,12 @@
 # Doing things with a dataset in R 
 # revelation : cache issue : session > clear workspace > close R > open R, reinstall packages
 
+##### Viewing features ####
 library(readr)
 library(dplyr)
 library(Matrix)
+library(stringr)
+library(Seurat)
 
 
 barcodes <- read_tsv("honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz")
@@ -11,8 +14,8 @@ head(barcodes)
 length(barcodes)
 dim(barcodes)
 
-features <- read_tsv("honours/work/s/features.tsv.gz")
-dim(features)
+UntreatedFeatures <- read_tsv("honours/work/untreated/sm/seurat_matrix/newfeatures.tsv.gz")
+dim(UntreatedFeatures)
 # [1] 69535 2 
 # error on reading in the folder containing all these in Read10X() said : 
 # Error in dimnamesGets(x, value) : length of Dimnames[[1]] (69536) is not equal to Dim[1] (35639)
@@ -38,7 +41,6 @@ features$EnsembleID <- ifelse(is.na(features$EnsembleID), features$HGNC, feature
 #     EnsembleID = coalesce(EnsembleID, HGNC)
 #   )
 
-
 # Now, looking at the data frame, after row 35638, there are no entries in the ensemble ID column .... just HGNC!?
 # check to see if the HGNC names with no ensemble names are duplclates and i can remove them : 
 
@@ -61,25 +63,83 @@ length(duplicated)
 
 #featuresNoReplicates <- features %>% distinct(HGNC)
 #dim(featuresNoReplicates) # ouput is a subset of distinct entries OF THAT column, not the entire dataset 
-# I am going to use this as input for the Read10X function
+
+# I am going to use this as input for the Read10X function to see if it works : 
 features <- features[1:35639, ] 
+# it doesn't work into the Read10X function, but it works when i create a matrix and and use that directly to make a seurat object 
+# but clusters are weird so 
 
-featuresNew <- w
+##### Subset based on features from other datasets ####
 
-#####
+UntreatedFeatures <- read_tsv("honours/work/untreated/seurat_matrix_unsuccessful/features.tsv.gz")
+dim(UntreatedFeatures)
+# [1] 69535 2 
+AlphaFeatures <- read_tsv("honours/work/ifnalpha/seurat_matrix/features.tsv.gz")
+dim(AlphaFeatures)
+# Rows: 33896 Columns: 2   
+LambdaFeatures <- read_tsv("honours/work/ifnlambda/seurat_matrix/features.tsv.gz")
+# Rows: 33896 Columns: 2   
+
+# clearly (due to the dimensions being almost double) there is something wrong with the features of untreated. 
+# plan : subset the UnTreated Features using the features from alpha and lambda 
+
+sum(str_detect(UntreatedFeatures$HGNC,'PRDM16'))
+# [1] 2 > - we this gene is repeated in untreated features. 
+sum(str_detect(UntreatedFeatures$HGNC,'RPS27P9'))
+# [1] 1
+# This tells me that removing duplicates might be a good idea : 
+
+duplicated <- which(duplicated(UntreatedFeatures$HGNC))
+length(duplicated) 
+# [1] 26112
+
+UntreatedFeatures <- UntreatedFeatures[!duplicated(UntreatedFeatures$HGNC), ] 
+dim(UntreatedFeatures)
+# 43424     2  better still significantly more than alpha and lambda features 
+
+
+sum(str_detect(UntreatedFeatures$HGNC,'PRDM16'))
+# [1] 1 Good 
+
+
+UntreatedFeatures <- rename(UntreatedFeatures, Ensembl_ID = EnsembleID)
+
+UntreatedFeatures <- write_tsv(UntreatedFeatures, file = "honours/work/untreated/seurat_matrix/UnduplicatedFeatures.tsv.gz")
+Test <- merge(UntreatedFeatures, AlphaFeatures, by = "Ensembl_ID", all.x = TRUE)
+# output shows that none of the HGNC names for the same Ensemble id are the same 
+
+
+
+
+
+
+##### Making Matrix #####
 
 # After addressing problems with the features file, lets look at the problems with the matrix file " 
 
-matrix <- ReadMtx("honours/work/untreated/sm/seurat_matrix/matrix.mtx.gz", "honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz", "honours/work/untreated/sm/seurat_matrix/features.tsv.gz", skip.feature = 2)
+matrix <- ReadMtx("honours/work/untreated/seurat_matrix_unsuccessful/matrix.mtx.gz", "honours/work/untreated/seurat_matrix_unsuccessful/barcodes.tsv.gz", "honours/work/untreated/seurat_matrix_unsuccessful/features.tsv.gz")
 # Error: Matrix has 35639 rows but found 69537 features. Try increasing `skip.feature`. 
+# Error : Error: Matrix has 35639 rows but found 43425 features, 7786 features need to be removed 
 
-matrixx <- writeMM(matrix, "honours/work/untreated/sm/seurat_matrix/newmatrix.mtx.gz")
-dim(matrix)
-matrix
-# 35639 x 5939 sparse Matrix of class "dgCMatrix"
+# (Edit: can't) extract the features from matrix file and use them to subset the features file 
+
+UntreatedMatrix <- readMM("honours/work/untreated/sm/seurat_matrix/matrix.mtx.gz")
+dim(UntreatedMatrix)
+UntreatedGenes <- rownames(UntreatedMatrix) # empty 
+
+AlphaMatrix <- readMM("honours/work/ifnalpha/seurat_matrix/matrix.mtx.gz")
+AlphaGenes <- rownames(AlphaMatrix) # also empty 
 
 
-untreated <- CreateSeuratObject( matrix, project='untreated', min.cells=3, min.features=200)
+
+
+# matrixx <- writeMM(matrix, "honours/work/untreated/sm/seurat_matrix/newmatrix.mtx.gz")
+# dim(matrix)
+# matrix
+# # 35639 x 5939 sparse Matrix of class "dgCMatrix"
+
+
+untreated <- CreateSeuratObject(matrix, project='untreated', min.cells=3, min.features=200)
 untreated <- CreateSeuratObject(counts=untreated, project='untreated', min.cells=3, min.features=200)
 
-
+UntreatedMatrix <- ReadMtx("honours/work/untreated/sm/seurat_matrix/matrix.mtx.gz", "honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz", "honours/work/ifnalpha/seurat_matrix/features.tsv.gz", skip.feature = 33900)
