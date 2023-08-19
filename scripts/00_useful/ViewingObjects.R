@@ -14,7 +14,7 @@ head(barcodes)
 length(barcodes)
 dim(barcodes)
 
-UntreatedFeatures <- read_tsv("honours/work/untreated/sm/seurat_matrix/newfeatures.tsv.gz")
+UntreatedFeatures <- read_tsv("honours/work/untreated/seurat_matrix_unsuccessful/features.tsv.gz")
 dim(UntreatedFeatures)
 # [1] 69535 2 
 # error on reading in the folder containing all these in Read10X() said : 
@@ -108,10 +108,12 @@ UntreatedFeatures <- write_tsv(UntreatedFeatures, file = "honours/work/untreated
 Test <- merge(UntreatedFeatures, AlphaFeatures, by = "Ensembl_ID", all.x = TRUE)
 # output shows that none of the HGNC names for the same Ensemble id are the same 
 
+Test <- Test %>% select(-HGNC.x)
+Test <- rename(Test, HGNC = HGNC.y)
+Test <- write_tsv(Test, file = "honours/work/untreated/seurat_matrix_unsuccessful/HGNCfeatures.tsv.gz")
 
-
-
-
+UntreatedTest <- read_tsv("honours/work/untreated/sm_new_index_HGNC/features.tsv.gz")
+dim(UntreatedFeatures)
 
 ##### Making Matrix #####
 

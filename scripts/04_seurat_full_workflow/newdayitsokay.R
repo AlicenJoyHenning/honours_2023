@@ -14,6 +14,7 @@ library(SeuratData)
 library(tidyverse)
 library(patchwork)
 library(readr)
+library(Matrix)
 
 
 # Load datasets: alpha, lambda, and untreated
@@ -24,15 +25,14 @@ lambda <- Read10X(data.dir = "honours/work/ifnlambda/seurat_matrix/")
 lambda <- CreateSeuratObject(counts=lambda, project='ifnlambda', min.cells=3, min.features=200)
 
 # untreated object first requires the matrix to be made : 
-matrix <- ReadMtx("honours/work/untreated/seurat_matrix_unsuccessful/matrix.mtx.gz", "honours/work/untreated/seurat_matrix_unsuccessful/barcodes.tsv.gz", "honours/work/untreated/seurat_matrix_unsuccessful/features.tsv.gz")
+matrix <- ReadMtx("honours/work/untreated/sm_new_index_HGNC/matrix.mtx.gz","honours/work/untreated/sm_new_index_HGNC/barcodes.tsv.gz", "honours/work/untreated/sm_new_index_HGNC/features.tsv.gz")
 untreated <- CreateSeuratObject(matrix, project='untreated', min.cells=3, min.features=200)
 
 # noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
+# fixes new sizes : 193,  219, 198
 
 # matrix <- ReadMtx("honours/work/untreated/sm/seurat_matrix/matrix.mtx.gz", "honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz", "honours/work/untreated/sm/seurat_matrix/features.tsv.gz", skip.feature = 2)
 # # Error: Matrix has 35639 rows but found 69537 features. Try increasing `skip.feature`. 
-
-
 
 alpha <- saveRDS(alpha, "honours/work/RObjects/")
 lambda <- saveRDS(lambda, "honours/work/RObjects/")
@@ -91,6 +91,8 @@ anchors <- FindIntegrationAnchors(
   object.list = treatment.list, 
   anchor.features = treatment.features
 )
+# Found 13669 anchors, retained 
+
 
 # Integrate data sets using the anchors : 
 treatment <- IntegrateData(anchorset = anchors)
