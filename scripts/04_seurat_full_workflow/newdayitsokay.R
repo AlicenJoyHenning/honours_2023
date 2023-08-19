@@ -112,4 +112,5 @@ colnames(treatment@meta.data)[1] <- "stim"
 
 p1 <- DimPlot(treatment, reduction = "umap", group.by = "stim")
 p2 <- DimPlot(treatment, reduction = "umap", label = TRUE, repel = TRUE)
+p3 <- DimPlot(treatment, reduction = "umap", split.by = "stim")
 p1 + p2
