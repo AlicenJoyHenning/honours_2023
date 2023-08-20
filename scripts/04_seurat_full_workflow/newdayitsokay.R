@@ -4,17 +4,30 @@
 
 getwd()
 library(BiocManager)
+BiocManager::install('limma') # BiocManager::install('limma')
 BiocManager::install("SeuratData")
+BiocManager::install('multtest')
+BiocManager::install('metap')
+BiocManager::install('xlsx')
+BiocManager::install('pheatmap')
 
 library(dplyr)
 library(ggplot2)
 library(grid)
 library(Seurat)
 library(SeuratData)
+library(pheatmap)
 library(tidyverse)
+library(SingleR)
+library(celldex)
 library(patchwork)
 library(readr)
 library(Matrix)
+library(metap)
+library(openxlsx)
+library(cowplot)
+library(readxl)
+library(xlsx)
 
 
 # Load datasets: alpha, lambda, and untreated
@@ -37,6 +50,7 @@ untreated <- CreateSeuratObject(matrix, project='untreated', min.cells=3, min.fe
 alpha <- saveRDS(alpha, "honours/work/RObjects/")
 lambda <- saveRDS(lambda, "honours/work/RObjects/")
 untreated <- saveRDS(untreated, "honours/work/RObjects/")
+treatment <- saveRDS(treatment, "honours/results/integrated.trials/treatment.rds")
 
 
 ##### Perform quality control independently on the datasets #####
@@ -76,7 +90,7 @@ untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures
 
 ##### Prepare datasets for integration #####
 
-treatment.list <- list(alpha, lambda, untreated) # Create a list of Seurat objects
+treatment.list <- list(alpha, lambda) # untreated) # Create a list of Seurat objects
 
 treatment.features <- SelectIntegrationFeatures(object.list = treatment.list) # Select features that are repeatedly variable across datasets for integration : 
 # electing features (genes) that are consistently variable across multiple datasets for the purpose of integrating those datasets into a single analysis
@@ -109,7 +123,7 @@ treatment <- RunUMAP(treatment, reduction = "pca", dims = 1:30) # 30
 treatment <- FindNeighbors(treatment, reduction = "pca", dims = 1:30) # 30 
 treatment <- FindClusters(treatment, resolution = 0.5)
 
-# Visualization
+##### Visualization of clusters #####
 # getting an error for 'stim' , clustered by seurat_clusters = wack, 
 # changed name of metadata column header to stim
 colnames(treatment@meta.data)[1] <- "stim"
@@ -117,5 +131,144 @@ colnames(treatment@meta.data)[1] <- "stim"
 
 p1 <- DimPlot(treatment, reduction = "umap", group.by = "stim")
 p2 <- DimPlot(treatment, reduction = "umap", label = TRUE, repel = TRUE)
-p3 <- DimPlot(treatment, reduction = "umap", split.by = "stim")
+p3 <- DimPlot(treatment, reduction = "umap", split.by = "stim", label = TRUE)
 p1 + p2
+
+
+#### Identify Conserved cell type markers #####
+# performing differential expression after integration :
+DefaultAssay(treatment) <- "RNA"
+Cluster0Markers <- FindConservedMarkers(treatment, ident.1= 0, grouping.var = "stim", verbose = FALSE)
+Cluster1Markers <- FindConservedMarkers(treatment, ident.1= 0, grouping.var = "stim", verbose = FALSE)
+# output = list of genes 
+
+# check for validity of markers within this list of genes : 
+# using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
+Cluster0FP <-  FeaturePlot(alpha, reduction = "umap", features = c("CCR7", "CD7"), min.cutoff = "q9")
+Cluster1FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster2FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster3FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster4FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster5FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster6FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster7FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster8FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster9FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster10FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster11FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+
+# After research, rename the clusters according to immune cell type : 
+
+treatment <- RenameIdents(treatment, 
+                          '0' = '',
+                          '1' = '',
+                          '2' = '',
+                          '3' = '',
+                          '4' = '',
+                          '5' = '',
+                          '6' = '',
+                          '7' = '',
+                          '8' = '',
+                          '9' = '',
+                          '10' = '',
+                          '11' = '')
+
+p4 <- DimPlot(treatment, label = TRUE)
+
+
+
+# view conserved cell markers across conditions : 
+# expression level + pergentage of cells in a cluster 
+
+Idents(treatment) <- factor(Idents(treatment), 
+                            levels = c("identified cell types", "")
+                            )
+Markers <- c("gene markers to plot", "") # top 3 marker genes for each cluster 
+
+p5 <- DotPlot(treatment, 
+              features = Markers, 
+              cols = c("#41B6C4","#FF9AA2" ), 
+              dot.scale = 8, 
+              split.by = "stim")  + 
+  RotatedAxis()
+
+# See what genes change in different conditions for cells of the same type : 
+# The code is specifically looking for genes that change in expression consistently across all cell types of the same type (need to specify to look at particular cell type)
+
+treatment$celltype.stim <- paste(Idents(treatment), treatment$stim, sep = "_")
+treatment$celltype <- Idents(treatment)
+Idents(treatment) <- "celltype.stim"
+response <- FindMarkers(treatment, ident.1 = "A_STIM", ident.2 = "CTRL", verbose = FALSE)
+response <- write.xlsx(response, "honours/results/DifExpGenes")
+
+# Visualize gene expression changes using a variation of feature plots ; 
+
+FeaturePlot(treatment, 
+            features = c("gene of interest"), 
+            split.by = "stim", 
+            max.cutoff = 3, 
+            cols = c("grey","#41B6C4"))
+# create fp showing gene expression in untreated vs treated cells (2 fp)
+
+
+# Identify differentially expressed gene across conditions 
+# comparative analyses btwn stim & control cells  : plot average expression in stim & control cells and look for outliers 
+
+theme_set(theme_cowplot())
+
+# 
+CellType1 <- subset(treatment, 
+                    idents = "CellType1")
+Idents(CellType1) <- "stim"
+ExpressionCellType1 <- as.data.frame(log1p(AverageExpression(CellType1, verbose = FALSE)$RNA))
+ExpressionCellType1$gene <- rownames(ExpressionCellType1)
+
+# plots of average gene expression of all genes in a cell type from controlled condition to stimulated condition 
+dp1 <- gglot(ExpressionCellType1, 
+             aes(CTRL, STIM)) + 
+  geom() + 
+  ggtitle("Cell Type 1")
+
+# labelling the outliers (these are point where expression of a gene changed between control & stim)
+dp1 <- LabelPoints(plot = dp1, 
+                   #point = , 
+                   repel = TRUE)
+
+
+
+#### SingleR #####
+
+reference <- BlueprintEncodeData()
+reference <- ImmGenData() # didn't work 
+reference <- DatabaseImmuneCellExpressionData()
+
+predictions <- SingleR(GetAssayData(treatment, assay = "RNA", slot = "data"),
+                       clusters = Idents(treatment),
+                       ref = reference,
+                       labels = reference$label.main)
+Idents(treatment)
+write.csv(predictions$labels,"honours/results/SingleRPredictionsDICED")
+plotScoreHeatmap(predictions)
+
+SingleRBPETreatment <- RenameIdents(treatment,
+                                   "0" = "Neutrophils",
+                                    "1" = "Neutrophils",
+                                   "2" = "CD4+ T-cells",
+                                    "3" = "CD4+ T-cells",
+                                    "4" = "CD4+ T-cells",
+                                    "5" = "Neutrophils",
+                                    "6" = "Class-switched memory B-cells",
+                                    "7" = "CD8+ Tcm",
+                                    "8" = "NK cells",
+                                    "9" = "CD8+ Tem",
+                                    "10" = "Neutrophils",
+                                    "11" = "Tregs",
+                                    "12" = "Monocytes",
+                                    "13" = "Eosinophils",
+                                    "14" = "Neutrophils")
+                        
+Idents(SingleRBPETreatment)
+SingleRPlot <- DimPlot(SingleRBPETreatment,
+                       reduction = "umap", 
+                       label = TRUE)
+SingleRPlot

@@ -145,3 +145,18 @@ untreated <- CreateSeuratObject(matrix, project='untreated', min.cells=3, min.fe
 untreated <- CreateSeuratObject(counts=untreated, project='untreated', min.cells=3, min.features=200)
 
 UntreatedMatrix <- ReadMtx("honours/work/untreated/sm/seurat_matrix/matrix.mtx.gz", "honours/work/untreated/sm/seurat_matrix/barcodes.tsv.gz", "honours/work/ifnalpha/seurat_matrix/features.tsv.gz", skip.feature = 33900)
+
+##### Again #####
+
+UntreatedFeatures <- read_tsv("honours/work/s/features.tsv.gz")
+dim(UntreatedFeatures)
+# 35640 
+
+UntreatedMatrix <- readMM("honours/work/s/matrix.mtx.gz")
+dim(UntreatedMatrix)
+# 35 639 5939 
+
+matrix <- ReadMtx("honours/work/s/matrix.mtx.gz", "honours/work/s/barcodes.tsv.gz", "honours/work/s/features.tsv.gz", skip.feature = 2)
+untreated <- CreateSeuratObject(matrix, project='untreated', min.cells=3, min.features=200)
+
+
