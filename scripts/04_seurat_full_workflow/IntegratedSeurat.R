@@ -12,6 +12,7 @@ BiocManager::install('xlsx')
 BiocManager::install('pheatmap')
 
 library(dplyr)
+library()
 library(ggplot2)
 library(grid)
 library(Seurat)
@@ -32,14 +33,21 @@ library(xlsx)
 
 # Load datasets: alpha, lambda, and untreated
 
-alpha <- Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
-alpha <- CreateSeuratObject(counts=alpha, project='ifnalpha', min.cells=3, min.features=200)
-lambda <- Read10X(data.dir = "honours/work/ifnlambda/seurat_matrix/")
-lambda <- CreateSeuratObject(counts=lambda, project='ifnlambda', min.cells=3, min.features=200)
+# alpha <- Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
+# alpha <- CreateSeuratObject(counts=alpha, project='ifnalpha', min.cells=3, min.features=200)
+# lambda <- Read10X(data.dir = "honours/work/ifnlambda/seurat_matrix/")
+# lambda <- CreateSeuratObject(counts=lambda, project='ifnlambda', min.cells=3, min.features=200)
 
 # untreated object first requires the matrix to be made : 
-matrix <- ReadMtx("honours/work/untreated_my_index/matrix.mtx.gz", "honours/work/untreated_my_index/barcodes.tsv.gz", "honours/work/untreated_my_index/AdjustedFeatures.tsv.gz", skip.feature = 1)
+UntreatedMatrix <- ReadMtx("honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", )
 untreated <- CreateSeuratObject(matrix, project="untreated", min.cells=3, min.features=200)
+
+AlphaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/matrix.mtx.gz","honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", skip.feature = 1)
+alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=200)
+
+LambdaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", skip.feature = 1)
+lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features=200)
+
 
 # noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
 # fixes new sizes : 193,  219, 198
@@ -50,8 +58,7 @@ untreated <- CreateSeuratObject(matrix, project="untreated", min.cells=3, min.fe
 alpha <- saveRDS(alpha, "honours/work/RObjects/")
 lambda <- saveRDS(lambda, "honours/work/RObjects/")
 untreated <- saveRDS(untreated, "honours/work/RObjects/")
-treatment <- saveRDS(treatment, "honours/results/integrated.trials/treatment.rds")
-
+treatment <- saveRDS(treatment, "honours/results/integrated.trials/treatmentsucess.rds")
 
 ##### Perform quality control independently on the datasets #####
 
@@ -66,12 +73,10 @@ lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & per
 untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 
 # Normalising according to LOG scale (good for integration)
-
 # 1 : actual normalization 
 alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.factor = 10000)
 lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
 untreated <- NormalizeData(untreated, normalization.method = "LogNormalize", scale.factor = 10000)
-
 
 # 2 : feature selection (check dim(object@assays$RNA@counts)[2] to view genes and length(oject@assays$RNA@var.features) to view 2000 variable genes)
 alpha <- FindVariableFeatures(alpha, selection.method = "vst", nfeatures = 2000)
@@ -90,7 +95,7 @@ untreated <- ScaleData(untreated, features = all.untreated.genes)
 
 ##### Prepare datasets for integration #####
 
-TreatmentList <- list(alpha, lambda, untreated) # Create a list of Seurat objects
+TreatmentList <- list(alpha, lambda)# untreated) # Create a list of Seurat objects
 
 TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList) # Select features that are repeatedly variable across datasets for integration : 
 # electing features (genes) that are consistently variable across multiple datasets for the purpose of integrating those datasets into a single analysis
@@ -106,7 +111,7 @@ TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList) # Se
 
 anchors <- FindIntegrationAnchors(
   object.list = TreatmentList, 
-  reference = 3,
+  reference = 1,
   anchor.features = TreatmentFeatures
 )
 # Found 13669 anchors, retained 
@@ -143,23 +148,30 @@ p1 + p2
 # performing differential expression after integration :
 DefaultAssay(treatment) <- "RNA"
 Cluster0Markers <- FindConservedMarkers(treatment, ident.1= 0, grouping.var = "stim", verbose = FALSE)
-Cluster1Markers <- FindConservedMarkers(treatment, ident.1= 0, grouping.var = "stim", verbose = FALSE)
+Cluster1Markers <- FindConservedMarkers(treatment, ident.1= 1, grouping.var = "stim", verbose = FALSE)
+Cluster2Markers <- FindConservedMarkers(treatment, ident.1= 2, grouping.var = "stim", verbose = FALSE)
+Cluster3Markers <- FindConservedMarkers(treatment, ident.1= 3, grouping.var = "stim", verbose = FALSE)
+
+
+
 # output = list of genes 
 
 # check for validity of markers within this list of genes : 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
-Cluster0FP <-  FeaturePlot(alpha, reduction = "umap", features = c("CCR7", "CD7"), min.cutoff = "q9")
-Cluster1FP <-  FeaturePlot(alpha, features = c("CD68", "CD14", "FCGR3A"), min.cutoff = "q9")
-Cluster2FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster3FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster4FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster5FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster6FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster7FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster8FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster9FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster10FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
-Cluster11FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster0FP <-  FeaturePlot(treatment, features = c("CCR7", "CD7"), min.cutoff = "q9")
+Cluster1FP <-  FeaturePlot(treatment, features = c("CCL2"))
+Cluster2FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster3FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster4FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster5FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster6FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster7FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster8FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster9FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster10FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+Cluster11FP <-  FeaturePlot(treatment, features = c(""), min.cutoff = "q9")
+
+VlnPlot(treatment, features = "FCGR3A")
 
 # After research, rename the clusters according to immune cell type : 
 
@@ -190,7 +202,7 @@ Idents(treatment) <- factor(Idents(treatment),
 Markers <- c("gene markers to plot", "") # top 3 marker genes for each cluster 
 
 p5 <- DotPlot(treatment, 
-              features = Markers, 
+              features = c("CD14", "CD68", "FCGR3A", "CCR2"), 
               cols = c("#41B6C4","#FF9AA2" ), 
               dot.scale = 8, 
               split.by = "stim")  + 
@@ -208,10 +220,10 @@ response <- write.xlsx(response, "honours/results/DifExpGenes")
 # Visualize gene expression changes using a variation of feature plots ; 
 
 FeaturePlot(treatment, 
-            features = c("gene of interest"), 
+            features = c("FCGR3A"), 
             split.by = "stim", 
             max.cutoff = 3, 
-            cols = c("grey","#41B6C4"))
+            cols = c("grey","red"))
 # create fp showing gene expression in untreated vs treated cells (2 fp)
 
 
@@ -252,27 +264,28 @@ celldex::MonacoImmuneData()
 predictions <- SingleR(GetAssayData(treatment, assay = "RNA", slot = "data"),
                        clusters = Idents(treatment),
                        ref = reference,
-                       labels = reference$label.main)
+                       labels = reference$label.fine)
 Idents(treatment)
-write.csv(predictions$labels,"honours/results/SingleRPredictionsHCA")
+write.csv(predictions$labels,"honours/results/SRPredictionsBEDFine")
 plotScoreHeatmap(predictions)
 
 SingleRBPETreatment <- RenameIdents(treatment,
-                                   "0" = "Neutrophils",
-                                    "1" = "Neutrophils",
-                                   "2" = "CD4+ T-cells",
-                                    "3" = "CD4+ T-cells",
-                                    "4" = "CD4+ T-cells",
-                                    "5" = "Neutrophils",
-                                    "6" = "Class-switched memory B-cells",
-                                    "7" = "CD8+ Tcm",
+                                    "0" = "Neutrophils",
+                                    "1" = "CD4+ T-cells",
+                                    "2" = "CD4+ T-cells",
+                                    "3" = "Neutrophils",
+                                    "4" = "Neutrophils",
+                                    "5" = "CD4+ T-cells",
+                                    "6" = "B-cells",
+                                    "7" = "CD8+ T-cells",
                                     "8" = "NK cells",
-                                    "9" = "CD8+ Tem",
-                                    "10" = "Neutrophils",
-                                    "11" = "Tregs",
+                                    "9" = "CD4+ T-cells",
+                                    "10" = "CD8+ T-cells",
+                                    "11" = "Neutrophils",
                                     "12" = "Monocytes",
-                                    "13" = "Eosinophils",
-                                    "14" = "Neutrophils")
+                                    "13" = "Neutrophils",
+                                    "14" = "Eosinophils",
+                                    "15" = "Monocytes")
                         
 Idents(SingleRBPETreatment)
 SingleRPlot <- DimPlot(SingleRBPETreatment,

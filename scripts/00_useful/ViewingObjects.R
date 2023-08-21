@@ -14,7 +14,7 @@ head(barcodes)
 length(barcodes)
 dim(barcodes)
 
-UntreatedFeatures <- read_tsv("honours/work/untreated_my_index/features.tsv.gz", col_names = FALSE)
+UntreatedFeatures <- read_tsv("honours/work/untreated_my_index/AdjustedFeatures.tsv.gz", col_names = FALSE)
 dim(UntreatedFeatures)
 # [1] 69535 2 
 # error on reading in the folder containing all these in Read10X() said : 
