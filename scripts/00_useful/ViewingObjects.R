@@ -14,7 +14,7 @@ head(barcodes)
 length(barcodes)
 dim(barcodes)
 
-UntreatedFeatures <- read_tsv("honours/work/untreated/seurat_matrix_unsuccessful/features.tsv.gz")
+UntreatedFeatures <- read_tsv("honours/work/untreated_my_index/features.tsv.gz", col_names = FALSE)
 dim(UntreatedFeatures)
 # [1] 69535 2 
 # error on reading in the folder containing all these in Read10X() said : 
@@ -22,17 +22,21 @@ dim(UntreatedFeatures)
 
 # before looking closer at the dimensions, lets rename the columns : 
 
-NewCol <- list('ENSG00000223972.1','DDX11L17') # column heading was an entry, adding the entry to the dataframe
-features <- rbind(features, NewCol)
-features <- rename(features, EnsembleID = ENSG00000223972.5)
-features <- rename(features, HGNC = DDX11L17)
+# NewCol <- list('ENSG00000223972.1','DDX11L17') # column heading was an entry, adding the entry to the dataframe
+# UntreatedFeatures <- rbind(NewCol, UntreatedFeatures)
+UntreatedFeatures <- rename(UntreatedFeatures, Ensembl_ID = X1)
+UntreatedFeatures <- rename(UntreatedFeatures, HGNC = X2)
+colnames(UntreatedFeatures)
 
-features$EnsembleID <- substr(features$EnsembleID, 1, 15) # removing the '.version' part of the EnsembleID column 
 
+UntreatedFeatures$Ensembl_ID <- substr(UntreatedFeatures$X1, 1, 15) # removing the '.version' part of the EnsembleID column 
+UntreatedFeatures$HGNC <- UntreatedFeatures$X2
+UntreatedFeatures <- UntreatedFeatures %>% select(-1)
+UntreatedFeatures <- UntreatedFeatures %>% select(-1)
 # now we need to address the fact that there are many 'na' value in both columns 
 
-features$HGNC <- ifelse(is.na(features$HGNC), features$EnsembleID, features$HGNC)
-features$EnsembleID <- ifelse(is.na(features$EnsembleID), features$HGNC, features$EnsembleID)
+UntreatedFeatures$HGNC <- ifelse(is.na(UntreatedFeatures$HGNC), UntreatedFeatures$Ensembl_ID, UntreatedFeatures$HGNC)
+# features$EnsembleID <- ifelse(is.na(features$EnsembleID), features$HGNC, features$EnsembleID)
 
 # this one wasn't actually necessary 
 # features <- features %>%
@@ -43,6 +47,12 @@ features$EnsembleID <- ifelse(is.na(features$EnsembleID), features$HGNC, feature
 
 # Now, looking at the data frame, after row 35638, there are no entries in the ensemble ID column .... just HGNC!?
 # check to see if the HGNC names with no ensemble names are duplclates and i can remove them : 
+
+# save new features file 
+UntreatedFeatures <- write_tsv(UntreatedFeatures, file = "honours/work/untreated_my_index/NewFeatures.tsv.gz")
+UntreatedFeatures <- write_tsv(UntreatedFeatures, file = "honours/work/untreated/seurat_matrix/UnduplicatedFeatures.tsv.gz")
+
+##### Duplication Problem ####
 
 head(duplicated(features$HGNC)) 
 # there is a true!! sad. 

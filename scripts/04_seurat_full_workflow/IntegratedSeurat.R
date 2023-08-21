@@ -38,8 +38,8 @@ lambda <- Read10X(data.dir = "honours/work/ifnlambda/seurat_matrix/")
 lambda <- CreateSeuratObject(counts=lambda, project='ifnlambda', min.cells=3, min.features=200)
 
 # untreated object first requires the matrix to be made : 
-matrix <- ReadMtx("honours/work/untreated/sm_new_index_HGNC/matrix.mtx.gz","honours/work/untreated/sm_new_index_HGNC/barcodes.tsv.gz", "honours/work/untreated/sm_new_index_HGNC/features.tsv.gz")
-untreated <- CreateSeuratObject(matrix, project='untreated', min.cells=3, min.features=200)
+matrix <- ReadMtx("honours/work/untreated_my_index/matrix.mtx.gz", "honours/work/untreated_my_index/barcodes.tsv.gz", "honours/work/untreated_my_index/AdjustedFeatures.tsv.gz", skip.feature = 1)
+untreated <- CreateSeuratObject(matrix, project="untreated", min.cells=3, min.features=200)
 
 # noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
 # fixes new sizes : 193,  219, 198
@@ -81,29 +81,33 @@ untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures
 # # 3 : scaling the data : NO! actually doing this afterwards !!!
 # # The results of this are stored in object[["RNA"]]@scale.data
 # 
-# all.alpha.genes <- rownames(alpha)
-# alpha <- ScaleData(alpha, features = all.alpha.genes)
-# all.lambda.genes <- rownames(lambda)
-# lambda <- ScaleData(lambda, features = all.lambda.genes)
-# all.untreated.genes <- rownames(untreated)
-# untreated <- ScaleData(untreated, features = all.untreated.genes)
+all.alpha.genes <- rownames(alpha)
+alpha <- ScaleData(alpha, features = all.alpha.genes)
+all.lambda.genes <- rownames(lambda)
+lambda <- ScaleData(lambda, features = all.lambda.genes)
+all.untreated.genes <- rownames(untreated)
+untreated <- ScaleData(untreated, features = all.untreated.genes)
 
 ##### Prepare datasets for integration #####
 
-treatment.list <- list(alpha, lambda) # untreated) # Create a list of Seurat objects
+TreatmentList <- list(alpha, lambda, untreated) # Create a list of Seurat objects
 
-treatment.features <- SelectIntegrationFeatures(object.list = treatment.list) # Select features that are repeatedly variable across datasets for integration : 
+TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList) # Select features that are repeatedly variable across datasets for integration : 
 # electing features (genes) that are consistently variable across multiple datasets for the purpose of integrating those datasets into a single analysis
 # function does not directly modify the Seurat objects themselves. Instead, it processes the gene expression data within the Seurat objects to identify a set of integration features, which are then used for subsequent integration steps. The Seurat objects remain unchanged, but the integration features selected based on these objects play a crucial role in guiding the integration process.
 # it goes as separate input into the integration function
+
+?SelectIntegrationFeatures()
+?FindIntegrationAnchors()
 
 ##### perform integration #####
 
 # Identify integration anchors : 
 
 anchors <- FindIntegrationAnchors(
-  object.list = treatment.list, 
-  anchor.features = treatment.features
+  object.list = TreatmentList, 
+  reference = 3,
+  anchor.features = TreatmentFeatures
 )
 # Found 13669 anchors, retained 
 
@@ -145,7 +149,7 @@ Cluster1Markers <- FindConservedMarkers(treatment, ident.1= 0, grouping.var = "s
 # check for validity of markers within this list of genes : 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
 Cluster0FP <-  FeaturePlot(alpha, reduction = "umap", features = c("CCR7", "CD7"), min.cutoff = "q9")
-Cluster1FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
+Cluster1FP <-  FeaturePlot(alpha, features = c("CD68", "CD14", "FCGR3A"), min.cutoff = "q9")
 Cluster2FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
 Cluster3FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")
 Cluster4FP <-  FeaturePlot(alpha, features = c(""), min.cutoff = "q9")

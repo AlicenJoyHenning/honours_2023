@@ -11,12 +11,13 @@ library("scran")
 library("BiocManager")
 library(Seurat
 BiocManager::install("SingleCellExperiment")
+library(TENxPBMCData)
+library(SingleCellExperiment)
+
 # 3 create and prepare test data : 
-test.data <- TENxPBMCData("pbmc4")
+reference <- TENxPBMCData("pbmc4")
 # test.counts <- test.data$assays$RNA
-seurat_obj <- CreateSeuratObject(counts = test.data$counts, 
-                                 assay = "RNA",
-                                 meta.data = test.data$meta.data)
+soreference <- CreateSeuratObject(reference@co
 
 # 4 create and prepare reference data : 
 HPCAD.ref <- HumanPrimaryCellAtlasData(ensembl = TRUE)
