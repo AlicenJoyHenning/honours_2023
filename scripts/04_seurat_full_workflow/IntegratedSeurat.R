@@ -15,7 +15,7 @@ library(dplyr)
 library(ggplot2)
 library(grid)
 library(Seurat)
-library(SeuratData)
+#library(SeuratData)
 library(pheatmap)
 library(tidyverse)
 library(SingleR)
@@ -241,13 +241,16 @@ dp1 <- LabelPoints(plot = dp1,
 reference <- BlueprintEncodeData()
 reference <- ImmGenData() # didn't work 
 reference <- DatabaseImmuneCellExpressionData()
+reference <- MonacoImmuneData()
+reference <- HumanPrimaryCellAtlasData()
+celldex::MonacoImmuneData()
 
 predictions <- SingleR(GetAssayData(treatment, assay = "RNA", slot = "data"),
                        clusters = Idents(treatment),
                        ref = reference,
                        labels = reference$label.main)
 Idents(treatment)
-write.csv(predictions$labels,"honours/results/SingleRPredictionsDICED")
+write.csv(predictions$labels,"honours/results/SingleRPredictionsHCA")
 plotScoreHeatmap(predictions)
 
 SingleRBPETreatment <- RenameIdents(treatment,

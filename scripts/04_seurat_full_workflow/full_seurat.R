@@ -152,7 +152,7 @@ lambda <- FindClusters(lambda, resolution = 0.5)
 untreated <- FindClusters(untreated, resolution = 0.5) 
 
 
-dim_p1 <- DimPlot(alpha, group.by = "seurat_clusters", cols = palette.a) + ggtitle("IFN alpha")
+dim_p1 <- DimPlot(alpha, group.by = "seurat_clusters") #cols = palette.a) + ggtitle("IFN alpha")
 dim_p2 <- DimPlot(lambda, group.by = "seurat_clusters", cols = palette.a)  + ggtitle("IFN lambda")
 dim_p3 <- DimPlot(untreated, group.by = "seurat_clusters", cols = palette.b)  + ggtitle("Untreated")
 
@@ -355,8 +355,38 @@ Seurat::DimPlot(alpha.r5.scannotatR, group.by = "most_probable_cell_type")
 
 Seurat::FeaturePlot(seurat.obj, features = "B_cells_p")
 
+#### SingleR Annotations #####
+DefaultAssay(alpha) <- "RNA"
+predictions <- SingleR(GetAssayData(alpha, slot = "data"),
+                       clusters = Idents(treatment),
+                       ref = reference,
+                       labels = reference$label.main)
+# Idents(treatment)
+write.csv(predictions$labels,"honours/results/SingleRPredictionsHCA")
+plotScoreHeatmap(predictions)
 
+SingleRBPETreatment <- RenameIdents(treatment,
+                                    "0" = "Neutrophils",
+                                    "1" = "Neutrophils",
+                                    "2" = "CD4+ T-cells",
+                                    "3" = "CD4+ T-cells",
+                                    "4" = "CD4+ T-cells",
+                                    "5" = "Neutrophils",
+                                    "6" = "Class-switched memory B-cells",
+                                    "7" = "CD8+ Tcm",
+                                    "8" = "NK cells",
+                                    "9" = "CD8+ Tem",
+                                    "10" = "Neutrophils",
+                                    "11" = "Tregs",
+                                    "12" = "Monocytes",
+                                    "13" = "Eosinophils",
+                                    "14" = "Neutrophils")
 
+Idents(SingleRBPETreatment)
+SingleRPlot <- DimPlot(SingleRBPETreatment,
+                       reduction = "umap", 
+                       label = TRUE)
+SingleRPlot
 
 
 
