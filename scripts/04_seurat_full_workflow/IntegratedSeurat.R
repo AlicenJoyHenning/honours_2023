@@ -142,9 +142,13 @@ treatment <- FindClusters(treatment, resolution = 0.5)
 # changed name of metadata column header to stim
 colnames(treatment@meta.data)[1] <- "stim"
 
+library(viridisLite)
+
+viridis <- viridisLite::viridis(15)
 
 p1 <- DimPlot(treatment, reduction = "umap", group.by = "stim")
-p2 <- DimPlot(treatment, reduction = "umap", label = TRUE, repel = TRUE)
+p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.size = 6, label.box = TRUE, repel = TRUE)
+# + scale_color_manual(values = viridis)
 p3 <- DimPlot(treatment, reduction = "umap", split.by = "stim", label = TRUE)
 p1 + p2
 
@@ -201,12 +205,11 @@ Cluster5Markers <- cbind(RowNames = C5Rows, Cluster5Markers)
 dim(Cluster5Markers) # 1525 > 821 > 57
 
 Cluster6Markers <- FindConservedMarkers(treatment, ident.1= 6, grouping.var = "stim", verbose = FALSE)
-#
 Cluster6Markers <- subset(Cluster6Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster6Markers <- subset(Cluster6Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C6Rows <- rownames(Cluster6Markers)
 Cluster6Markers <- cbind(RowNames = C6Rows, Cluster6Markers)
-dim(Cluster6Markers)
+dim(Cluster6Markers) # 1743 > 1023 > 52
 
 
 Cluster7Markers <- FindConservedMarkers(treatment, ident.1= 7, grouping.var = "stim", verbose = FALSE)
@@ -214,56 +217,56 @@ Cluster7Markers <- subset(Cluster7Markers, subset = lambda_p_val_adj < 0.05 & al
 Cluster7Markers <- subset(Cluster7Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C7Rows <- rownames(Cluster7Markers)
 Cluster7Markers <- cbind(RowNames = C7Rows, Cluster7Markers)
-dim(Cluster7Markers)
+dim(Cluster7Markers) # 1576 > 845 > 39
 
 Cluster8Markers <- FindConservedMarkers(treatment, ident.1= 8, grouping.var = "stim", verbose = FALSE)
 Cluster8Markers <- subset(Cluster8Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster8Markers <- subset(Cluster8Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C8Rows <- rownames(Cluster8Markers)
 Cluster8Markers <- cbind(RowNames = C8Rows, Cluster8Markers)
-dim(Cluster8Markers)
+dim(Cluster8Markers) # 1592 > 871 > 37
 
 Cluster9Markers <- FindConservedMarkers(treatment, ident.1= 9, grouping.var = "stim", verbose = FALSE)
 Cluster9Markers <- subset(Cluster9Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster9Markers <- subset(Cluster9Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C9Rows <- rownames(Cluster9Markers)
 Cluster9Markers <- cbind(RowNames = C9Rows, Cluster9Markers)
-dim(Cluster9Markers)
+dim(Cluster9Markers) # 1743 > 740 > 77
 
 Cluster10Markers <- FindConservedMarkers(treatment, ident.1= 10, grouping.var = "stim", verbose = FALSE)
 Cluster10Markers <- subset(Cluster10Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster10Markers <- subset(Cluster10Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C10Rows <- rownames(Cluster10Markers)
 Cluster10Markers <- cbind(RowNames = C10Rows, Cluster10Markers)
-dim(Cluster10Markers)
+dim(Cluster10Markers) # 1247 > 430 > 100 
 
 Cluster11Markers <- FindConservedMarkers(treatment, ident.1= 11, grouping.var = "stim", verbose = FALSE)
 Cluster11Markers <- subset(Cluster11Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster11Markers <- subset(Cluster11Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C11Rows <- rownames(Cluster11Markers)
 Cluster11Markers <- cbind(RowNames = C11Rows, Cluster11Markers)
-dim(Cluster11Markers)
+dim(Cluster11Markers) #1388 > 384 > 10 
 
 Cluster12Markers <- FindConservedMarkers(treatment, ident.1= 12, grouping.var = "stim", verbose = FALSE)
 Cluster12Markers <- subset(Cluster12Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster12Markers <- subset(Cluster12Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C12Rows <- rownames(Cluster12Markers)
 Cluster12Markers <- cbind(RowNames = C12Rows, Cluster12Markers)
-dim(Cluster12Markers)
+dim(Cluster12Markers) # 1847 > 199 > 127 
 
 Cluster13Markers <- FindConservedMarkers(treatment, ident.1= 13, grouping.var = "stim", verbose = FALSE)
 Cluster13Markers <- subset(Cluster13Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster13Markers <- subset(Cluster13Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C13Rows <- rownames(Cluster13Markers)
 Cluster13Markers <- cbind(RowNames = C13Rows, Cluster13Markers)
-dim(Cluster13Markers)
+dim(Cluster13Markers) # 1567 > 58 > 54 
 
 Cluster14Markers <- FindConservedMarkers(treatment, ident.1= 14, grouping.var = "stim", verbose = FALSE)
 Cluster14Markers <- subset(Cluster14Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster14Markers <- subset(Cluster14Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C14Rows <- rownames(Cluster14Markers)
 Cluster14Markers <- cbind(RowNames = C14Rows, Cluster14Markers)
-dim(Cluster14Markers)
+dim(Cluster14Markers) # 1355 > 180 > 79 
 
 
 # Saving the data to an excel sheet to annotate genes : 
@@ -271,43 +274,56 @@ clusters <- list('Cluster0' = Cluster0Markers, 'Cluster1' = Cluster1Markers,'Clu
 openxlsx::write.xlsx(clusters, file = "honours/results/IntegratedMarkers/SeuratMarkers.xlsx")
 
 
+###### Manual Annotation using literature markers  #####
+
+#Cluster 0 
+features = c("SOD2")
+   
+FeaturePlot(object = treatment, 
+            features = features,
+            cols = c("grey", "#225EA8"),
+            label = TRUE,
+            pt.size = 1.5, 
+            blend = FALSE, 
+            interactive = FALSE)
+VlnPlot(treatment, features = "FCGR3A")
+DotPlot()
+
+
+##### Manual annotation confirmation using seurat markers #####
+
 # check for validity of markers within this list of genes : 
 # using the markers identified, a set of Feature plots will br made fo each gene (marker) to see if they acurately describe clusters: 
-Cluster0FP <-  FeaturePlot(treatment, features = c("CCR7", "CD7"))
-Cluster1FP <-  FeaturePlot(treatment, features = c("CCL2"))
-Cluster2FP <-  FeaturePlot(treatment, features = c(""))
-Cluster3FP <-  FeaturePlot(treatment, features = c(""))
-Cluster4FP <-  FeaturePlot(treatment, features = c(""))
-Cluster5FP <-  FeaturePlot(treatment, features = c(""))
-Cluster6FP <-  FeaturePlot(treatment, features = c(""))
-Cluster7FP <-  FeaturePlot(treatment, features = c(""))
-Cluster8FP <-  FeaturePlot(treatment, features = c(""))
-Cluster9FP <-  FeaturePlot(treatment, features = c(""))
-Cluster10FP <-  FeaturePlot(treatment, features = c(""))
-Cluster11FP <-  FeaturePlot(treatment, features = c(""))
 
+
+FeaturePlot <-  FeaturePlot(treatment, features = c("CCR7", "CD7"))
 VlnPlot(treatment, features = "FCGR3A")
+DotPlot()
 
-# After research, rename the clusters according to immune cell type : 
+###### After research, rename the clusters according to immune cell type : #####
 
-treatment <- RenameIdents(treatment, 
-                          '0' = '',
-                          '1' = '',
-                          '2' = '',
-                          '3' = '',
-                          '4' = '',
-                          '5' = '',
-                          '6' = '',
-                          '7' = '',
-                          '8' = '',
-                          '9' = '',
-                          '10' = '',
-                          '11' = '')
+TreatmentAnnotated <- RenameIdents(treatment, 
+                          '0' = 'macrophages0',
+                          '1' = 'macrophages1',
+                          '2' = 'CD4+ T helper cells',
+                          '3' = 'Naive CD4+ T cells',
+                          '4' = 'monocytes',
+                          '5' = 'CD8+ T cells',
+                          '6' = 'B cells',
+                          '7' = 'CD8+ T cells',
+                          '8' = 'CD8+ T cells',
+                          '9' = 'NK cells',
+                          '10' = 'neutrophils',
+                          '11' = 'Tregs',
+                          '12' = 'DC',
+                          '13' = 'macrophage?',
+                          '14' = 'DC?')
 
-p4 <- DimPlot(treatment, label = TRUE)
+p4 <- DimPlot(TreatmentAnnotated)
+p5 <- DimPlot(TreatmentAnnotated, label = TRUE, label.box = TRUE)
+p4+p5
 
-
-
+##### VIsualisation with annotations #####
 # view conserved cell markers across conditions : 
 # expression level + pergentage of cells in a cluster 
 
