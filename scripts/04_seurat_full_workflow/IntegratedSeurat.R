@@ -34,7 +34,6 @@ library(openxlsx)
 library(cowplot)
 library(readxl)
 library(xlsx)
-library(wri)
 
 # Load datasets: alpha, lambda, and untreated
 
@@ -281,17 +280,27 @@ openxlsx::write.xlsx(clusters, file = "honours/results/IntegratedMarkers/SeuratM
 ###### Manual Annotation using literature markers  #####
 
 #Cluster 0 
-features = c("SOD2")
+features = c("CD96", "CD45", "APOBEC3G", "CTSW","NKG7", "GNLY", "GZMA", "FCGR3A")
    
 FeaturePlot(object = treatment, 
-            features = features,
-            cols = c("grey", "#225EA8"),
+            features = "NKG7",
+            cols = c("lightgrey", "black"),
             label = TRUE,
             pt.size = 1.5, 
             blend = FALSE, 
-            interactive = FALSE)
-VlnPlot(treatment, features = "FCGR3A")
-DotPlot()
+            interactive = FALSE) + theme(
+              panel.background = element_rect(fill = "darkgrey")) 
+
+cluster_boundaries <- c(5, 7)
+
+DotPlot(object = treatment, 
+        features = features,
+        cols = c("grey", "#265221")) +  coord_flip() +  # Flip the x and y a
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + # Adjust x-axis labels angle
+  geom_hline(yintercept = c(9, 11), linetype = "dotted", color = "black")
+  
+  
+  ?DotPlot()
 
 
 ##### Manual annotation confirmation using seurat markers #####

@@ -17,20 +17,20 @@ treatment.df <- data.frame(
 
 # Define color palette
 palette.a <- RColorBrewer::brewer.pal(12, "Paired")
-palette.b <- c("#ee5e17", #0
+palette.b <- c("#FB836F", #0
                "#d72554", #1
                "#6ab5ba", #2
                "#2e8f95", #3
-               "#900c3e", #4
+               "#7E549F", #4
                "#8caf2e", #5
-               "#b4d56c", #6
+               "#69a923", #6
                "#297b57", #7 
                "#00945a", #8
                "#265221", #9
                "#FFCB3E", #10
                "#00a68e", #11
                "#5c040c", #12
-               "#f7bc6e", #13
+               "#ef931b", #13
                "#6ab5ba" #14
               )
 
@@ -72,7 +72,7 @@ ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
 ##### Colour each cluster individually #####
 
 # Select the cluster you want to color
-selected_cluster <- 5  # Change this to the desired cluster number
+selected_cluster <- 7  # Change this to the desired cluster number
 
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
@@ -86,7 +86,7 @@ ggplot(treatment.df, aes(x, y, colour = as.factor(seurat_clusters))) +
     y = "UMAP 2",
     color = ""
   ) + 
-  theme_void() + 
+  theme_classic() + 
   theme(
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
