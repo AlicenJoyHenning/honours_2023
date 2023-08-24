@@ -65,6 +65,9 @@ lambda <- saveRDS(lambda, "honours/work/RObjects/")
 untreated <- saveRDS(untreated, "honours/work/RObjects/")
 treatment <- saveRDS(treatment, "honours/results/integrated.trials/treatmentsucess.rds")
 
+
+treatment <- readRDS("honours/results/integrated.trials/treatmentsucess.rds")
+
 ##### Perform quality control independently on the datasets #####
 
 # Removing unwanted cells based on # genes expressed and mitochondrial gene expression
@@ -151,6 +154,7 @@ p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.
 # + scale_color_manual(values = viridis)
 p3 <- DimPlot(treatment, reduction = "umap", split.by = "stim", label = TRUE)
 p1 + p2
+
 
 
 #### Identify Conserved cell type markers #####
@@ -318,6 +322,8 @@ TreatmentAnnotated <- RenameIdents(treatment,
                           '12' = 'DC',
                           '13' = 'macrophage?',
                           '14' = 'DC?')
+saveRDS(treatment, "honours/results/IntegratedMarkers/treatment.rds")
+saveRDS(TreatmentAnnotated, "honours/results/IntegratedMarkers/TreatmentAnnotated.rds")
 
 p4 <- DimPlot(TreatmentAnnotated)
 p5 <- DimPlot(TreatmentAnnotated, label = TRUE, label.box = TRUE)
@@ -331,13 +337,32 @@ Idents(treatment) <- factor(Idents(treatment),
                             levels = c("identified cell types", "")
                             )
 Markers <- c("gene markers to plot", "") # top 3 marker genes for each cluster 
-
+features <- c("CD8B")
 p5 <- DotPlot(treatment, 
-              features = c("CD14", "CD68", "FCGR3A", "CCR2"), 
-              cols = c("#41B6C4","#FF9AA2" ), 
-              dot.scale = 8, 
-              split.by = "stim")  + 
-  RotatedAxis()
+              features,  
+              cols = c("grey","#FF9AA2"), 
+              dot.scale = 6)  #+ 
+  #RotatedAxis()
+
+p5 <- DotPlot(
+  treatment,
+  assay = NULL,
+  features,
+  cols = c("lightgrey", "#FF9AA2"),
+  col.min = -2.5,
+  col.max = 2.5,
+  dot.min = 0,
+  dot.scale = 6,
+  idents = NULL,
+  group.by = NULL,
+  split.by = NULL,
+  cluster.idents = FALSE,
+  scale = TRUE,
+  scale.by = "radius",
+  scale.min = NA,
+  scale.max = NA
+)
+
 
 # See what genes change in different conditions for cells of the same type : 
 # The code is specifically looking for genes that change in expression consistently across all cell types of the same type (need to specify to look at particular cell type)

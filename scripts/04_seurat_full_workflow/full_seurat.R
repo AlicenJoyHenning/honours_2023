@@ -270,10 +270,6 @@ DimPlot(alpha,
         reduction = 'umap', 
         label = FALSE,
         cols = electric_rainbow)
-        
-        
-       
-
 
 # rename the clusters based on research on markers : 
 lambda <- RenameIdents(lambda, '0' = 'CD14 mono')
