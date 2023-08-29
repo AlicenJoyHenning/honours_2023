@@ -10,21 +10,21 @@ library(patchwork)
 treatment <- readRDS("honours/results/IntegratedMarkers/treatment.rds")
 
 TreatmentAnnotated <- RenameIdents(treatment, 
-                                   '0' = 'monocytes1',
-                                   '1' = 'monocytes2',
-                                   '2' = 'CD4+T_helper_cells',
-                                   '3' = 'CD4+_Naive_T_cells',
+                                   '0' = 'class_monocytes',
+                                   '1' = 'inter_monocytes',
+                                   '2' = 'CD4_helper',
+                                   '3' = 'CD4_naive',
                                    '4' = 'neutrophils',
-                                   '5' = 'CD8+_T_cells',
-                                   '6' = 'B_cells',
-                                   '7' = 'CD8+_T_cells',
-                                   '8' = 'CD8+_T_cells',
-                                   '9' = 'NK_cells',
-                                   '10' = 'unknown1',
+                                   '5' = 'CD8',
+                                   '6' = 'B',
+                                   '7' = 'CD8',
+                                   '8' = 'CD8',
+                                   '9' = 'NK',
+                                   '10' = '10',
                                    '11' = 'Tregs',
-                                   '12' = 'unknown2',
-                                   '13' = 'unknown3',
-                                   '14' = 'unknown4')
+                                   '12' = '12',
+                                   '13' = '13',
+                                   '14' = '14')
 
 ##### View the data #####
 cluster_labels <- Idents(TreatmentAnnotated)
@@ -100,12 +100,21 @@ Idents(TreatmentAnnotated) <- "celltype.stim" # switch the ident ti that column
 AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_cells_alpha", ident.2 = "B_cells_untreated", sep = "_")
 # size = 1287
 AlphaResponse$gene <- rownames(AlphaResponse) # put gene names into a column
+BCellAlphaResponse <- data.frame(
+  Gene = AlphaResponse$gene,
+  Log2FoldChange = AlphaResponse$avg_log2FC
+)
+write.csv(BCellAlphaResponse, "honours/results/DEAnalysis/BCellAlphaResponse.csv", row.names = FALSE)
+
 
 
 # Same for those different upon IFN lambda treatment 
 LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_cells_lambda", ident.2 = "B_cells_untreated", sep = "_")
 # size = 310 
 LambdaResponse$gene <- rownames(LambdaResponse) # put gene names into a column 
+
+
+
 
 # To find common genes : 
 B_cells_common_genes <- intersect(AlphaResponse$gene, LambdaResponse$gene) # identify common genes
@@ -159,3 +168,140 @@ p2 <- ggplot(avg.t.cells,
 p3 <- p1 + p2 
 p4 <- p3 +  ggtitle("Differentially expressed genes in Naive T cells") 
 p4
+
+##### ClusterProfiler #####
+BiocManager::install("clusterProfiler", version = "3.14")
+BiocManager::install("pathview")
+BiocManager::install("enrichplot")
+library(clusterProfiler)
+library(enrichplot)
+library(DOSE)
+library(biomaRt)
+# we use ggplot2 to add x axis labels (ex: ridgeplot)
+library(ggplot2)
+# to identify which biological processes or pathways are enriched within the differentially expressed genes
+
+?clusterProfiler # not helpful 
+ls("package:clusterProfiler")
+# use the 
+
+# 1 : install and load annotation for desired organism (human) : org.Hs.eg.db
+organism = "org.Hs.eg.db"
+BiocManager::install(organism, character.only = TRUE)
+library(organism, character.only = TRUE)
+
+# 2 : have to convert DE gene list to contain entrezgene_ID BIOMART
+head(AlphaResponse)
+# Create a Mart object for the human genome
+mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+# List available datasets for the Mart 
+listDatasets(mart)
+
+# Retrieve gene information for human genes : 
+gene_ID <- getBM(attributes = c ("ensembl_gene_id", "external_gene_name", "entrezgene_id"), 
+                 mart = mart)
+AlphaResponse <- merge(AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+
+
+de <- AlphaResponse$entrezgene_id
+edo <- enrichDGN(de) # The enrichDGN function from the DGN package is designed to perform enrichment analysis using the DisGeNET database, which contains gene-disease associations
+
+ego <- enrichGO(gene = de, 
+                OrgDb = org.Hs.eg.db, 
+                keyType = "ENTREZID",
+                ont = "ALL",
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.05
+                )
+
+# Sort enrichment results by p-value
+sorted_ego <- ego[order(ego@result$pvalue), ]
+topego <- sorted_ego[1:50,]
+
+library(enrichplot)
+
+# Plot the enrichment results
+barplot(topego) 
+egox <- setReadable(topego, 'org.Hs.eg.db', 'ENTREZID')
+p1 <- cnetplot(egox, FoldChange = de)
+p3 <- cnetplot(egox, FoldChange= de, circular = TRUE, colorEdge = TRUE) 
+
+edox <- setReadable(edo, 'org.Hs.eg.db', 'ENTREZID')
+p1 <- cnetplot(edox)
+p2 <- cnetplot(ego, foldChange=gene_list)
+p3 <- cnetplot(edox, foldChange=gene_list, circular = TRUE, colorEdge = TRUE) 
+p4 <- heatplot(edox, foldChange=gene_list, showCategory=5)
+
+edox2 <- pairwise_termsim(edox)
+p1 <- treeplot(edox2)
+p2 <- treeplot(edox2, hclust_method = "average")
+aplot::plot_list(p1, p2, tag_levels='A')
+
+# 2 : Prepare Input : read in DE csv file 
+BCellAlphadf = read.csv("honours/results/DEAnalysis/BCellAlphaResponse.csv", header = TRUE)
+
+gene_list <- BCellAlphadf$Log2FoldChange
+names(gene_list) <- BCellAlphadf$Gene
+gene_list = sort(gene_list, decreasing = TRUE)
+
+# 3 : Gene Set ENrichment 
+
+keytypes(org.Hs.eg.db) # see what options are available 
+
+gse <- gseGO( geneList = gene_list, 
+              ont = "ALL", # enrichment on all 3 GO branches (biological processes, molecular function, cellular component)
+              keyType = "SYMBOL", 
+              nPerm = 10000, 
+              minGSSize = 3, 
+              maxGSSize = 800, 
+              pvalueCutoff = 0.05, 
+              verbose = TRUE, 
+              OrgDb = organism, 
+              pAdjustMethod = "none")
+goplot(gse)
+
+
+# emapplot(gse)
+# 4 : view output 
+require(DOSE)
+barplot(gse, showCategory = 20)
+dotplot(gse, showCategory=10, split=".sign") + facet_grid(.~.sign)
+ridgeplot(gse) + labs(x = "enrichment distribution")
+
+emapplot(gse)
+library(readr)
+full_genes <- read_tsv("honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/features_gene_names.tsv")
+
+ego <- enrichGO(gene = gene_list, 
+         universe = full_genes,
+         OrgDb = organism, 
+         keyType = "SYMBOL",
+         ont = "CC", 
+         pAdjustMethod = "BH",
+         pvalueCutoff = 0.01, 
+         qvalueCutoff = 0.05, 
+         readable = TRUE)
+
+
+ego2 <- pairwise_termsim(gseGO, method = "Wang", semData )
+
+##### EnrichR ######
+BiocManager::install("enrichR")
+library("enrichR")
+library(enrichplot)
+?DEenrichRPlot()
+
+DEenrichRPlot(object = TreatmentAnnotated,
+  ident.1 = "B_cells_alpha",
+  ident.2 = "B_cells_untreated",
+  balanced = TRUE,
+  logfc.threshold = 0.25,
+  assay = "RNA",
+  max.genes = 10000,
+  test.use = "wilcox",
+  p.val.cutoff = 0.05,
+  cols = NULL,
+  enrich.database = "GO_All",
+  num.pathway = 20,
+  return.gene.list = FALSE,
+)

@@ -186,6 +186,15 @@ C2Rows <- rownames(Cluster2Markers)
 Cluster2Markers <- cbind(RowNames = C2Rows, Cluster2Markers)
 dim(Cluster2Markers) # Before adjustments : 1730 > 99
 
+
+Cluster2v3Markers <- FindConservedMarkers(treatment, ident.1= 2,ident.2 = c(3, 5, 7, 8, 9, 11, 14), grouping.var = "stim", verbose = FALSE)
+Cluster2v3Markers <- subset(Cluster2v3Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
+Cluster2v3Markers <- subset(Cluster2v3Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
+C2v3Rows <- rownames(Cluster2v3Markers)
+Cluster2v3Markers <- cbind(RowNames = C2v3Rows, Cluster2v3Markers)
+dim(Cluster2v3Markers) # 411 > 387 > 0
+
+
 Cluster3Markers <- FindConservedMarkers(treatment, ident.1= 3, grouping.var = "stim", verbose = FALSE)
 Cluster3Markers <- subset(Cluster3Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster3Markers <- subset(Cluster3Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
@@ -275,7 +284,7 @@ dim(Cluster14Markers) # 1355 > 180 > 79
 # Saving the data to an excel sheet to annotate genes : 
 clusters <- list('Cluster0' = Cluster0Markers, 'Cluster1' = Cluster1Markers,'Cluster2' = Cluster2Markers, 'Cluster3' = Cluster3Markers,'Cluster4' = Cluster4Markers, 'Cluster5' = Cluster5Markers, 'Cluster6' = Cluster6Markers, 'Cluster7' = Cluster7Markers, 'Cluster8' = Cluster8Markers, 'Cluster9' = Cluster9Markers, 'Cluster10' = Cluster10Markers, 'Cluster11' = Cluster11Markers,'Cluster12' = Cluster12Markers,'Cluster13' = Cluster13Markers,'Cluster14' = Cluster14Markers)
 openxlsx::write.xlsx(clusters, file = "honours/results/IntegratedMarkers/SeuratMarkers.xlsx")
-
+openxlsx::write.xlsx(Cluster2v3Markers, file = "honours/results/IntegratedMarkers/Cluster2v3Markers.xlsx")
 
 ###### Manual Annotation using literature markers  #####
 
