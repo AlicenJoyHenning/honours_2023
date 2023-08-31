@@ -148,10 +148,13 @@ library(viridisLite)
 
 viridis <- viridisLite::viridis(15)
 
-p1 <- DimPlot(treatment, reduction = "umap", group.by = "stim")
+p1 <- DimPlot(treatment, reduction = "umap",pt.size = 1.5, group.by = "stim") + scale_color_manual(values = colours)
+colours <- c("#c35cad","#6ab5ba","#d3d3d3")
+
+
 p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.size = 6, label.box = TRUE, repel = TRUE)
 # + scale_color_manual(values = viridis)
-p3 <- DimPlot(treatment, reduction = "umap", split.by = "stim", label = TRUE)
+p3 <- DimPlot(treatment, reduction = "umap", split.by = "stim") + scale_color_manual(values = colours)
 p1 + p2
 
 

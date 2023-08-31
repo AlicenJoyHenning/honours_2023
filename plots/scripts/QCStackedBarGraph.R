@@ -41,17 +41,16 @@ untreatedmg <- subset(untreated, subset = percent.mt < 10)
 
 
 
-treatments <- c(rep("alpha", 4), rep("lambda", 4), rep("untreated", 4))
-QCMetric <- rep(c("LOW nF", "Percent MT", "HIGH nF","Accepted"), 3)
-cells <- c(0, 330, 1072, 4767, 0, 476, 947, 4511,0, 399, 1430, 4656)
-grouped <- data.frame(treatments, QCMetric, cells)
-labels <- c("0%", "5%", "18%", "77%","0%", "8%", "16%", "76%","0%", "6%", "22%", "72%")
-colours <- c("LOW nF" = "#289ce5", "Percent Mt"="#06b96b", "HIGH nF" ="#a4dedd", "Accepted" = "#addfbb")
+QCMetric <- rep(c("LOW nF", "Percent MT", "HIGH nF"), 3)
+cells <- c(0, 6169, 331, 5838, 1079, 5090)
+grouped <- data.frame(QCMetric, cells, colours)
+colours <- c("LOW nF" = "#6ab5ba", "Percent Mt"="#6ab5ba", "HIGH nF"="#6ab5ba")
+labels <- c("0%", "5%", "18%")
+
 
 vertical <- 
-  ggplot(
-  grouped,
-  aes(fill=QCMetric, y=cells, x=treatments)) + 
+  ggplot(grouped,
+  aes(fill=colours, y=cells, x=QCMetric)) + 
   geom_bar(color = "black", position="stack", stat="identity") + 
   geom_text(inherit.aes = TRUE, aes(label= labels), vjust=0) +
  geom_label(label = labels, aes(fill = QCMetric), colour = "black", fontface = "bold") +
@@ -60,12 +59,16 @@ vertical <-
   theme_bw() +
   theme(
     panel.background = element_rect(fill = "white"),
-    axis.text.x = element_text(size = 12, face = "bold"),   # Adjust x-axis text size and style
-    axis.text.y = element_text(size = 12),                 # Adjust y-axis text size
-    axis.title = element_text(size = 14, face = "bold"),   # Adjust axis title size and style
-    legend.title = element_blank(),                        # Remove legend title
-    legend.text = element_text(size = 12)                  # Adjust legend text size
+    axis.text.x = element_text(size = 12, face = "bold"),   
+    axis.text.y = element_text(size = 12),                 
+    axis.title = element_text(size = 14, face = "bold"),   
+    legend.title = element_blank(),                        
+    legend.text = element_text(size = 12)                
   )
+
+
+
+
 
 horizontal <-   
   ggplot(
@@ -85,4 +88,66 @@ horizontal <-
     legend.title = element_text(size = 14, face = "bold"),                        # Remove legend title
     legend.text = element_text(size = 12)                  # Adjust legend text size
   )
+
+
+
+colours <- c("LOW nF" = "#6ab5ba", "Percent Mt" = "#6ab5ba", "HIGH nF" = "#6ab5ba")
+labels <- c("0%", "5%", "18%")
+
+grouped <- data.frame(QCMetric = c("LOW nF", "Percent Mt", "HIGH nF"),
+                      cells = c(0, 6169, 331, 5838, 1079, 5090))
+
+vertical <- 
+  ggplot(grouped,
+         aes(fill = QCMetric, y = cells, x = QCMetric)) + 
+  geom_bar(color = "black", position = "stack", stat = "identity") + 
+  geom_text(inherit.aes = TRUE, aes(label = labels), vjust = 0) +
+  geom_label(aes(label = labels), colour = "black", fontface = "bold", position = "stack", vjust = 0) +
+  theme(panel.background = element_rect(fill = "white")) +
+  scale_fill_manual(values = colours) + 
+  theme_bw() +
+  theme(
+    panel.background = element_rect(fill = "white"),
+    axis.text.x = element_text(size = 12, face = "bold"),   
+    axis.text.y = element_text(size = 12),                 
+    axis.title = element_text(size = 14, face = "bold"),   
+    legend.title = element_blank(),                        
+    legend.text = element_text(size = 12)
+  )
+
+print(vertical)
   
+
+
+labels <- c("0%", "5%", "18%")
+
+grouped <- data.frame(QCMetric = c("LOW nF", "Percent Mt", "HIGH nF"),
+                      cells = c(6169, 5838, 5090),
+                      stack = c(0, 331, 1079))
+vertical <- 
+  ggplot(grouped,
+         aes(fill = QCMetric, y = cells, x = QCMetric)) +
+  geom_bar(color = "black", position = "stack", stat = "identity") + 
+  geom_bar(aes(y = stack), color = "black", fill = "#6ab5ba", position = "stack", stat = "identity") +
+  geom_text(aes(label = labels), position = position_stack(vjust = 0.5)) +
+  geom_label(aes(label = labels), colour = "black", fontface = "bold", position = position_stack(vjust = 0.5)) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 12, face = "bold"),   
+    axis.text.y = element_text(size = 12),                 
+    axis.title = element_text(size = 14, face = "bold"),   
+    legend.title = element_blank(),                        
+    legend.text = element_text(size = 12)
+  ) +
+  labs(title = "Stacked Bar Graph", x = "QCMetric", y = "Number of Cells")
+
+print(vertical)
+
+
+
+
+
+
+
+
+

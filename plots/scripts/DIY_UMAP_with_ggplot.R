@@ -68,6 +68,105 @@ total <-
     label.position = "right",
     label.hjust = 1
   ))
+##### 
+
+
+
+clusters.new <- treatment$stim
+
+# Create a dataframe for ggplot
+treatment.df.new <- data.frame(
+  x = treatment.umap.coords$UMAP_1,
+  y = treatment.umap.coords$UMAP_2,
+  clusters = factor(clusters.new)
+)
+
+colours <- c("#c35cad","#6ab5ba","#d3d3d3")
+
+# Define custom colors based on the 'stim' column
+alpha_cluster_color <- ifelse(treatment.df.new$clusters == "alpha", colours[1], "grey")
+
+alpha.plot <- 
+  ggplot(treatment.df.new, aes(x, y, colour = clusters)) +
+  geom_point(size = 0.8) +
+  scale_colour_manual(values = c("#c35cad", "#d3d3d3", "#d3d3d3")) +
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2",
+    color = ""
+  ) + 
+  theme_void() + 
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
+    panel.border = element_rect(color = "black", fill = NA),
+    legend.position = "none", 
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))
+  )
+
+print(alpha.plot)
+
+# Define custom colors based on the 'stim' column
+lambda_cluster_color <- ifelse(treatment.df.new$clusters == "lambda", colours[2], "grey")
+
+lambda.plot <- 
+  ggplot(treatment.df.new, aes(x, y, colour = clusters)) +
+  geom_point(size = 0.8) +
+  scale_colour_manual(values = c("#d3d3d3", "#6ab5ba", "#d3d3d3")) +
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2",
+    color = ""
+  ) + 
+  theme_void() + 
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
+    panel.border = element_rect(color = "black", fill = NA),
+    legend.position = "none", 
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))
+  )
+
+print(lambda.plot)
+
+# Define custom colors based on the 'stim' column
+untreated_cluster_color <- ifelse(treatment.df.new$clusters == "untreated", colours[3], "grey")
+
+untreated.plot <- 
+  ggplot(treatment.df.new, aes(x, y, colour = clusters)) +
+  geom_point(size = 0.8) +
+  scale_colour_manual(values = c("white","white", "black")) +
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2",
+    color = ""
+  ) + 
+  theme_void() + 
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
+    panel.border = element_rect(color = "black", fill = NA),
+    legend.position = "none", 
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))
+  )
+
+print(untreated.plot)
+
 
 
 

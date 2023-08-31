@@ -5,7 +5,6 @@ library(ggplot2)
 library(dplyr)
 library(ggpubr)
 
-colours <- c("LOW nF" = "#289ce5", "HIGH nF" ="#a4dedd", "Accepted" = "#addfbb")
 
 ##### ALPHA #####
 
@@ -22,23 +21,25 @@ alpha@meta.data$Quality[alpha@meta.data$nFeature_RNA < 200] <- "LOW nF"
 alpha@meta.data$Quality[alpha@meta.data$nFeature_RNA > 2500] <- "HIGH nF"
 alpha@meta.data$Quality[alpha@meta.data$nFeature_RNA >= 200 & alpha@meta.data$nFeature_RNA <= 2500] <- "Accepted"
 
+colours <- c("#6ab5ba", "white")
+
 alphascatter <- 
-  ggplot(alpha@meta.data, aes(x = nFeature_RNA, y = nCount_RNA, color = Quality, size = percent.mt)) +
-  geom_point(alpha = 0.5) +
-  scale_color_manual(values = colours) + # Custom color scale
-  scale_size_continuous(range = c(0.5, 10), limits =c(0.5,100), name = "Percent Mt") +  # Adjust size range and name 
-  theme_bw() +
+  ggplot(alpha@meta.data, aes(x = nFeature_RNA, y = nCount_RNA, color = Quality)) +
+  geom_point(size = 1) +  # Set the size to a constant value (e.g., 3)
+  scale_color_manual(values = colours) + 
+  theme_classic() +
   theme(
-    panel.background = element_rect(fill = "white"),
-    axis.text.x = element_text(size = 16),   # Adjust x-axis text size and style
-    axis.text.y = element_text(size = 16),                 # Adjust y-axis text size
-    axis.title = element_text(size = 18, face = "bold"),   # Adjust axis title size and style
-    legend.title = element_text(size = 18, face = "bold"), # legend title
-    legend.text = element_text(size = 16), # Adjust legend text size
-    legend.position = "none", # Adjust legend text size
-    plot.title = element_text(size = 20, face = "bold", hjust = 0.5)  # Remove the legend 
-  ) + labs(title = "alpha") +  # Remove the legend  
-  guides(color = guide_legend(override.aes = list(size = 7)))  # Adjust point size in the legend
+    panel.background = element_rect(fill = "#d3d3d3"),
+    axis.text.x = element_text(size = 16),
+    axis.text.y = element_text(size = 16),
+    axis.title = element_text(size = 18, face = "bold"),
+    legend.title = element_text(size = 18, face = "bold"),
+    legend.text = element_text(size = 16),
+    legend.position = "none",
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5)
+  ) +
+  labs(title = "alpha") +
+  guides(color = guide_legend(override.aes = list(size = 7))) # Adjust point size in the legend
   
 
 ##### LAMBDA #####
@@ -56,22 +57,22 @@ lambda@meta.data$Quality[lambda@meta.data$nFeature_RNA > 2500] <- "HIGH nF"
 lambda@meta.data$Quality[lambda@meta.data$nFeature_RNA >= 200 & lambda@meta.data$nFeature_RNA <= 2500] <- "Accepted"
 
 lambdascatter <- 
-  ggplot(lambda@meta.data, aes(x = nFeature_RNA, y = nCount_RNA, color = Quality, size = percent.mt)) +
-  geom_point(alpha = 0.5) +
-  scale_color_manual(values = colours) + # Custom color scale
-  scale_size_continuous(range = c(0.5, 10), limits =c(0.5,100), name = "Percent Mt") +  # Adjust size range and name 
-  theme_bw() +
+  ggplot(lambda@meta.data, aes(x = nFeature_RNA, y = nCount_RNA, color = Quality)) +
+  geom_point(size = 1) +  # Set the size to a constant value (e.g., 3)
+  scale_color_manual(values = colours) + 
+  theme_classic() +
   theme(
-    panel.background = element_rect(fill = "white"),
-    axis.text.x = element_text(size = 16),   # Adjust x-axis text size and style
-    axis.text.y = element_text(size = 16),                 # Adjust y-axis text size
-    axis.title = element_text(size = 20, face = "bold"),   # Adjust axis title size and style
-    legend.title = element_text(size = 20, face = "bold"), # legend title
-    legend.text = element_text(size = 16),                  # Adjust legend text size
-    legend.position = "none", # Adjust legend text size
-    plot.title = element_text(size = 20, face = "bold", hjust = 0.5)  # Remove the legend 
-  ) + labs(title = "lambda") +
-  guides(color = guide_legend(override.aes = list(size = 7)))
+    panel.background = element_rect(fill = "#d3d3d3"),
+    axis.text.x = element_text(size = 16),
+    axis.text.y = element_text(size = 16),
+    axis.title = element_text(size = 18, face = "bold"),
+    legend.title = element_text(size = 18, face = "bold"),
+    legend.text = element_text(size = 16),
+    legend.position = "none",
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5)
+  ) +
+  labs(title = "lambda") +
+  guides(color = guide_legend(override.aes = list(size = 7))) 
 
 ##### UNTREATED #####
 UntreatedMatrix <- ReadMtx("honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/features.tsv.gz")
@@ -86,24 +87,28 @@ untreated@meta.data$Quality[untreated@meta.data$nFeature_RNA > 2500] <- "HIGH nF
 untreated@meta.data$Quality[untreated@meta.data$nFeature_RNA >= 200 & untreated@meta.data$nFeature_RNA <= 2500] <- "Accepted"
 
 untreatedscatter <- 
-  ggplot(untreated@meta.data, aes(x = nFeature_RNA, y = nCount_RNA, color = Quality, size = percent.mt)) +
-  geom_point(alpha = 0.5) +
-  scale_color_manual(values = colours) + # Custom color scale
-  scale_size_continuous(range = c(0.5, 10), limits =c(0.5,100), name = "Percent Mt") +  # Adjust size range and name 
-  theme_bw() +
+  ggplot(untreated@meta.data, aes(x = nFeature_RNA, y = nCount_RNA, color = Quality)) +
+  geom_point(size = 1) +  # Set the size to a constant value (e.g., 3)
+  scale_color_manual(values = colours) + 
+  theme_classic() +
   theme(
-    panel.background = element_rect(fill = "white"),
-    axis.text.x = element_text(size = 16),   # Adjust x-axis text size and style
-    axis.text.y = element_text(size = 16),                 # Adjust y-axis text size
-    axis.title = element_text(size = 20, face = "bold"),   # Adjust axis title size and style
-    legend.title = element_text(size = 20, face = "bold"), # legend title
-    legend.text = element_text(size = 16), # Adjust legend text size
+    panel.background = element_rect(fill = "#d3d3d3"),
+    axis.text.x = element_text(size = 16),
+    axis.text.y = element_text(size = 16),
+    axis.title = element_text(size = 18, face = "bold"),
+    legend.title = element_text(size = 18, face = "bold"),
+    legend.text = element_text(size = 16),
+    legend.position = "none",
     plot.title = element_text(size = 20, face = "bold", hjust = 0.5)
   ) +
   labs(title = "untreated") +
-  guides(color = guide_legend(override.aes = list(size = 7)))
+  guides(color = guide_legend(override.aes = list(size = 7))) 
 
 ##### combine #####
 
 ggarrange(alphascatter, lambdascatter, untreatedscatter, ncol = 3)
 remove_legend(alphascatter)
+
+alphascatter | lambdascatter | untreatedscatter
+
+
