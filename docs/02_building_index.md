@@ -3,13 +3,19 @@
 
 To run the pseudo alignment tool (kallisto), an index of the reference transcriptome is needed. Although the SASCRiP function **kallisto_bustools** is able to do this automatically by changing some parameters, I needed to know how to do this manually: 
 
-The full transcriptome from Ensembl (files ending in cdna.all.fa.gz) must be downloaded. To build the human transcriptome index, first download the transcriptome, which is available under cDNA on the Ensembl website, at http://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/, and execute the following in the command prompt : 
+The full transcriptome from Ensembl (files ending in cdna.all.fa.gz) must be downloaded. To build the human transcriptome index, first download the transcriptome, which is available under cDNA on the Ensembl website <a href="[https://www.openai.com](http://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/)" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Visit OpenAI</a> and execute the following in the command prompt : 
 
   
 ```command promt 
 # Download the full transcriptome from ensemble : 
 curl -O ftp://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz
+```
 
+NOTE: you could, of course, do this by clicking the download button when you travel to the website.
+<br>
+After downloading the full transcriptome file, you now need to build the index : 
+
+```
 # Run kallisto index. kallisto will work on .fa and .fz.gz files so there is no need to unzip the downloaded file:
 
 kallisto index -i 	Homo_sapiens.GRCh38.cdna.all.release-94_k31.idx	Homo_sapiens.GRCh38.cdna.all.fa.gz
