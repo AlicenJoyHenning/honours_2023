@@ -7,7 +7,9 @@ _GO-Figure!, an open-source Python software for producing user-customisable sema
 
 
 ## [1] Install
-First, download this gitlab project or clone ```git clone https://gitlab.com/evogenlab/GO-Figure.git```. The simplest option to then run the GO-Figure! binary files for mac or ubuntu. This is done via the command line using ```./gofigure-ubuntu```. However, 
+First, download this gitlab project or clone ```git clone https://gitlab.com/evogenlab/GO-Figure.git```. The simplest option to then run the GO-Figure! binary files for mac or ubuntu. This is done via the command line using ```./gofigure-ubuntu```. However, in Windows, simply travelling to the directory where the project is saved will work. 
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/d4cb1f95-1e1e-4521-9cc3-16ba0c5b3c7a)
+
 
 ## [2] Load dependencies 
 Once GOFigure! project has been cloned, travel to the working directory and run the follwing to ensure it is running properly : 
@@ -112,6 +114,7 @@ An important aspect of GO-Figure! is the ability to keep up with new versions of
 + Run the script ```$ python3 scripts/relations.py data/go.obo > data/relations.tsv``` and place the output in the **data** folder 
 +  Download the latest version of the GOA UniProt database named ```goa_uniprot_all.gaf.gz``` and place it the **data** folder
 +  Run the script ```$ python3 scripts/ics.py data/relations.tab goa_uniprot_all.gaf.gz data/go.obo > data/ic.tsv``` and place the output in the **data** folder  
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/12846d11-af35-4d67-9889-f583da4409ce)
 
 
 
