@@ -377,6 +377,7 @@ M1AlphaEGO <- enrichGO(gene = M1AlphaDE,
                 )
 M1AlphaEGO <- filter(M1AlphaEGO, M1AlphaEGO@result$p.adjust < 0.05)
 M1AlphaList <- M1AlphaEGO@result[, c("ID", "p.adjust")] 
+colnames(M1AlphaList) <- c("% GOterm", "enrichment_P-value")
 write_tsv(M1AlphaList, "honours/results/DEAnalysis/FortopGO/M1AlphaList.tsv")
 
 M1LambdaEGO <- enrichGO(gene = M1LambdaDE, 
