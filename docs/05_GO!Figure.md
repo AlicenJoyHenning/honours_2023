@@ -173,8 +173,9 @@ In Juypter Lab, the following can be done to create the GOFigure that will be sa
 # -g single : legend below figure in 2 columns or one
 # -t "Title" : add a title 
 ```
-Example of result output : <br>
-![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/e5c10960-2b5b-4a0a-b86c-508adbf7fd9e)
+My result output : <br>
+![GOFigures](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/2a386a91-3e15-4602-8069-7c24624cbf38)
+
 
 
 
