@@ -69,3 +69,4 @@ ref.create_t2g_from_gtf(path_to_gtf, path_to_output, intron=False)
 
 ```
 
+ALternatively using R (<a href="https://bioconductor.org/packages/devel/bioc/vignettes/BUSpaRse/inst/doc/tr2g.html" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">BUSpaRse</a>) 
