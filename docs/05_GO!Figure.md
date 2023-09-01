@@ -107,9 +107,11 @@ GOFIgure! works in a Python interface so in a Jupyter Lab notebook the following
 ```
 
 ## [3] Download updates for GO calculations 
-An important aspect of GO-Figure! is the ability to keep up with new versions of data used for its calculations. Updates can be performed by performing the following steps:
-+ Download the latest version of the go.obo ()
-
+An important aspect of GO-Figure! is the ability to keep up with new versions of data used for its calculations. Updates can be performed by performing the following steps:<br>
++ Download the latest version of the go.obo (<a href="http://geneontology.org/docs/download-ontology/" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">GO.obo</a>) and place the downloaded file into the folder from the cloned project named **data**
++ Run the script ```$ python3 scripts/relations.py data/go.obo > data/relations.tsv``` and place the output in the **data** folder 
++  Download the latest version of the GOA UniProt database named ```goa_uniprot_all.gaf.gz``` and place it the **data** folder
++  Run the script ```$ python3 scripts/ics.py data/relations.tab goa_uniprot_all.gaf.gz data/go.obo > data/ic.tsv``` and place the output in the **data** folder  
 
 
 
