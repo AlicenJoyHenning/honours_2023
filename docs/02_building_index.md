@@ -1,14 +1,20 @@
 
 # Building the reference transcriptome input for kallisto 
 
-To run the pseudo alignment tool (kallisto), an index of the reference transcriptome is needed. Although the SASCRiP function **kallisto_bustools** is able to do this automatically by changing some parameters, I needed to know how to do this manually, this requires Kallisto to be installed (<a href="https://github.com/pachterlab/kallisto/releases" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">KALLISTO</a>). From ths options, choose and install the one compatible with your device and to use it, travel to the directory where it is saved ```cd kallisto_windows-v0-50.0\kallisto``` : 
+To run the pseudo alignment tool (kallisto), an index of the reference transcriptome is needed. Although the SASCRiP function **kallisto_bustools** is able to do this automatically by changing some parameters, I needed to know how to do this manually.<br> 
+## [1] Install Dependencies<br>
+For this process, python needs to be installed along with the package manager, pip. Download the latest version of python (<a href="https://www.python.org/downloads/" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">PYTHON</a>) and download the file here: (<a href="https://bootstrap.pypa.io/get-pip.py" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">PIP</a>). Ensure Python is installed from the cmd using ```python --version``` before installing pip ```python get-pip.py``` which can be verified afterwards as well using ```pip --version```. Next, JupyterLab must be installed which can now be done from the cmd ```pip install jupyterlab``` and opened  ```jupyter lab```. Note that this takes you to a Google Chrome page with Jupyter ready to be used, this is where the second portion of this tutorial needs to be completed.
+
+This process also requires Kallisto to be installed (<a href="https://github.com/pachterlab/kallisto/releases" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">KALLISTO</a>). From the options, choose and install the one compatible with your device and to use it, travel to the directory where it is saved ```cd kallisto_windows-v0-50.0\kallisto``` : 
 + kallisto_linux-v0.50.0.tar.gz
 + kallisto_mac-v0.50.0.tar.gz
 + kallisto_mac_m1-v0.50.0.tar.gz
 + kallisto_windows-v0.50.0.zip
+<br>
+From the command prompt, 
 
-
-Once Kallisto is ready to be used, the full transcriptome from Ensembl (files ending in cdna.all.fa.gz) must be downloaded. To build the human transcriptome index, first download the transcriptome, which is available under cDNA on the Ensembl website (<a href="http://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">ENSEMBL</a>) and execute the following in the command prompt : 
+## [2] Download the necessary 
+Once Kallisto is installed and ready to be used , the full transcriptome from Ensembl (files ending in cdna.all.fa.gz) must be downloaded. To build the human transcriptome index, first download the transcriptome, which is available under cDNA on the Ensembl website (<a href="http://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">ENSEMBL</a>) and execute the following in the command prompt : 
 
   
 ```command promt 
