@@ -376,6 +376,8 @@ M1AlphaEGO <- enrichGO(gene = M1AlphaDE,
                 pvalueCutoff = 0.05
                 )
 M1AlphaEGO <- filter(M1AlphaEGO, M1AlphaEGO@result$p.adjust < 0.05)
+M1AlphaList <- M1AlphaEGO@result[, c("ID", "p.adjust")] 
+write_tsv(M1AlphaList, "honours/results/DEAnalysis/FortopGO/M1AlphaList.tsv")
 
 M1LambdaEGO <- enrichGO(gene = M1LambdaDE, 
                        OrgDb = org.Hs.eg.db, 
@@ -532,42 +534,57 @@ L6_common <- intersect(L6AlphaEGO@result$Description, L6LambdaEGO@result$Descrip
 L6_alpha <- L6AlphaEGO@result$Description[!(L6AlphaEGO@result$Description %in% L6LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 L6_lambda <- L6LambdaEGO@result$Description[!(L6LambdaEGO@result$Description %in% L6AlphaEGO@result$Description)]
 L6_lambda <- L6LambdaEGO[L6LambdaEGO@result$Description %in% L6_lambda, ] 
+L6_lambda_list <- L6_lambda[, c("ID", "p.adjust")] 
+write_tsv(L6_lambda_list, "honours/results/DEAnalysis/FortopGO/L6_lambda_list.tsv")
 
 L5_common <- intersect(L5AlphaEGO@result$Description, L5LambdaEGO@result$Description )                # identify common genes
 L5_alpha <- L5AlphaEGO@result$Description[!(L5AlphaEGO@result$Description %in% L5LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 L5_lambda <- L5LambdaEGO@result$Description[!(L5LambdaEGO@result$Description %in% L5AlphaEGO@result$Description)]
 L5_lambda <- L5LambdaEGO[L5LambdaEGO@result$Description %in% L5_lambda, ] 
+L5_lambda_list <- L5_lambda[, c("ID", "p.adjust")] 
+write_tsv(L5_lambda_list, "honours/results/DEAnalysis/FortopGO/L5_lambda_list.tsv")
 
 L4_common <- intersect(L4AlphaEGO@result$Description, L4LambdaEGO@result$Description )                # identify common genes
 L4_alpha <- L4AlphaEGO@result$Description[!(L4AlphaEGO@result$Description %in% L4LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 L4_lambda <- L4LambdaEGO@result$Description[!(L4LambdaEGO@result$Description %in% L4AlphaEGO@result$Description)]
 L4_lambda <- L4LambdaEGO[L4LambdaEGO@result$Description %in% L4_lambda, ] 
+L4_lambda_list <- L4_lambda[, c("ID", "p.adjust")] 
+write_tsv(L4_lambda_list, "honours/results/DEAnalysis/FortopGO/L4_lambda_list.tsv")
 
 L3_common <- intersect(L3AlphaEGO@result$Description, L3LambdaEGO@result$Description )                # identify common genes
 L3_alpha <- L3AlphaEGO@result$Description[!(L3AlphaEGO@result$Description %in% L3LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 L3_lambda <- L3LambdaEGO@result$Description[!(L3LambdaEGO@result$Description %in% L3AlphaEGO@result$Description)]
 L3_lambda <- L3LambdaEGO[L3LambdaEGO@result$Description %in% L3_lambda, ] 
+L3_lambda_list <- L3_lambda[, c("ID", "p.adjust")] 
+write_tsv(L3_lambda_list, "honours/results/DEAnalysis/FortopGO/L3_lambda_list.tsv")
 
 L2_common <- intersect(L2AlphaEGO@result$Description, L2LambdaEGO@result$Description )                # identify common genes
 L2_alpha <- L2AlphaEGO@result$Description[!(L2AlphaEGO@result$Description %in% L2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 L2_lambda <- L2LambdaEGO@result$Description[!(L2LambdaEGO@result$Description %in% L2AlphaEGO@result$Description)]
 L2_lambda <- L2LambdaEGO[L2LambdaEGO@result$Description %in% L2_lambda, ] 
+L2_lambda_list <- L2_lambda[, c("ID", "p.adjust")] 
+write_tsv(L2_lambda_list, "honours/results/DEAnalysis/FortopGO/L2_lambda_list.tsv")
 
 L1_common <- intersect(L1AlphaEGO@result$Description, L1LambdaEGO@result$Description )                # identify common genes
 L1_alpha <- L1AlphaEGO@result$Description[!(L1AlphaEGO@result$Description %in% L1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 L1_lambda <- L1LambdaEGO@result$Description[!(L1LambdaEGO@result$Description %in% L1AlphaEGO@result$Description)]
 L1_lambda <- L1LambdaEGO[L1LambdaEGO@result$Description %in% L1_lambda, ] 
+L1_lambda_list <- L1_lambda[, c("ID", "p.adjust")] 
+write_tsv(L1_lambda_list, "honours/results/DEAnalysis/FortopGO/L1_lambda_list.tsv")
 
 M1_common <- intersect(M1AlphaEGO@result$Description, M1LambdaEGO@result$Description )                # identify common genes
 M1_alpha <- M1AlphaEGO@result$Description[!(M1AlphaEGO@result$Description %in% M1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 M1_lambda <- M1LambdaEGO@result$Description[!(M1LambdaEGO@result$Description %in% M1AlphaEGO@result$Description)]
 M1_lambda <- M1LambdaEGO[M1LambdaEGO@result$Description %in% M1_lambda, ] 
+M1_lambda_list <- M1_lambda[, c("ID", "p.adjust")] 
+write_tsv(M1_lambda_list, "honours/results/DEAnalysis/FortopGO/M1_lambda_list.tsv")
 
 M2_common <- intersect(M2AlphaEGO@result$Description, M2LambdaEGO@result$Description )                # identify common genes
 M2_alpha <- M2AlphaEGO@result$Description[!(M2AlphaEGO@result$Description %in% M2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 M2_lambda <- M2LambdaEGO@result$Description[!(M2LambdaEGO@result$Description %in% M2AlphaEGO@result$Description)]
 M2_lambda <- M2LambdaEGO[M2LambdaEGO@result$Description %in% M2_lambda, ] 
-
+M2_lambda_list <- M2_lambda[, c("ID", "p.adjust")] 
+write_tsv(M2_lambda_list, "honours/results/DEAnalysis/FortopGO/M2_lambda_list.tsv")
 
 length(M1_alpha)
 dim(M1_lambda)
@@ -671,3 +688,9 @@ DEenrichRPlot(object = TreatmentAnnotated,
 )
 
 "#6ab5ba""#6ab5ba"
+##### TopGO #####
+BiocManager::install("topGO")
+library(topGO)
+
+
+
