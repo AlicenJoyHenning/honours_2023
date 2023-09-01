@@ -1,5 +1,6 @@
 # Summary Visualizations of Gene Ontology Terms With GO-Figure!
 Reijnders, M.J. and Waterhouse, R.M., 2021. Summary visualizations of gene ontology terms with GO-Figure!. Frontiers in Bioinformatics, 1, p.6.
+(<a href="https://gitlab.com/evogenlab/GO-Figure" style="background-color: #6ab5ba; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Tutorial</a>)
 
 _"The Gene Ontology (GO) is a cornerstone of functional genomics research that drives discoveries through knowledge-informed computational analysis of biological data from large-scale assays. Key to this success is how the GO can be used to support hypotheses or conclusions about the biology or evolution of a study system by identifying annotated functions that are overrepresented in subsets of genes of interest. Graphical visualizations of such GO term enrichment results are critical to aid interpretation and avoid biases by presenting researchers with intuitive visual data summaries._
 
@@ -115,6 +116,66 @@ An important aspect of GO-Figure! is the ability to keep up with new versions of
 +  Download the latest version of the GOA UniProt database named ```goa_uniprot_all.gaf.gz``` and place it the **data** folder
 +  Run the script ```$ python3 scripts/ics.py data/relations.tab goa_uniprot_all.gaf.gz data/go.obo > data/ic.tsv``` and place the output in the **data** folder  
 ![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/12846d11-af35-4d67-9889-f583da4409ce)
+<br>NOTE: Because GOFigure had been updated a month prior to my using of it, I did not update the data (it was estimated to take 2 days)
+<br><br>
+## [4] Prepare GOFigure! Input Files 
+The GOFigure takes a few formats as input : 
+Standard Input : 
+
+| % GOterm  | enrichment_P-value |
+|------------|-----------------|
+| GO:0022402 | 1.74E-15 |
+
+TopGO Input:
+
+| GO.ID     | Term             | Annotated | Significant | Expected | P_value  |
+|-----------|------------------|-----------|-------------|----------|----------|
+| GO:0006457| protein folding  | 128       | 24          | 7.16     | 2.1e-05  |
+
+GOStats Input:
+
+| GOBPID    | Pvalue          | OddsRatio | ExpCount   | Count    | Size |
+|-----------|-----------------|-----------|------------|----------|------|
+| GO:0044237| 4.418192e-12    | 2.546841  | 57.8619982 | 106      | 269  | 
+
+<br> 
+To make sure the input would be of the correct format, I used the following R code to adjust my ClusterProfiler generated results : 
+
+```R
+# Reminder of CLusterProfiler function : 
+objectEGO <- enrichGO(gene = list_of_DEGs, 
+                OrgDb = org.Hs.eg.db, 
+                keyType = "ENTREZID",
+                ont = "BP",
+                pAdjustMethod = "BH",
+                pvalueCutoff = 0.05
+                )
+onjectEGO <- filter(objectEGO, objectEGO@result$p.adjust < 0.05) # adjusting to only contain significant GO terms
+
+# Editing the output to be suitable : 
+ObjectList <- objectEGO@result[, c("ID", "p.adjust")] # subset for necessary columns 
+colnames(ObjectList) <- c("% GOterm", "enrichment_P-value") # change column names to be suitable for Standard Input shown above
+
+# Save as a tsv file to be used as input into the python application : 
+write_tsv(ObjectList, "honours/results/DEAnalysis/FortopGO/M1AlphaList.tsv")
+```
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/46ae4b45-d0ca-442e-8b56-e252d8cec024)
+
+## [4] Using the GOFigure! Application 
+In Juypter Lab, the following can be done to create the GOFigure that will be saved to the output location : 
+```python
+!python gofigure.py -i "input.tsv" -o "output+location" -n bpo -a 20 -e 75 -m 20 -p viridis -g single -t "Title"
+# -n bpo : specifies which ontology to use: biological process ('bpo'), molecular function ('mfo'), cellular component ('cco'), or all ontologies ('all')
+# -a 20 : maximum amount of clusters to plot (integer value)
+# -e 75 : character length of legend description (ensure full description is written)
+# -m 20 : number of labels to include
+# -p viridis : specified colour palette (doens't allow own colour palette to be generated)
+# -g single : legend below figure in 2 columns or one
+# -t "Title" : add a title 
+```
+Example of result output : <br>
+![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/e5c10960-2b5b-4a0a-b86c-508adbf7fd9e)
+
 
 
 
