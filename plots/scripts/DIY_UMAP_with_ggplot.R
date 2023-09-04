@@ -17,7 +17,6 @@ treatment.df <- data.frame(
 )
 
 # Define color palette
-palette.a <- RColorBrewer::brewer.pal(12, "Paired")
 palette.b <- c("#ee5e17", #0
                "#d72554", #1
                "#6ab5ba", #2
@@ -204,7 +203,7 @@ features = c("CD96", "APOBEC3G", "CTSW","NKG7", "GNLY", "GZMA", "FCGR3A")
 
 NKFP <- 
   FeaturePlot(object = treatment, 
-            features = "NKG7",
+            features = "FCGR1A",
             cols = c("lightgrey", "black"),
             label = TRUE,
             pt.size = 1.5, 
