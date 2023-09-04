@@ -132,11 +132,16 @@ TopGO Input:
 |-----------|------------------|-----------|-------------|----------|----------|
 | GO:0006457| protein folding  | 128       | 24          | 7.16     | 2.1e-05  |
 
+TopGO is an R package that is primarily used for performing GO term enrichment analysis. TopGO employs a topological scoring algorithm, which considers the structure of the GO hierarchy. This means it can prioritize more specific terms that are descendants of more general terms. It takes a list of genes as input and identifies overrepresented GO terms (biological processes, molecular functions, or cellular components) within that gene list.
+
 GOStats Input:
 
 | GOBPID    | Pvalue          | OddsRatio | ExpCount   | Count    | Size |
 |-----------|-----------------|-----------|------------|----------|------|
 | GO:0044237| 4.418192e-12    | 2.546841  | 57.8619982 | 106      | 269  | 
+
+GOstats is another R package for GO enrichment analysis. Like TopGO, it identifies overrepresented GO terms in a given gene list, but it uses a different statistical approach. GOstats uses hypergeometric or Fisher's exact tests to assess the statistical significance of GO term enrichment. It calculates p-values to determine whether the observed enrichment is greater than what would be expected by chance. 
+_Both TopGO and GOstats apply statistical tests to assess the significance of GO term enrichment._ 
 
 <br> 
 To make sure the input would be of the correct format, I used the following R code to adjust my ClusterProfiler generated results : 
