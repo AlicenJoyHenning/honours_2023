@@ -292,10 +292,10 @@ openxlsx::write.xlsx(Cluster2v3Markers, file = "honours/results/IntegratedMarker
 ###### Manual Annotation using literature markers  #####
 
 #Cluster 0 
-features = c("CD96", "CD45", "APOBEC3G", "CTSW","NKG7", "GNLY", "GZMA", "FCGR3A")
+features = c("CD41", "CD42b", "CD62P", "CD63")
    
 FeaturePlot(object = treatment, 
-            features = "NKG7",
+            features = features,
             cols = c("lightgrey", "black"),
             label = TRUE,
             pt.size = 1.5, 
