@@ -4,7 +4,10 @@
 BiocManager::install("clusterProfiler", version = "3.14")
 BiocManager::install("pathview")
 BiocManager::install("enrichplot")
+BiocManager::install("gage")
+BiocManager::install("gageData")
 library(clusterProfiler)
+library(pathview)
 library(enrichplot)
 library(DOSE)
 library(biomaRt)
@@ -32,6 +35,8 @@ TreatmentAnnotated <- RenameIdents(treatment,
                                    '12' = '12',
                                    '13' = '13',
                                    '14' = '14')
+
+
 
 ##### View the annotated clusters #####
 ###
@@ -250,6 +255,7 @@ BLambdaResponse <- data.frame(Gene = L6LambdaResponse$gene,Log2FoldChange = L6La
 write.csv(BLambdaResponse, "honours/results/DEAnalysis/after_filtering/BLambdaResponse.csv", row.names = FALSE)
 
 
+##### 
 ##### Extra use of FindMarkers() ? #####
 
 # [a] To find common DEG between 2 treatments compared to the control (same pathways?) : 
@@ -590,15 +596,120 @@ write_tsv(M2_lambda_list, "honours/results/DEAnalysis/FortopGO/M2_lambda_list.ts
 length(M1_alpha)
 dim(M1_lambda)
 
+# KEGG pathway analysis 
+
+
+
+
+
+##### KEGG analysis #####
+
+library(pathview)
+library(gage)
+library(gageData)
+
+# reference data sets from gageData : 
+
+data("go.sets.hs") # GO analysis
+data("go.subs.hs") # GO analysis 
+gobpsets = go.sets.hs[go.subs.hs$BP] # GO analysis 
+
+data(kegg.sets.hs) # KEGG analysis 
+# data(sigmet.idx.hs) # subset of KEGG sets with only signalling & metabolic pathways 
+# kegg.sets.hs = kegg.sets.hs[sigment.idx.hs] # subsetting KEGG sets to only include metabolic processes 
+
+
+# creating data with log2fold changes and entrex gene IDs :
+
+M1Afoldchanges = M1AlphaResponse$avg_log2FC
+names(M1Afoldchanges) = M1AlphaResponse$entrezgene_id
+M1Lfoldchanges = M1LambdaResponse$avg_log2FC
+names(M1Lfoldchanges) = M1LambdaResponse$entrezgene_id
+
+M2Afoldchanges = M2AlphaResponse$avg_log2FC
+names(M2Afoldchanges) = M2AlphaResponse$entrezgene_id
+M2Lfoldchanges = M2LambdaResponse$avg_log2FC
+names(M2Lfoldchanges) = M2LambdaResponse$entrezgene_id
+
+L1Afoldchanges = L1AlphaResponse$avg_log2FC
+names(L1Afoldchanges) = L1AlphaResponse$entrezgene_id
+L1Lfoldchanges = L1LambdaResponse$avg_log2FC
+names(L1Lfoldchanges) = L1LambdaResponse$entrezgene_id
+
+L2Afoldchanges = L2AlphaResponse$avg_log2FC
+names(L2Afoldchanges) = L2AlphaResponse$entrezgene_id
+L2Lfoldchanges = L2LambdaResponse$avg_log2FC
+names(L2Lfoldchanges) = L2LambdaResponse$entrezgene_id
+
+L3Afoldchanges = L3AlphaResponse$avg_log2FC
+names(L3Afoldchanges) = L3AlphaResponse$entrezgene_id
+L3Lfoldchanges = L3LambdaResponse$avg_log2FC
+names(L3Lfoldchanges) = L3LambdaResponse$entrezgene_id
+
+L4Afoldchanges = L4AlphaResponse$avg_log2FC
+names(L4Afoldchanges) = L4AlphaResponse$entrezgene_id
+L4Lfoldchanges = L4LambdaResponse$avg_log2FC
+names(L4Lfoldchanges) = L4LambdaResponse$entrezgene_id
+
+L5Afoldchanges = L5AlphaResponse$avg_log2FC
+names(L5Afoldchanges) = L5AlphaResponse$entrezgene_id
+L5Lfoldchanges = L5LambdaResponse$avg_log2FC
+names(L5Lfoldchanges) = L5LambdaResponse$entrezgene_id
+
+L6Afoldchanges = L6AlphaResponse$avg_log2FC
+names(L6Afoldchanges) = L6AlphaResponse$entrezgene_id
+L6Lfoldchanges = L6LambdaResponse$avg_log2FC
+names(L6Lfoldchanges) = L6LambdaResponse$entrezgene_id
+
+
+# GO Biological processes for DEGs using gage :(already done this with clusterprofiler)
+
+M1Agobp = gage(exprs = M1Afoldchanges, # DEGs from our dataset
+               gsets = gobpsets, # gageData sets subsetted for BP 
+               same.dir = TRUE) # looks in same direction for up & down regulated genes)
+
+# KEGG pathways for DEGs using gage :
+
+M1Akegg = gage(exprs = M1Afoldchanges, # DEGs from our dataset
+               gsets = kegg.sets.hs, # gageData sets
+               same.dir = TRUE)
+saveRDS(M1Akegg, "M1Alpha/M1Akegg.rds")
+M1Akeggpathways = data.frame(id = rownames(M1Akegg$greater), M1Akegg$greater) %>% #list with rownames and subset out for name in front
+                               tibble::as_tibble() %>% 
+                              filter(row_number() <= 20) %>% # top 20 
+                                .$id %>%
+                                  as.character()
+saveRDS(M1Akeggpathways, "M1Alpha/M1Akeggpathways.rds")
+M1Akeggids = substr(M1Akeggpathways, start = 1, stop = 8) # just first view characters 
+
+
+M1Lkegg = gage(exprs = M1Lfoldchanges, # DEGs from our dataset
+               gsets = kegg.sets.hs, # gageData sets
+               same.dir = TRUE)
+saveRDS(M1Akegg, "M1Alpha/M1Akegg.rds")
+M1Lkeggpathways = data.frame(id = rownames(M1Lkegg$greater), M1Lkegg$greater) %>% #list with rownames and subset out for name in front
+  tibble::as_tibble() %>% 
+  filter(row_number() <= 20) %>% # top 20 
+  .$id %>%
+  as.character()
+
+
+
+
+# Make the pathway plots : 
+setwd("C:/Users/alice/honours/results/KEGG/")
+tmp = sapply(M1Akeggids, 
+             function(pid) pathview(gene.data = M1Afoldchanges, pathway.id = pid, species = "hsa"))
+pathview(gene.data = M1Afoldchanges, pathway.id = "hsa04630", species = "hsa") 
+
+
+
 
 ##### DGEA Plots #####
 library(enrichplot)
 
 # Plot the enrichment results
 barplot(L6_lambda$qvalue, showCategory=20)
-
-
-
 
 
 
