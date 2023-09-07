@@ -1,11 +1,12 @@
-# Differential Expression analysis in R (seurat
+# DIFFERENTIAL EXPRESSION ANALYSIS (Seurat) 
 
-###### dependencies & load object #####
+##### [1.1] Dependencies & load object #####
 BiocManager::install("clusterProfiler", version = "3.14")
 BiocManager::install("pathview")
 BiocManager::install("enrichplot")
 BiocManager::install("gage")
 BiocManager::install("gageData")
+
 library(clusterProfiler)
 library(pathview)
 library(enrichplot)
@@ -38,9 +39,11 @@ TreatmentAnnotated <- RenameIdents(treatment,
 
 
 
-##### View the annotated clusters #####
-###
-Idents(TreatmentAnnotated)
+##### [1.2] View the annotated clusters #####
+# View the current annotations for confirmation : 
+Idents(TreatmentAnnotated) 
+
+# Defined colour palette adjusted for cluster annotation : 
 palette.b <- c(
                "#d72554", #0 and 1
                "#6ab5ba", #2
@@ -55,26 +58,28 @@ palette.b <- c(
                "#f7bc6e", #13
                "#6ab5ba" #13 
                )
+
+# Visualise UMAP plot with annotations : 
 all <- DimPlot(TreatmentAnnotated, reduction = "umap", pt.size = 1.5, label = TRUE, label.color = "white", label.size = 6, label.box = TRUE, repel = TRUE, cols = palette.b)
 
+# Quick access feature plot to check for gene presence : 
 features <- c("CXCR1", "CXCR2", "CD4", "KLF2", "IL7R", "CD8B", "CD8A", "BCL11A", "CD40", "NKG7", "CTSW", "FOXP3", "RTKN2")
 f <- DotPlot(object = treatment, 
         features = features,
         cols = c("grey", "#6ab5ba")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
+# Patchwork plot with total UMAP with feature plots : 
 all | f
 
-##### DE ######
-
-# {1} : Creating metadata column to hold cell type AND stimulation information (as opposed to just cell type) : 
+##### [2.1] DE with FindMarkers() ######
+# Creating metadata column to hold cell type AND stimulation information (as opposed to just cell type) : 
 
 TreatmentAnnotated$celltype.stim <- paste(Idents(TreatmentAnnotated), TreatmentAnnotated$stim, sep = "_") # paste puts first entry followed by next entry and separates by indicated symbol 
 TreatmentAnnotated$celltype <- Idents(TreatmentAnnotated) # restores the cell type column 
 Idents(TreatmentAnnotated) <- "celltype.stim" # switch the idents to that column 
 
 # Now we can easily refer to a cell & treatment type, to see the options : 
-
 levels(TreatmentAnnotated) # list the options to perform DE on :
 
 # MYELOID CELL TYPES : 
@@ -93,12 +98,10 @@ levels(TreatmentAnnotated) # list the options to perform DE on :
 # 6. "B_alpha", B_lambda"                    VS    "B_untreated"      
     
 
-# {2} Use FindMarkers() to find the genes that are different between stimulated and untreated cell types
+# Use FindMarkers() to find the genes that are different between stimulated and untreated cell types
 ?FindMarkers()
 
-
 # MYELOID CELL TYPES : 
-
 # 1. Monocytes 
 M1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Mono_alpha", ident.2 = "Mono_untreated", sep = "_") 
 M1AlphaResponse$gene <- rownames(M1AlphaResponse) # puts gene names into a column
@@ -255,8 +258,7 @@ BLambdaResponse <- data.frame(Gene = L6LambdaResponse$gene,Log2FoldChange = L6La
 write.csv(BLambdaResponse, "honours/results/DEAnalysis/after_filtering/BLambdaResponse.csv", row.names = FALSE)
 
 
-##### 
-##### Extra use of FindMarkers() ? #####
+##### [2.2] Extra use of FindMarkers() #####
 
 # [a] To find common DEG between 2 treatments compared to the control (same pathways?) : 
 B_cells_common_genes <- intersect(AlphaResponse$gene, LambdaResponse$gene)                # identify common genes
@@ -275,39 +277,7 @@ B_cells_lambda <- LambdaResponse[LambdaResponse$gene %in% B_cells_lambda_genes, 
 B_cells <- list('B_cells_Alpha_Response' = AlphaResponse, 'B_cells_Lambda_Response' = LambdaResponse,'B_cells_common_response' = B_cells_common_dataframe, 'B_cells_alpha_specific' = B_cells_alpha,'B_cells_lambda_specific' = B_cells_lambda)
 openxlsx::write.xlsx(B_cells, file = "honours/results/DEAnalysis/B_cells.xlsx")
 
-##### Visualisations ##### 
-# TIER ONE : general trends (no stats)
-
-# [a] Histogram showing DEGs across cell types and treatments (9 sections)
-
-##
-B_FP <- FeaturePlot(TreatmentAnnotated, 
-features = c("ISG15"),# "IFIT3",# "IFI6",# "IFIT2",# "MX1",# "TNFSF10",# "SAMD9L",# "HERC5",# "IFIT1",# "IFI44L"), ),
-split.by = "stim",            
-cols = c("grey", "red")) + geom_hline(yintercept = c(-14, -11), linetype = "dotted", color = "black") 
-
-
-theme_set(theme_cowplot())
-t.cells <- subset(TreatmentAnnotated, idents = "Naive CD4+ T cells")
-Idents(t.cells) <- "stim"
-avg.t.cells <- as.data.frame(log1p(AverageExpression(t.cells, verbose = FALSE)$RNA))
-avg.t.cells$gene <- rownames(avg.t.cells)
-p1 <- ggplot(avg.t.cells, 
-             aes(untreated, alpha)) + 
-  geom_point() +
-  xlab("UNTREATED") +
-  ylab("ALPHA")
-
-p2 <- ggplot(avg.t.cells, 
-             aes(untreated, lambda)) +
-  geom_point() +
-  xlab("UNTREATED") +
-  ylab("LAMBDA")
-p3 <- p1 + p2 
-p4 <- p3 +  ggtitle("Differentially expressed genes in Naive T cells") 
-p4
-
-##### ClusterProfiler #####
+##### [3] ClusterProfiler GO analysis #####
 
 ?clusterProfiler # not helpful 
 ls("package:clusterProfiler")
@@ -603,7 +573,7 @@ dim(M1_lambda)
 
 
 
-##### KEGG analysis #####
+##### [4] Gage KEGG analysis #####
 
 library(pathview)
 library(gage)
@@ -744,53 +714,6 @@ pathview(gene.data = M1Afoldchanges, pathway.id = "hsa04630", species = "hsa")
 
 
 
-##### DGEA Plots #####
-library(enrichplot)
-
-# Plot the enrichment results
-barplot(L6_lambda$qvalue, showCategory=20)
-
-
-
-###### pplots not yet uesd #####
-
-egox <- setReadable(topego, 'org.Hs.eg.db', 'ENTREZID')
-p1 <- cnetplot(egox, FoldChange = de)
-p3 <- cnetplot(egox, FoldChange= de, circular = TRUE, colorEdge = TRUE) 
-
-edox <- setReadable(edo, 'org.Hs.eg.db', 'ENTREZID')
-p1 <- cnetplot(edox)
-p2 <- cnetplot(ego, foldChange=gene_list)
-p3 <- cnetplot(edox, foldChange=gene_list, circular = TRUE, colorEdge = TRUE) 
-p4 <- heatplot(edox, foldChange=gene_list, showCategory=5)
-
-edox2 <- pairwise_termsim(edox)
-p1 <- treeplot(edox2)
-p2 <- treeplot(edox2, hclust_method = "average")
-aplot::plot_list(p1, p2, tag_levels='A')
-
-# 2 : Prepare Input : read in DE csv file 
-BCellAlphadf = read.csv("honours/results/DEAnalysis/BCellAlphaResponse.csv", header = TRUE)
-
-gene_list <- BCellAlphadf$Log2FoldChange
-names(gene_list) <- BCellAlphadf$Gene
-gene_list = sort(gene_list, decreasing = TRUE)
-
-# 3 : Gene Set ENrichment 
-
-keytypes(org.Hs.eg.db) # see what options are available 
-
-gse <- gseGO( geneList = gene_list, 
-              ont = "ALL", # enrichment on all 3 GO branches (biological processes, molecular function, cellular component)
-              keyType = "SYMBOL", 
-              nPerm = 10000, 
-              minGSSize = 3, 
-              maxGSSize = 800, 
-              pvalueCutoff = 0.05, 
-              verbose = TRUE, 
-              OrgDb = organism, 
-              pAdjustMethod = "none")
-goplot(gse)
 
 
 # emapplot(gse)
@@ -814,34 +737,5 @@ ego <- enrichGO(gene = gene_list,
          qvalueCutoff = 0.05, 
          readable = TRUE)
 
-
 ego2 <- pairwise_termsim(gseGO, method = "Wang", semData )
-
-##### EnrichR ######
-BiocManager::install("enrichR")
-library("enrichR")
-library(enrichplot)
-?DEenrichRPlot()
-
-DEenrichRPlot(object = TreatmentAnnotated,
-  ident.1 = "B_cells_alpha",
-  ident.2 = "B_cells_untreated",
-  balanced = TRUE,
-  logfc.threshold = 0.25,
-  assay = "RNA",
-  max.genes = 10000,
-  test.use = "wilcox",
-  p.val.cutoff = 0.05,
-  cols = NULL,
-  enrich.database = "GO_All",
-  num.pathway = 20,
-  return.gene.list = FALSE,
-)
-
-"#6ab5ba""#6ab5ba"
-##### TopGO #####
-BiocManager::install("topGO")
-library(topGO)
-
-
 
