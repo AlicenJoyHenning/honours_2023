@@ -446,6 +446,7 @@ L2AlphaEGO <- enrichGO(gene = L2AlphaDE,
 )
 L2AlphaEGO <- filter(L2AlphaEGO, L2AlphaEGO@result$p.adjust < 0.05)
 
+
 L2LambdaEGO <- enrichGO(gene = L2LambdaDE, 
                         OrgDb = org.Hs.eg.db, 
                         keyType = "ENTREZID",
@@ -615,7 +616,7 @@ data("go.subs.hs") # GO analysis
 gobpsets = go.sets.hs[go.subs.hs$BP] # GO analysis 
 
 data(kegg.sets.hs) # KEGG analysis 
-# data(sigmet.idx.hs) # subset of KEGG sets with only signalling & metabolic pathways 
+data(sigmet.idx.hs) # subset of KEGG sets with only signalling & metabolic pathways 
 # kegg.sets.hs = kegg.sets.hs[sigment.idx.hs] # subsetting KEGG sets to only include metabolic processes 
 
 
@@ -670,6 +671,7 @@ M1Agobp = gage(exprs = M1Afoldchanges, # DEGs from our dataset
 
 # KEGG pathways for DEGs using gage :
 
+# M1 Alpha
 M1Akegg = gage(exprs = M1Afoldchanges, # DEGs from our dataset
                gsets = kegg.sets.hs, # gageData sets
                same.dir = TRUE)
@@ -681,25 +683,62 @@ M1Akeggpathways = data.frame(id = rownames(M1Akegg$greater), M1Akegg$greater) %>
                                   as.character()
 saveRDS(M1Akeggpathways, "M1Alpha/M1Akeggpathways.rds")
 M1Akeggids = substr(M1Akeggpathways, start = 1, stop = 8) # just first view characters 
+setwd("C:/Users/alice/honours/results/KEGG/") # Make the pathway plots : 
+tmp = sapply(M1Akeggids, 
+             function(pid) pathview(gene.data = M1Afoldchanges, pathway.id = pid, species = "hsa"))
+pathview(gene.data = M1Afoldchanges, pathway.id = "hsa04630", species = "hsa") 
 
 
+# M1 Lambda 
 M1Lkegg = gage(exprs = M1Lfoldchanges, # DEGs from our dataset
                gsets = kegg.sets.hs, # gageData sets
                same.dir = TRUE)
-saveRDS(M1Akegg, "M1Alpha/M1Akegg.rds")
+saveRDS(M1Akegg, "M1Lambda/M1Lkegg.rds")
 M1Lkeggpathways = data.frame(id = rownames(M1Lkegg$greater), M1Lkegg$greater) %>% #list with rownames and subset out for name in front
   tibble::as_tibble() %>% 
   filter(row_number() <= 20) %>% # top 20 
   .$id %>%
   as.character()
+saveRDS(M1Akeggpathways, "M1Lambda/M1Lkeggpathways.rds")
+M1Lkeggids = substr(M1Lkeggpathways, start = 1, stop = 8)
+tmp = sapply(M1Lkeggids, 
+             function(pid) pathview(gene.data = M1Lfoldchanges, pathway.id = pid, species = "hsa"))
 
 
+# M2 Alpha 
+M2Akegg = gage(exprs = M2Afoldchanges, # DEGs from our dataset
+               gsets = kegg.sets.hs, # gageData sets
+               same.dir = TRUE)
+saveRDS(M2Akegg, "M2Alpha/M2Akegg.rds")
+M2Akeggpathways = data.frame(id = rownames(M2Akegg$greater), M2Akegg$greater) %>% #list with rownames and subset out for name in front
+  tibble::as_tibble() %>% 
+  filter(row_number() <= 20) %>% # top 20 
+  .$id %>%
+  as.character()
+saveRDS(M2Akeggpathways, "M2Alpha/M2Akeggpathways.rds")
+M2Akeggids = substr(M2Akeggpathways, start = 1, stop = 8) # just first view characters 
+setwd("C:/Users/alice/honours/results/KEGG/M2Alpha/") # Make the pathway plots : 
+tmp = sapply(M2Akeggids, 
+             function(pid) pathview(gene.data = M2Afoldchanges, pathway.id = pid, species = "hsa"))
+
+# M2 Lambda 
+M2Lkegg = gage(exprs = M2Lfoldchanges, # DEGs from our dataset
+               gsets = kegg.sets.hs, # gageData sets
+               same.dir = TRUE)
+saveRDS(M2Lkegg, "M2Lambda/M2Lkegg.rds")
+M2Lkeggpathways = data.frame(id = rownames(M2Lkegg$greater), M2Lkegg$greater) %>% #list with rownames and subset out for name in front
+  tibble::as_tibble() %>% 
+  filter(row_number() <= 20) %>% # top 20 
+  .$id %>%
+  as.character()
+saveRDS(M2Lkeggpathways, "M2Lambda/M2Lkeggpathways.rds")
+M2Lkeggids = substr(M2Lkeggpathways, start = 1, stop = 8)
+tmp = sapply(M2Lkeggids, 
+             function(pid) pathview(gene.data = M2Lfoldchanges, pathway.id = pid, species = "hsa"))
 
 
-# Make the pathway plots : 
+# Make the pathway plots of specific pathways: 
 setwd("C:/Users/alice/honours/results/KEGG/")
-tmp = sapply(M1Akeggids, 
-             function(pid) pathview(gene.data = M1Afoldchanges, pathway.id = pid, species = "hsa"))
 pathview(gene.data = M1Afoldchanges, pathway.id = "hsa04630", species = "hsa") 
 
 

@@ -343,6 +343,7 @@ TreatmentAnnotated <- RenameIdents(treatment,
                           '12' = 'DC',
                           '13' = 'macrophage?',
                           '14' = 'DC?')
+
 saveRDS(treatment, "honours/results/IntegratedMarkers/treatment.rds")
 saveRDS(TreatmentAnnotated, "honours/results/IntegratedMarkers/TreatmentAnnotated.rds")
 
