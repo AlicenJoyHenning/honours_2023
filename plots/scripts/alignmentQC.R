@@ -9,10 +9,10 @@ Datasets <- c(rep("alpha" , 2), rep("lambda", 2), rep("untreated", 2))
 Metrics <- rep(c("Alignment Rate" , "Percentage Whitelist" ),3)
 Percentage <- c(56.6, 95.6, 55.3, 95.7, 54.1, 96.1)
 
-data <- data.frame(group,metrics,values)
+alignQC <- data.frame(Datasets,Metrics,Percentage)
 
 # Grouped
-ggplot(data, aes(fill=Metrics, y=Percentage, x=Datasets)) + 
+ggplot(alignQC, aes(fill=Metrics, y=Percentage, x=Datasets)) + 
   geom_bar(position="dodge", stat="identity") +
   geom_text(aes(label = Percentage),  position = position_dodge(width = 0.9), 
             vjust = -0.5, size = 3.5) +

@@ -1,42 +1,51 @@
-# This script is for making (customizing a UMAP plot using ggplot :
+
+# CUSTOMIZING UMAP PLOT USING GGPLOT 
+
+##### [0] Dependencies #####
 library(patchwork)
 library(gridExtra)
-##### Overall Plot ####
+library(ggplot2)
+library(Seurat)
+library(SeuratObject)
 
+##### [1] Overall UMAP plot #####
+# Load the data : 
+getwd()
+setwd("C:/Users/alice")
 treatment <- readRDS("honours/results/IntegratedMarkers/treatment.rds")
 
-# Extract UMAP coordinatesb and cluster information
+# Extract UMAP coordinates and cluster information : 
 treatment.umap.coords <- as.data.frame(treatment@reductions$umap@cell.embeddings)
 clusters <- treatment$seurat_clusters
 
-# Create a dataframe for ggplot
+
+# Create a data frame for ggplot : 
 treatment.df <- data.frame(
   x = treatment.umap.coords$UMAP_1,
   y = treatment.umap.coords$UMAP_2,
-  seurat_clusters = factor(clusters)
+  seurat_clusters = factor(clusters) # cluster numbers 
 )
 
-# Define color palette
-palette.b <- c("#ee5e17", #0
+# Define color palette : 
+palette.b <- c("#FB836F", #0
                "#d72554", #1
                "#6ab5ba", #2
                "#2e8f95", #3
-               "#900c3e", #4
+               "#7E549F", #4
                "#8caf2e", #5
-               "#c35cad", #6
+               "#69a923", #6
                "#297b57", #7 
                "#00945a", #8
                "#265221", #9
                "#FFCB3E", #10
                "#00a68e", #11
                "#5c040c", #12
-               "#f7bc6e", #13
+               "#ef931b", #13
                "#6ab5ba" #14
-              )
+)
 
-# Create the ggplot plot
-total <- 
-  ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
+# Create the ggplot plot : 
+ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
   geom_point(size = 1) +
   scale_colour_manual(values = palette.b) +
   labs(#title = "IFN alpha",
@@ -67,13 +76,13 @@ total <-
     label.position = "right",
     label.hjust = 1
   ))
-##### 
 
 
+##### [2] Treatment-specific UMAP plots #####
 
 clusters.new <- treatment$stim
 
-# Create a dataframe for ggplot
+# Create a dataframe for ggplot : 
 treatment.df.new <- data.frame(
   x = treatment.umap.coords$UMAP_1,
   y = treatment.umap.coords$UMAP_2,
@@ -82,7 +91,7 @@ treatment.df.new <- data.frame(
 
 colours <- c("#c35cad","#6ab5ba","#d3d3d3")
 
-# Define custom colors based on the 'stim' column
+# Define custom colors based on the 'stim' column : 
 alpha_cluster_color <- ifelse(treatment.df.new$clusters == "alpha", colours[1], "grey")
 
 alpha.plot <- 
@@ -110,7 +119,7 @@ alpha.plot <-
 
 print(alpha.plot)
 
-# Define custom colors based on the 'stim' column
+# Define custom colors based on the 'stim' column: 
 lambda_cluster_color <- ifelse(treatment.df.new$clusters == "lambda", colours[2], "grey")
 
 lambda.plot <- 
@@ -138,7 +147,7 @@ lambda.plot <-
 
 print(lambda.plot)
 
-# Define custom colors based on the 'stim' column
+# Define custom colors based on the 'stim' column:
 untreated_cluster_color <- ifelse(treatment.df.new$clusters == "untreated", colours[3], "grey")
 
 untreated.plot <- 
@@ -167,9 +176,7 @@ untreated.plot <-
 print(untreated.plot)
 
 
-
-
-##### NK cell type : cluster 9  #####
+##### [3.1] NK cell type   #####
 NKCluster <- 10
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
@@ -222,7 +229,7 @@ NKDP <-
 
 NK <- (NKLook / NKFP) | NKDP # uses patchwork since ggplot2 was not used to make the feature plot and Lord knows I'm not going to use it 
 
-##### B cell type : cluster 6 #####
+##### [3.2] B cell type  #####
 BCluster <- 7
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
@@ -277,7 +284,7 @@ BDP <-
 B <- (BLook / BFP) | BDP
 B
 
-##### Reguatory T cells #####
+##### [3.3] Regulatory T cells #####
 TregsCluster <- 12
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
@@ -334,7 +341,7 @@ TregDP <-
 Treg <- (TregsLook / TregFP) | TregDP
 Treg
 
-##### CD8T cells #####
+##### [3.4] CD8T cells #####
 CD8Cluster <- c(6, 8, 9)
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
@@ -393,7 +400,7 @@ CD8T <- (CD8TLook /CD8TFP) | CD8TDP | (NKLook / NKFP)
 CD8T
 
 
-##### CD4 :  Helper + Naive ####
+##### [3.5] CD4 :  Helper + Naive ####
 HelpTCluster <- c(3, 4)
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
@@ -449,7 +456,7 @@ HelpTDP <-
 HelpT <- (HelpTLook / HelpTFP) | HelpTDP
 HelpT
 
-##### mono & Neutrophils #####
+##### [3.6] Mono & Neutrophils #####
 MonoCluster <- c(1,2, 5)
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
@@ -504,7 +511,7 @@ Mono <- (MonoLook / MonoFP) | MonoDP
 Mono
 
 
-##### Monocytes ####
+##### [3.7] Monocytes ####
 NCluster <- c(5)
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
@@ -533,15 +540,8 @@ NLook <-
     plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))
   )
 
-##### Altogether #####
-# combined_layout <- (
-#   total |
-#     (
-#       (NKLook | CD8Look | NaiveLook | BLook) / 
-#         (TregsLook | CD4Look | NLook | MLook)
-#     )
-# )
-# neutrophils
+##### [4] Altogether #####
+
 one <- 5
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
 cluster_colors[one] <- palette.b[one]
@@ -768,7 +768,7 @@ eightLook <-
     plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))
   )
 
-######
+##### [5] Combined ####
 
 combined_layout <- (
     
@@ -777,7 +777,7 @@ combined_layout <- (
     
 )
 
-##### Labelled CLusters #####
+##### [6] Labelled Clusters #####
 # Extract UMAP coordinatesb and cluster information
 TreatmentAnnotated.umap.coords <- as.data.frame(TreatmentAnnotated@reductions$umap@cell.embeddings)
 clusters <- TreatmentAnnotated$seurat_clusters

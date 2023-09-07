@@ -1,21 +1,22 @@
-# This script is for making (customizing a UMAP plot using ggplot :
+# Customizing UMAP plot using ggplot :
 
-# Alternatively, using ggplot :   
-
+##### [1] Overall UMAP plot #####
+# Load the data : 
 treatment <- readRDS("honours/results/IntegratedMarkers/treatment.rds")
 
-# Extract UMAP coordinatesb and cluster information
+# Extract UMAP coordinates and cluster information : 
 treatment.umap.coords <- as.data.frame(treatment@reductions$umap@cell.embeddings)
 clusters <- treatment$seurat_clusters
 
-# Create a dataframe for ggplot
+
+# Create a data frame for ggplot : 
 treatment.df <- data.frame(
   x = treatment.umap.coords$UMAP_1,
   y = treatment.umap.coords$UMAP_2,
-  seurat_clusters = factor(clusters)
+  seurat_clusters = factor(clusters) # cluster numbers 
 )
 
-# Define color palette
+# Define color palette : 
 palette.a <- RColorBrewer::brewer.pal(12, "Paired")
 palette.b <- c("#FB836F", #0
                "#d72554", #1
@@ -34,7 +35,7 @@ palette.b <- c("#FB836F", #0
                "#6ab5ba" #14
               )
 
-# Create the ggplot plot
+# Create the ggplot plot : 
 ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
   geom_point(size = 1) +
   scale_colour_manual(values = palette.b) +
@@ -69,15 +70,16 @@ ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
 
 
 
-##### Colour each cluster individually #####
+##### [2] Individual UMAP plots : each cluster coloured individually #####
 
-# Select the cluster you want to color
+# Select the cluster you want to colour :
 selected_cluster <- 7  # Change this to the desired cluster number
 
-# Create a vector to define colors for each cluster
+# Create a vector to define colors for each cluster : 
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
 cluster_colors[selected_cluster] <- palette.b[selected_cluster]
 
+# Use the vector as entry into the scale_colour_manual to selectively colour for that cluster : 
 ggplot(treatment.df, aes(x, y, colour = as.factor(seurat_clusters))) +
   geom_point(size = 1, show.legend = FALSE) +
   scale_colour_manual(values = cluster_colors) +
