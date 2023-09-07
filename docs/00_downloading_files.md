@@ -2,8 +2,7 @@
 
 ## 10X BAM to FASTQ converter
 
-For the 10 X Genomics 
-
+For the dataset used in this analysis, FASTQ files are not directly available. Rather, the BAM files have been made available that can be downloaded and converted into FASTQ files using the steps outlined here. 
 
 ### Download BAM files 
 
