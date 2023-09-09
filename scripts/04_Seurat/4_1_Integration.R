@@ -1,4 +1,5 @@
-# INTEGRATION AND DIMENSIONALITY REDUCTION (Seurat workflow after preprocessing)
+# INTEGRATION AND DIMENSIONALITY REDUCTION 
+# Seurat workflow after preprocessing
 
 ##### [1] Load dependencies $ datasets #####
 getwd()

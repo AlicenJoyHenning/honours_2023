@@ -1,4 +1,5 @@
 # MANUAL CLUSTER ANNOTATION 
+# Seurat workflow after integration
 
 ##### [1] Load dependencies $ datasets #####
 getwd()
