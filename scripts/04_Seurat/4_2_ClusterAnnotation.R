@@ -173,10 +173,13 @@ openxlsx::write.xlsx(Cluster2v3Markers, file = "honours/results/IntegratedMarker
 ##### [3] Tools for Manual Annotation checking literature markers  #####
 
 #Cluster #
-features = c("CD41", "CD42b", "CD62P", "CD63")
+DefaultAssay(treatment) <- "RNA"
+
+features = c("RIGI")
 
 FeaturePlot(object = treatment, 
             features = features,
+            split.by = "stim",
             cols = c("lightgrey", "black"),
             label = TRUE,
             pt.size = 1.5, 

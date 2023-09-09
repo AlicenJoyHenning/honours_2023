@@ -1,23 +1,33 @@
 # INTEGRATION AND DIMENSIONALITY REDUCTION 
 # Seurat workflow after preprocessing
 
-##### [1] Load dependencies $ datasets #####
+##### [1] Load dependencies & datasets #####
 getwd()
 
 library(BiocManager)
 BiocManager::install('limma') # BiocManager::install('limma')
-BiocManager::install("SeuratData")
+BiocManager::install("Seurat", version = "4.1")
 BiocManager::install('multtest')
 BiocManager::install('metap')
 BiocManager::install('xlsx')
 BiocManager::install('pheatmap')
 BiocManager::install('XLConnect')
-BiocManager::install('writexl')
+BiocManager::install('Matrix')
+BiocManager::install('Seurat')
+install.packages('Matrix')
+install.packages('installr')
+install.Rtools()
+install.packages('Matrix')
+install.packages('Seurat')
+remotes::install_version("Seurat", version = "4.1.1")
 
+library(remotes)
+library(installr)
 library(dplyr)
 library(writexl)
 library(openxlsx)
 library(XLConnect)
+library(SeuratObject)
 library(ggplot2)
 library(grid)
 library(Seurat)
@@ -34,6 +44,10 @@ library(cowplot)
 library(readxl)
 library(xlsx)
 
+remotes::install_version("Matrix", version = "1.5.3")
+
+packageVersion("Matrix")
+remove.packages("SeuratObject")
 # Load datasets: alpha, lambda, and untreated using ReadMtx function : 
 AlphaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/matrix.mtx.gz","honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", skip.feature = 1)
 alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=200)
@@ -81,19 +95,20 @@ alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.facto
 lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
 untreated <- NormalizeData(untreated, normalization.method = "LogNormalize", scale.factor = 10000)
 
-# 2 : feature selection (check dim(object@assays$RNA@counts)[2] to view genes and length(oject@assays$RNA@var.features) to view 2000 variable genes)
+# # 2 : scaling the data :
+# # The results of this are stored in object[["RNA"]]@scale.data
+# all.alpha.genes <- rownames(alpha)
+# alpha <- ScaleData(alpha, features = all.alpha.genes)
+# all.lambda.genes <- rownames(lambda)
+# lambda <- ScaleData(lambda, features = all.lambda.genes)
+# all.untreated.genes <- rownames(untreated)
+# untreated <- ScaleData(untreated, features = all.untreated.genes)
+
+# 3 : feature selection (check dim(object@assays$RNA@counts)[2] to view genes and length(object@assays$RNA@var.features) to view 2000 variable genes)
 alpha <- FindVariableFeatures(alpha, selection.method = "vst", nfeatures = 2000)
 lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 2000)
 untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
-# 
-# # 3 : scaling the data :
-# The results of this are stored in object[["RNA"]]@scale.data
-all.alpha.genes <- rownames(alpha)
-alpha <- ScaleData(alpha, features = all.alpha.genes)
-all.lambda.genes <- rownames(lambda)
-lambda <- ScaleData(lambda, features = all.lambda.genes)
-all.untreated.genes <- rownames(untreated)
-untreated <- ScaleData(untreated, features = all.untreated.genes)
+
 
 ##### [3] Prepare datasets for integration #####
 
@@ -101,7 +116,8 @@ untreated <- ScaleData(untreated, features = all.untreated.genes)
 TreatmentList <- list(alpha, lambda, untreated) 
 
 # Select features that are repeatedly variable across datasets for integration : 
-TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList) 
+TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList)
+
 # Selecting features (genes) that are consistently variable across multiple
 # datasets for the purpose of integrating those datasets into a single analysis
 # function does not directly modify the Seurat objects instead, 
@@ -113,6 +129,7 @@ TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList)
 
 ?SelectIntegrationFeatures()
 ?FindIntegrationAnchors()
+?IntegrateData()
 
 ##### [4] Perform integration #####
 
@@ -120,11 +137,12 @@ TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList)
 
 anchors <- FindIntegrationAnchors(
   object.list = TreatmentList, 
-  reference = 3,
-  anchor.features = TreatmentFeatures
+  reference = 3, # untreated
+  anchor.features = TreatmentFeatures,
+  normalization.method = "LogNormalize"
 )
-# Found 13669 anchors, retained 
-
+# Darisia Index : Found 13669 anchors, retained 
+# Index ; Found 12273 anchors, retained 5914
 
 # Integrate data sets using the anchors : 
 treatment <- IntegrateData(anchorset = anchors)
@@ -165,7 +183,9 @@ palette.b <- c("#FB836F", #0
                "#00a68e", #11
                "#5c040c", #12
                "#ef931b", #13
-               "#6ab5ba" #14
+               "#6ab5ba", #14
+               "#6ab5ba",
+               "#6ab5ba" 
 )
 p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.size = 6, repel = TRUE) + scale_color_manual(values = palette.b)
 
