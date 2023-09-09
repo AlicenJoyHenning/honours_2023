@@ -13,7 +13,6 @@ BiocManager::install('pheatmap')
 BiocManager::install('XLConnect')
 BiocManager::install('writexl')
 
-
 library(dplyr)
 library(writexl)
 library(openxlsx)
@@ -35,14 +34,16 @@ library(readxl)
 library(xlsx)
 
 # Load datasets: alpha, lambda, and untreated using ReadMtx function : 
-UntreatedMatrix <- ReadMtx("honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/features.tsv.gz")
-untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features=200)
-
 AlphaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/matrix.mtx.gz","honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", skip.feature = 1)
 alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=200)
 
 LambdaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", skip.feature = 1)
 lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features=200)
+
+UntreatedMatrix <- ReadMtx("honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/features.tsv.gz")
+untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features=200)
+
+
 
 # noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
 # fixes new sizes : 193,  219, 198
