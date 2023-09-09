@@ -1,11 +1,11 @@
 
 # SEQUENCING QUALITY CONTROL 
 
-# To check if fastqc and multiqc are functional use one file : 
+# First to check if fastqc and multiqc are functional on your device, test using one file : 
 # fastqc name.fastq.gz -o ~/fastqc/output/directory
 # multiqc . -o ~/multiqc/output/directory
 
-# Loop that allows you to enter a single command as input for fastqc analysis instead of manually inputting individual fastq files 
+# Loop that allows you to enter a single command as input for fastQC & multiQC instead of manually inputting individual fastq files 
 
 fastq_directory="/home/intel6700/Alicen/raw_files/fastq/human_blood_ifnalpha"
 fastqc_output_directory="/home/intel6700/Alicen/quality_control/ifnalpha/fastqc"
