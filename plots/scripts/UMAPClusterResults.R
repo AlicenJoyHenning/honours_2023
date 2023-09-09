@@ -821,3 +821,38 @@ ggplot(TreatmentAnnotated.df, aes(x, y, colour = seurat_clusters)) +
     label.position = "right",
     label.hjust = 1
   ))
+
+##### [7] Dot Plot for Clusters #####
+
+features = c("CXCR1", "CXCR2", "CD4", "KLF2", "IL7R", "CD8B", "CD8A", "BCL11A", "CD40", "NKG7", "CTSW", "FOXP3", "RTKN2")
+
+InfoDotPlot <- DotPlot(object = treatment, 
+        features = features,
+        cols = c("grey", "#00a68e")) +  coord_flip() +  # Flip the x and y a
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + # Adjust x-axis labels angle
+  geom_hline(yintercept = c(11.5, 12.5), linetype = "dotted", color = "black")
+
+InfoDotPlot <- DotPlot(object = treatment, 
+                       features = features,
+                       cols = c("grey", "#00a68e")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + # Adjust x-axis labels angle
+  geom_vline(xintercept = c(11.75, 13.25), linetype = "dotted", color = "black") 
+
+
+"#FB836F", #0
+"#d72554", #1
+"#6ab5ba", #2
+"#2e8f95", #3
+"#7E549F", #4
+"#8caf2e", #5
+"#69a923", #6
+"#297b57", #7 
+"#00945a", #8
+"#265221", #9
+"#FFCB3E", #10
+"#00a68e", #11
+"#5c040c", #12
+"#ef931b", #13
+"#6ab5ba" #14
+
+
