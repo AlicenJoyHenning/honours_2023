@@ -34,6 +34,10 @@ library(cowplot)
 library(readxl)
 library(xlsx)
 
+packageVersion("Seurat")
+packageVersion("Matrix")
+packageVersion("SeuratObject")
+
 # Load datasets: alpha, lambda, and untreated using ReadMtx function : 
 AlphaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/matrix.mtx.gz","honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", skip.feature = 1)
 alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=200)
