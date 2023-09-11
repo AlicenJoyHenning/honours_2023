@@ -36,7 +36,6 @@ library(readxl)
 library(xlsx)
 
 # To read in the saved Seurat objects : 
-treatment <- saveRDS(treatment, "honours/results/integrated.trials/treatmentsucess.rds")
 treatment <- readRDS("honours/results/integrated.trials/treatmentsucess.rds")
 
 
@@ -174,10 +173,13 @@ openxlsx::write.xlsx(Cluster2v3Markers, file = "honours/results/IntegratedMarker
 ##### [3] Tools for Manual Annotation checking literature markers  #####
 
 #Cluster #
-features = c("IFNAR1")
+DefaultAssay(treatment) <- "RNA"
+
+features = c("RIGI")
 
 FeaturePlot(object = treatment, 
             features = features,
+            split.by = "stim",
             cols = c("lightgrey", "black"),
             label = TRUE,
             pt.size = 1.5, 
