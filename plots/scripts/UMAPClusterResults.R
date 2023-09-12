@@ -12,7 +12,7 @@ library(SeuratObject)
 # Load the data : 
 getwd()
 setwd("C:/Users/alice")
-treatment <- readRDS("honours/results/IntegratedMarkers/treatment.rds")
+treatment <- readRDS("honours/work/1109/treatment.rds")
 
 # Extract UMAP coordinates and cluster information : 
 treatment.umap.coords <- as.data.frame(treatment@reductions$umap@cell.embeddings)
@@ -27,26 +27,29 @@ treatment.df <- data.frame(
 )
 
 # Define color palette : 
-palette.b <- c("#FB836F", #0
+palette <- c("#15c284", #0
                "#d72554", #1
-               "#6ab5ba", #2
-               "#2e8f95", #3
-               "#7E549F", #4
-               "#8caf2e", #5
-               "#69a923", #6
-               "#297b57", #7 
-               "#00945a", #8
-               "#265221", #9
-               "#FFCB3E", #10
-               "#00a68e", #11
-               "#5c040c", #12
-               "#ef931b", #13
-               "#6ab5ba" #14
-)
+               "#7ac745", #2
+               "#7e549f", #3
+               "#37a777", #4
+               "#fb836f", #5 
+               "#a0d9e9", #6
+               "#9b78c2", #7
+               "#6ab5ba", #8
+               "#93aff5", #9
+               "#c674bc", #10
+               "#81cfff", #11
+               "#8edecf", #12
+               "#69a923", #13 
+               "#00a68e", #14 
+               "#d73f3f", #15
+               "white", #16
+               "#a0d9e9", #17
+             "white") 
 
 # Create the ggplot plot : 
 ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
-  geom_point(size = 1) +
+  geom_point(size = 1.2) +
   scale_colour_manual(values = palette.b) +
   labs(#title = "IFN alpha",
     x = "UMAP 1",  # Rename x-axis label
@@ -78,9 +81,56 @@ ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
   ))
 
 
+# adding labels : 
+
+treatment.umap.coords <- as.data.frame(treatment@reductions$umap@cell.embeddings)
+clusters <- treatment$seurat_clusters
+
+# Create a dataframe for ggplot
+treatment.df <- data.frame(
+  x = treatment.umap.coords$UMAP_1,
+  y = treatment.umap.coords$UMAP_2,
+  seurat_clusters = factor(clusters)
+)
+
+ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
+  geom_point(size = 1) +
+  scale_colour_manual(values = palette) +
+  labs(#title = "IFN alpha",
+    x = "UMAP 1",  # Rename x-axis label
+    y = "UMAP 2",
+    color = "")  + 
+  theme_classic() + 
+  theme(#panel.background = element_rect(fill = "lightgrey"),  # Set background color
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    panel.grid.major = element_blank(),
+    axis.text = element_text(size = 12),  # Increase axis label size
+    axis.title = element_text(size = 14), 
+    plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
+    panel.border = element_rect(color = "black", fill = NA),
+    #legend.background = element_rect(color = "black", fill = "white"),
+    legend.position = "right", 
+    legend.title = element_text(size =  14),
+    legend.text = element_text(size = 14),
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))) + 
+  guides(color = guide_legend(
+    override.aes = list(
+      #hape = rep(22, length(palette.a)),  # Use squares (blocks)
+      fill = palette, 
+      size = 3.5),  # Color the squares with the same palette
+    key_height = unit(1, "npc"),  # Spread the legend dots across the vertical length
+    key_width = unit(4, "cm"),   # Adjust the width of the legend blocks
+    title.theme = element_text(hjust = 0.5),  # Center the legend title
+    label.position = "right",
+    label.hjust = 1
+  ))
+
+
+
+
 ##### [2] Treatment-specific UMAP plots #####
 
-clusters.new <- treatment$stim
+clusters.new <- treatment$treatment
 
 # Create a dataframe for ggplot : 
 treatment.df.new <- data.frame(
@@ -153,7 +203,7 @@ untreated_cluster_color <- ifelse(treatment.df.new$clusters == "untreated", colo
 untreated.plot <- 
   ggplot(treatment.df.new, aes(x, y, colour = clusters)) +
   geom_point(size = 0.8) +
-  scale_colour_manual(values = c("white","white", "black")) +
+  scale_colour_manual(values = c("#d3d3d3","#d3d3d3", "#a1a1a1")) +
   labs(
     x = "UMAP 1",
     y = "UMAP 2",
@@ -174,6 +224,10 @@ untreated.plot <-
   )
 
 print(untreated.plot)
+
+
+
+
 
 
 ##### [3.1] NK cell type   #####
@@ -854,5 +908,29 @@ InfoDotPlot <- DotPlot(object = treatment,
 "#5c040c", #12
 "#ef931b", #13
 "#6ab5ba" #14
+
+
+
+##### [8] Colour Palettes #####
+
+# For 15 cluster UMAP : 
+# Define color palette : 
+palette.b <- c("#FB836F", #0
+               "#d72554", #1
+               "#6ab5ba", #2
+               "#2e8f95", #3
+               "#7E549F", #4
+               "#8caf2e", #5
+               "#69a923", #6
+               "#297b57", #7 
+               "#00945a", #8
+               "#265221", #9
+               "#FFCB3E", #10
+               "#00a68e", #11
+               "#5c040c", #12
+               "#ef931b", #13
+               "#6ab5ba" #14
+)
+
 
 

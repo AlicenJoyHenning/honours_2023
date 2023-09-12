@@ -17,7 +17,6 @@ LambdaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_
 lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features=200)
 
 
-dim(alphamg)
 dim(lambdamg)
 dim(untreatedmg)
 
@@ -28,19 +27,25 @@ untreated[["percent.mt"]] <- PercentageFeatureSet(untreated, pattern = "^MT-")
 alphalg <- subset(alpha, subset = nFeature_RNA < 200)
 alphahg <- subset(alpha, subset = nFeature_RNA > 2500)
 alphamg <- subset(alpha, subset = percent.mt > 10)
-alphamg <- subset(alpha, subset = nFeature_RNA >= 200 & nFeature_RNA <= 2500)
-alphamg
+alphahm <- subset(alpha, subset = nFeature_RNA > 2500 & percent.mt > 10)
+alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+dim(alphahm)
 
 lambdalg <- subset(lambda, subset = nFeature_RNA < 200)
 lambdahg <- subset(lambda, subset = nFeature_RNA > 2500)
 lambdamg <- subset(lambda, subset = percent.mt > 10)
-lambdamg
+lambdahm <- subset(lambda, subset = nFeature_RNA > 2500 & percent.mt > 10)
+lambdalm <- subset(lambda, subset = nFeature_RNA < 200 & percent.mt > 10) #& percent.mt > 10)
+lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+dim(lambda)
 
-untreatedlg <- subset(untreated, subset = nFeature_RNA > 200)
-untreatedhg <- subset(untreated, subset = nFeature_RNA < 2500)
-untreatedmg <- subset(untreated, subset = percent.mt < 10)
-
-
+untreatedlg <- subset(untreated, subset = nFeature_RNA < 200)
+untreatedhg <- subset(untreated, subset = nFeature_RNA > 2500)
+untreatedmg <- subset(untreated, subset = percent.mt > 10)
+untreatedhm <- subset(untreated, subset = nFeature_RNA > 2500 & percent.mt > 10)
+untreatedlm <- subset(untreated, subset = nFeature_RNA < 200 & percent.mt > 10) 
+untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+dim(untreated)
 
 
 

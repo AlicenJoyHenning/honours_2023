@@ -48,33 +48,43 @@ remotes::install_version("Matrix", version = "1.5.3")
 
 packageVersion("Matrix")
 remove.packages("SeuratObject")
+
 # Load datasets: alpha, lambda, and untreated using ReadMtx function : 
-AlphaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/matrix.mtx.gz","honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/ifnalphaDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", skip.feature = 1)
-alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=200)
+Amatrix <- "honours/work/1109/alpha/matrix.mtx.gz"
+Abarcodes <- "honours/work/1109/alpha/barcodes.tsv.gz"
+Afeatures <- "honours/work/1109/alpha/features.tsv.gz"
+AlphaMatrix <- ReadMtx(Amatrix, Abarcodes, Afeatures)
+alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=0)
 
-LambdaMatrix <- ReadMtx("honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/ifnlambdaDarisiaIndex/seurat_matrix/AdjustedFeatures.tsv.gz", skip.feature = 1)
-lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features=200)
+Lmatrix <- "honours/work/1109/lambda/matrix.mtx.gz"
+Lbarcodes <- "honours/work/1109/lambda/barcodes.tsv.gz"
+Lfeatures <- "honours/work/1109/lambda/features.tsv.gz"
+LambdaMatrix <- ReadMtx(Lmatrix, Lbarcodes, Lfeatures)
+lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features = 0)
 
-UntreatedMatrix <- ReadMtx("honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/features.tsv.gz")
-untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features=200)
-
-
+Umatrix <- "honours/work/1109/untreated/matrix.mtx.gz"
+Ubarcodes <- "honours/work/1109/untreated/barcodes.tsv.gz"
+Ufeatures <- "honours/work/1109/untreated/features.tsv.gz"
+UntreatedMatrix <- ReadMtx(Umatrix, Ubarcodes, Ufeatures)
+untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features = 0)
 
 # noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
-# fixes new sizes : 193,  219, 198
+# fixes new sizes : 193,  219, 198 MB
+# final sizes : 249 286 257 MB
 
 # Alternative way to read in datasets using Read10X function : 
 alpha <- Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
 alpha <- CreateSeuratObject(counts=alpha, project='ifnalpha', min.cells=3, min.features=200)
 
-# Quick access to save the worked on Eeurat objects : 
+# Quick access to save the worked on Seurat objects : 
 alpha <- saveRDS(alpha, "honours/work/RObjects/")
 lambda <- saveRDS(lambda, "honours/work/RObjects/")
 untreated <- saveRDS(untreated, "honours/work/RObjects/")
-treatment <- saveRDS(treatment, "honours/results/integrated.trials/treatmentsucess.rds")
+treatment <- saveRDS(treatment, "honours/work/1109/treatment.rds")
 
 # To read in the saved Seurat objects : 
-treatment <- readRDS("honours/results/integrated.trials/treatmentsucess.rds")
+treatment <- readRDS("honours/work/1109/treatment.rds")
+
 
 ##### [2] Perform cell and gene level quality control independently on the datasets #####
 
@@ -94,15 +104,14 @@ untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500
 alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.factor = 10000)
 lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
 untreated <- NormalizeData(untreated, normalization.method = "LogNormalize", scale.factor = 10000)
-
-# # 2 : scaling the data :
-# # The results of this are stored in object[["RNA"]]@scale.data
-# all.alpha.genes <- rownames(alpha)
-# alpha <- ScaleData(alpha, features = all.alpha.genes)
-# all.lambda.genes <- rownames(lambda)
-# lambda <- ScaleData(lambda, features = all.lambda.genes)
-# all.untreated.genes <- rownames(untreated)
-# untreated <- ScaleData(untreated, features = all.untreated.genes)
+# 2 : scaling the data :
+# The results of this are stored in object[["RNA"]]@scale.data
+all.alpha.genes <- rownames(alpha)
+alpha <- ScaleData(alpha, features = all.alpha.genes)
+all.lambda.genes <- rownames(lambda)
+lambda <- ScaleData(lambda, features = all.lambda.genes)
+all.untreated.genes <- rownames(untreated)
+untreated <- ScaleData(untreated, features = all.untreated.genes)
 
 # 3 : feature selection (check dim(object@assays$RNA@counts)[2] to view genes and length(object@assays$RNA@var.features) to view 2000 variable genes)
 alpha <- FindVariableFeatures(alpha, selection.method = "vst", nfeatures = 2000)
@@ -142,7 +151,9 @@ anchors <- FindIntegrationAnchors(
   normalization.method = "LogNormalize"
 )
 # Darisia Index : Found 13669 anchors, retained 
-# Index ; Found 12273 anchors, retained 5914
+# Index with problems; Found 12273 anchors, retained 5914
+# Final Index : Found anchors 8220, retained 4846
+
 
 # Integrate data sets using the anchors : 
 treatment <- IntegrateData(anchorset = anchors)
@@ -161,31 +172,31 @@ treatment <- FindClusters(treatment, resolution = 0.5)
 
 ##### [5] Preliminary visualization of clusters #####
 # Change name of metadata column header to stim : 
-colnames(treatment@meta.data)[1] <- "stim"
+colnames(treatment@meta.data)[1] <- "treatment"
 
 # View whether the treatment datasets cluster together : 
 colours <- c("#c35cad","#6ab5ba","#d3d3d3")
-p1 <- DimPlot(treatment, reduction = "umap",pt.size = 1.5, group.by = "stim") + scale_color_manual(values = colours)
+p1 <- DimPlot(treatment, reduction = "umap",pt.size = 1, group.by = "treatment") + scale_color_manual(values = colours) + ggtitle("")
 
 # View the total number of clusters :
 # Define color palette : 
-palette.b <- c("#FB836F", #0
+palette <- c("#15c284", #0
                "#d72554", #1
-               "#6ab5ba", #2
-               "#2e8f95", #3
-               "#7E549F", #4
-               "#8caf2e", #5
-               "#69a923", #6
-               "#297b57", #7 
-               "#00945a", #8
-               "#265221", #9
-               "#FFCB3E", #10
-               "#00a68e", #11
-               "#5c040c", #12
-               "#ef931b", #13
-               "#6ab5ba", #14
-               "#6ab5ba",
-               "#6ab5ba" 
+               "#7ac745", #2
+               "#7e549f", #3
+               "#37a777", #4
+               "#fb836f", #5 
+               "#a0d9e9", #6
+               "#9b78c2", #7
+               "#6ab5ba", #8
+               "#93aff5", #9
+               "#c674bc", #10
+               "#81cfff", #11
+               "#8edecf", #12
+               "#69a923", #13 
+               "#00a68e", #14 
+               "#d73f3f", #15
+               "white", #16
+               "#a0d9e9" #17
 )
-p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.size = 6, repel = TRUE) + scale_color_manual(values = palette.b)
-
+p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.color = "white",label.box = TRUE, label.size = 6, repel = TRUE) + scale_color_manual(values = palette)

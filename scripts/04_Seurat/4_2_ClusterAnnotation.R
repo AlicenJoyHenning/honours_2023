@@ -36,8 +36,7 @@ library(readxl)
 library(xlsx)
 
 # To read in the saved Seurat objects : 
-treatment <- readRDS("honours/results/integrated.trials/treatmentsucess.rds")
-
+treatment <- readRDS("honours/work/1109/treatment.rds")
 
 ##### [2] Identify Conserved cell type markers for cell type annotation #####
 
