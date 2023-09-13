@@ -199,4 +199,4 @@ palette <- c("#15c284", #0
                "white", #16
                "#a0d9e9" #17
 )
-p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.color = "white",label.box = TRUE, label.size = 6, repel = TRUE) + scale_color_manual(values = palette)
+p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.color = "black",label.box = FALSE, label.size = 6, repel = TRUE) + scale_color_manual(values = palette)

@@ -44,13 +44,15 @@ palette <- c("#15c284", #0
                "#00a68e", #14 
                "#d73f3f", #15
                "white", #16
-               "#a0d9e9", #17
-             "white") 
+               "#a0d9e9") #17) 
+
+
+
 
 # Create the ggplot plot : 
 ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
   geom_point(size = 1.2) +
-  scale_colour_manual(values = palette.b) +
+  scale_colour_manual(values = palette) +
   labs(#title = "IFN alpha",
     x = "UMAP 1",  # Rename x-axis label
     y = "UMAP 2",
@@ -71,7 +73,7 @@ ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
   guides(color = guide_legend(
     override.aes = list(
       #hape = rep(22, length(palette.a)),  # Use squares (blocks)
-      fill = palette.b, 
+      fill = palette, 
       size = 3.5),  # Color the squares with the same palette
     key_height = unit(1, "npc"),  # Spread the legend dots across the vertical length
     key_width = unit(4, "cm"),   # Adjust the width of the legend blocks

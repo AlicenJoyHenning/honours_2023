@@ -18,7 +18,8 @@ library(tidyverse)
 library(cowplot)
 library(patchwork)
 
-treatment <- readRDS("honours/results/IntegratedMarkers/treatment.rds")
+TreatmentAnnotated <- readRDS("honours/results/FinalIndex/TreatmentAnnotated.rds")
+Idents(TreatmentAnnotated)
 
 TreatmentAnnotated <- RenameIdents(treatment, 
                                    '0' = 'Mono',
@@ -75,7 +76,7 @@ all | f
 ##### [2.1] DE with FindMarkers() ######
 # Creating metadata column to hold cell type AND stimulation information (as opposed to just cell type) : 
 
-TreatmentAnnotated$celltype.stim <- paste(Idents(TreatmentAnnotated), TreatmentAnnotated$stim, sep = "_") # paste puts first entry followed by next entry and separates by indicated symbol 
+TreatmentAnnotated$celltype.stim <- paste(Idents(TreatmentAnnotated), TreatmentAnnotated$treatment, sep = "_") # paste puts first entry followed by next entry and separates by indicated symbol 
 TreatmentAnnotated$celltype <- Idents(TreatmentAnnotated) # restores the cell type column 
 Idents(TreatmentAnnotated) <- "celltype.stim" # switch the idents to that column 
 
@@ -84,26 +85,34 @@ levels(TreatmentAnnotated) # list the options to perform DE on :
 
 # MYELOID CELL TYPES : 
 # 1. "Mono_alpha", "Mono_lambda"           VS    Mono_untreated
-# 2. "Neutro_alpha", Neutro_lambda"        VS    Neutro_untreated 
+# 2. "neutrophils_alpha", neutrophils_lambda"        VS    neutrophils_untreated 
 
 # LYMPHOID CELL TYPES: 
 # T CELLS : 
 # 1. "CD4_helper_alpha", "CD4_helper_lambda" VS    "CD4_helper_untreated" 
-# 2. "CD4_naive_alpha", "CD4_naive_lambda"   VS    "CD4_naive_untreated" 
+# 2. "Naive_T_alpha", "Naive_T_lambda"   VS    "Naive_T_untreated" 
 # 3. "Tregs_alpha", "Tregs_lambda"           VS    "Tregs_untreated"
-# 4. "CD8_alpha", "CD8_lambda"               VS    "CD8_untreated"
+# 4. "CD8__T_alpha", "CD8_T_lambda"               VS    "CD8_T_untreated"
 # 5. "NK_alpha", "NK_lambda"                 VS    "NK_untreated" 
+# 6. T_cell_alpha, T_cell_lambda            vs      T_cell_untreated
 
 # B CELLS : 
-# 6. "B_alpha", B_lambda"                    VS    "B_untreated"      
-    
+# 7. "B_alpha", B_lambda"                    VS    "B_untreated"  
+
+# Dendritic cells : 
+# 8. DCs_alpha, DCs_lambda                vs "DCs_untreated"
+# 9. pDCs_alpha, pDCs_lambda              vs pDCs_untreated
+                   
+# Platelets : 
+# 10. platelets_alpha, platelets_lambda   vs platelets_untreated 
+
 
 # Use FindMarkers() to find the genes that are different between stimulated and untreated cell types
 ?FindMarkers()
 
 # MYELOID CELL TYPES : 
 # 1. Monocytes 
-M1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Mono_alpha", ident.2 = "Mono_untreated", sep = "_") 
+M1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Mono_alpha", ident.2 = "Mono_untreated", sep = "_" 
 M1AlphaResponse$gene <- rownames(M1AlphaResponse) # puts gene names into a column
 M1AlphaResponse <- filter(M1AlphaResponse, p_val_adj < 0.05)
 down <- filter(M1AlphaResponse, avg_log2FC < 0)
@@ -161,7 +170,7 @@ CD4hLambdaResponse <- data.frame(Gene = L1LambdaResponse$gene, Log2FoldChange = 
 write.csv(CD4hLambdaResponse, "honours/results/DEAnalysis/after_filtering/CD4hLambdaResponse.csv", row.names = FALSE)
 
 
-# 2. CD4_naive T cells 
+# 2. Naive T cells 
 
 L2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4_naive_alpha", ident.2 = "CD4_naive_untreated", sep = "_") 
 L2AlphaResponse$gene <- rownames(L2AlphaResponse) 
@@ -237,9 +246,10 @@ up <- filter(L5LambdaResponse, avg_log2FC >= 0)
 NKLambdaResponse <- data.frame(Gene = L5LambdaResponse$gene, Log2FoldChange = L5LambdaResponse$avg_log2FC)  
 write.csv(CD8LambdaResponse, "honours/results/DEAnalysis/after_filtering/NKLambdaResponse.csv", row.names = FALSE)
 
+# 6. T CELLS
 
 
-# 6. B CELLS 
+# 7. B CELLS 
 L6AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_alpha", ident.2 = "B_untreated", sep = "_") # size = 1287
 L6AlphaResponse$gene <- rownames(L6AlphaResponse) # puts gene names into a column
 L6AlphaResponse <- filter(L6AlphaResponse, p_val_adj < 0.05)
@@ -256,6 +266,9 @@ down <- filter(L6LambdaResponse, avg_log2FC < 0)
 up <- filter(L6LambdaResponse, avg_log2FC >= 0)
 BLambdaResponse <- data.frame(Gene = L6LambdaResponse$gene,Log2FoldChange = L6LambdaResponse$avg_log2FC)  
 write.csv(BLambdaResponse, "honours/results/DEAnalysis/after_filtering/BLambdaResponse.csv", row.names = FALSE)
+
+
+
 
 
 ##### [2.2] Extra use of FindMarkers() #####
