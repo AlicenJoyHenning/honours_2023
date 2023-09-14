@@ -14,6 +14,15 @@ clusterQCdf <- data.frame(
   clusters = treatment$seurat_clusters
 )
 
+doublet <- data.frame(
+  alpha = alpha@meta.data$percent.xist
+)
+
+clustercount <- 
+  ggplot(alpha, aes(x=doublet, y=alpha, fill=doublet)) + 
+  geom_boxplot(color="black", fill="#6ab5ba",alpha = 0.7) + #alpha=0.3
+  theme(legend.position="none") 
+
 ##### Generate the box plot #####
 
 clustercount <- 

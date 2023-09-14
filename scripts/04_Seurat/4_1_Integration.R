@@ -94,6 +94,11 @@ alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
 lambda[["percent.mt"]] <- PercentageFeatureSet(lambda, pattern = "^MT-")
 untreated[["percent.mt"]] <- PercentageFeatureSet(untreated, pattern = "^MT-")
 
+alpha[["percent.xist"]] <- PercentageFeatureSet(alpha, pattern = "XIST")
+lambda[["percent.xist"]] <- PercentageFeatureSet(lambda, pattern = "XIST")
+untreated[["percent.xist"]] <- PercentageFeatureSet(untreated, pattern = "XIST")
+
+
 # Subset the seurat objects based on mitochondrial percentage and the number of features : 
 alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)

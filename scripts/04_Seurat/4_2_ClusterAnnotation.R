@@ -19,24 +19,18 @@ library(dplyr)
 library(readr)
 library(writexl)
 library(openxlsx)
-library(XLConnect)
 library(ggplot2)
 library(grid)
 library(Seurat)
 library(SeuratObject)
-library(pheatmap)
 library(tidyverse)
-library(SingleR)
-library(celldex)
 library(patchwork)
 library(readr)
 library(limma)
 library(metap)
-library(openxlsx)
-library(cowplot)
 library(readxl)
 library(xlsx)
-library(ggplot2)
+
 # To read in the saved Seurat objects : 
 treatment <- readRDS("honours/work/1109/treatment.rds")
 
@@ -127,7 +121,7 @@ C10Rows <- rownames(Cluster10Markers)
 Cluster10Markers <- cbind(RowNames = C10Rows, Cluster10Markers)
 dim(Cluster10Markers) # 1196 > 307 > 6 
 
-Cluster11Markers <- FindConservedMarkers(treatment, ident.1= 11, grouping.var = "treatment", verbose = FALSE)
+Cluster11Markers <- FindConservedMarkers(treatment, ident.1= 11, grouping.var = "treatment", verbose = TRUE)
 Cluster11Markers <- subset(Cluster11Markers, subset = lambda_p_val_adj < 0.05 & alpha_p_val_adj < 0.05 & untreated_p_val_adj < 0.05) 
 Cluster11Markers <- subset(Cluster11Markers, subset = lambda_avg_log2FC > 1 & alpha_avg_log2FC > 1 & untreated_avg_log2FC > 1) 
 C11Rows <- rownames(Cluster11Markers)
@@ -187,7 +181,7 @@ openxlsx::write.xlsx(Cluster2v3Markers, file = "honours/results/IntegratedMarker
 # CLUSTER 0 
 features <- c("CCL3", "CCL4", "CCL4L2", "CD82", "CSF3R", "CXCL8", "FPR1", "IFITM3", "ITGAX", "SRGN", "TREM1")
 
-DotPlot(object = treatment, features = features, cols = c("grey", "#15c284")) +
+DotPlot(object = treatment, features = "ZNF683", cols = c("grey", "#15c284")) +
   coord_flip() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   geom_hline(yintercept = c(0, 9, 14, 15, 12, 17, 18), linetype = "dotted", color = "black")
@@ -315,22 +309,21 @@ DotPlot(object = treatment, features = features, cols = c("grey", "#a0d9e9"))
 #Cluster #
 DefaultAssay(treatment) <- "RNA"
 
-features = c("RIGI")
-
+features = c("SRY", "DDX3Y", "ZFY", "TSPY", "PRY", "UTY", "XIST")
+features = c("CD8A", "ZNF683", "CD8B", "GZMB", "GZMA", "CD3G", "CCR7","CX3CR1", "DSTN")
+features = c("CD3G", "IL17R", "CCR4", "CX3CR1", "CD161", "CCR6", "Leu8")
 FeaturePlot(object = treatment, 
             features = features,
-            split.by = "stim",
             cols = c("lightgrey", "black"),
             label = TRUE,
             pt.size = 1.5, 
-            blend = FALSE, 
-            interactive = FALSE) + theme(
-              panel.background = element_rect(fill = "darkgrey")) 
+            blend = FALSE)  
+  # theme(panel.background = element_rect(fill = "darkgrey")) 
 
 cluster_boundaries <- c(5, 7)
 
 DotPlot(object = treatment, 
-        features = features,
+        features = features)
         cols = c("grey", "#265221")) +  coord_flip() +  # Flip the x and y a
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + # Adjust x-axis labels angle
   geom_hline(yintercept = c(9, 11), linetype = "dotted", color = "black")
