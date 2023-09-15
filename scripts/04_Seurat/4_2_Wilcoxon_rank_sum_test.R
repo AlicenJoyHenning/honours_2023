@@ -50,7 +50,7 @@ print(CD8Bresult)
 # GZMA
 GZMACluster9 <- t(cluster9@assays$integrated@data["BLNK", ])
 GZMACluster9 <- data.frame(Cell = colnames(GZMACluster9),Expression = GZMACluster9[,])
-GZMAnotCluster9 <- t(notcluster9@assays$integrated@data["BLNK", ])
+GZMAnotCluster9 <- t(notcluster9@assays$integration@data["BLNK", ])
 GZMAnotCluster9 <- data.frame(Cell = colnames(GZMAnotCluster9),Expression = GZMAnotCluster9[,])
 GZMAwilcox_result <- wilcox.test(GZMACluster9$Expression, GZMAnotCluster9$Expression)
 dim <- dim(cluster9@assays$integrated@data) # find # comparisons 
