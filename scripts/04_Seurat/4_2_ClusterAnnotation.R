@@ -377,7 +377,7 @@ palette.b <- c("#15c284", #0 mono
              "#a0d9e9", #6 B 
              "#7e549f", #7 NKT
              "#6ab5ba", #8 mDCs
-             "#93aff5", #9 NK
+             "#93aff5", #9 cytotoxic CD8 
              "#c674bc", #10 Tregs
              "#81cfff", #11 NK
              "#74d6c3", #12 platelets
@@ -417,13 +417,16 @@ features <- c("MNDA", # 0 & 4 : monocytes
               "KLRF1", # 11 NK
               "GP9", # 12 
               "VEGFA", # 14 DCs
-              #"", # 15 & 16 
+              "", # 15 CD4 T 
               "IRF8") # 17 pDcs ) 
 
 DotPlot(object = TreatmentAnnotated, 
         features = features,
-        cols = c("grey", "black")) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        cols = c("#d3d3d3", "grey")) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_discrete(position = "right")
+
+
 
 
 ##### [7] I can't remember what any of this is #####
@@ -434,7 +437,7 @@ FeaturePlot(treatment,
             features = c("FCGR3A"), 
             split.by = "stim", 
             max.cutoff = 3, 
-            cols = c("grey","red"))
+            cols = c("grey","#7ac745"))
 
 
 # See what genes change in different conditions for cells of the same type : 

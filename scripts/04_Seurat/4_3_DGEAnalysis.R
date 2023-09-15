@@ -21,44 +21,12 @@ library(patchwork)
 TreatmentAnnotated <- readRDS("honours/results/FinalIndex/TreatmentAnnotated.rds")
 Idents(TreatmentAnnotated)
 
-TreatmentAnnotated <- RenameIdents(treatment, 
-                                   '0' = 'Mono',
-                                   '1' = 'Mono',
-                                   '2' = 'CD4_helper',
-                                   '3' = 'CD4_naive',
-                                   '4' = 'Neutro',
-                                   '5' = 'CD8',
-                                   '6' = 'B',
-                                   '7' = 'CD8',
-                                   '8' = 'CD8',
-                                   '9' = 'NK',
-                                   '10' = '10',
-                                   '11' = 'Tregs',
-                                   '12' = '12',
-                                   '13' = '13',
-                                   '14' = '14')
-
-
-
 ##### [1.2] View the annotated clusters #####
 # View the current annotations for confirmation : 
 Idents(TreatmentAnnotated) 
 
 # Defined colour palette adjusted for cluster annotation : 
-palette.b <- c(
-               "#d72554", #0 and 1
-               "#6ab5ba", #2
-               "#2e8f95", #3
-               "#900c3e", #4
-               "#8caf2e", #5
-               "#c35cad", #6
-               "#3b7749", #9
-               "#FFCB3E", #10
-               "#00a68e", #11
-               "#5c040c", #12
-               "#f7bc6e", #13
-               "#6ab5ba" #13 
-               )
+
 
 # Visualise UMAP plot with annotations : 
 all <- DimPlot(TreatmentAnnotated, reduction = "umap", pt.size = 1.5, label = TRUE, label.color = "white", label.size = 6, label.box = TRUE, repel = TRUE, cols = palette.b)
