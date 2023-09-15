@@ -41,7 +41,7 @@ f <- DotPlot(object = treatment,
 # Patchwork plot with total UMAP with feature plots : 
 all | f
 
-##### [2.1] DE with FindMarkers() ######
+##### [2.1] DE with FindMarkers() on fine cell types (15) ######
 # Creating metadata column to hold cell type AND stimulation information (as opposed to just cell type) : 
 
 TreatmentAnnotated$celltype.stim <- paste(Idents(TreatmentAnnotated), TreatmentAnnotated$treatment, sep = "_") # paste puts first entry followed by next entry and separates by indicated symbol 
@@ -51,207 +51,397 @@ Idents(TreatmentAnnotated) <- "celltype.stim" # switch the idents to that column
 # Now we can easily refer to a cell & treatment type, to see the options : 
 levels(TreatmentAnnotated) # list the options to perform DE on :
 
-# MYELOID CELL TYPES : 
-# 1. "Mono_alpha", "Mono_lambda"           VS    Mono_untreated
-# 2. "neutrophils_alpha", neutrophils_lambda"        VS    neutrophils_untreated 
-
-# LYMPHOID CELL TYPES: 
-# T CELLS : 
-# 1. "CD4_helper_alpha", "CD4_helper_lambda" VS    "CD4_helper_untreated" 
-# 2. "Naive_T_alpha", "Naive_T_lambda"   VS    "Naive_T_untreated" 
-# 3. "Tregs_alpha", "Tregs_lambda"           VS    "Tregs_untreated"
-# 4. "CD8__T_alpha", "CD8_T_lambda"               VS    "CD8_T_untreated"
-# 5. "NK_alpha", "NK_lambda"                 VS    "NK_untreated" 
-# 6. T_cell_alpha, T_cell_lambda            vs      T_cell_untreated
-
-# B CELLS : 
-# 7. "B_alpha", B_lambda"                    VS    "B_untreated"  
-
-# Dendritic cells : 
-# 8. DCs_alpha, DCs_lambda                vs "DCs_untreated"
-# 9. pDCs_alpha, pDCs_lambda              vs pDCs_untreated
-                   
-# Platelets : 
-# 10. platelets_alpha, platelets_lambda   vs platelets_untreated 
-
-
 # Use FindMarkers() to find the genes that are different between stimulated and untreated cell types
 ?FindMarkers()
 
 # MYELOID CELL TYPES : 
 # 1. Monocytes 
-M1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Mono_alpha", ident.2 = "Mono_untreated", sep = "_" 
+system.time(M1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "monocytes_alpha", ident.2 = "monocytes_untreated", sep = "_"))
 M1AlphaResponse$gene <- rownames(M1AlphaResponse) # puts gene names into a column
 M1AlphaResponse <- filter(M1AlphaResponse, p_val_adj < 0.05)
 down <- filter(M1AlphaResponse, avg_log2FC < 0)
 up <- filter(M1AlphaResponse, avg_log2FC >= 0)
 MonoAlphaResponse <- data.frame(Gene = M1AlphaResponse$gene, Log2FoldChange = M1AlphaResponse$avg_log2FC)  # for cluster profiler 
-write.csv(MonoAlphaResponse, "honours/results/DEAnalysis/after_filtering/MonoAlphaResponse.csv", row.names = FALSE)
+write.csv(MonoAlphaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesAlphaResponse.csv", row.names = FALSE)
 
-
-M1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Mono_lambda", ident.2 = "Mono_untreated", sep = "_") 
+system.time(M1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "monocytes_lambda", ident.2 = "monocytes_untreated", sep = "_")) 
 M1LambdaResponse$gene <- rownames(M1LambdaResponse) 
 M1LambdaResponse <- filter(M1LambdaResponse, p_val_adj < 0.05)
 down <- filter(M1LambdaResponse, avg_log2FC < 0)
 up <- filter(M1LambdaResponse, avg_log2FC >= 0)
 MonoLambdaResponse <- data.frame(Gene = M1LambdaResponse$gene, Log2FoldChange = M1LambdaResponse$avg_log2FC)  
-write.csv(MonoLambdaResponse, "honours/results/DEAnalysis/after_filtering/MonoLambdaResponse.csv", row.names = FALSE)
+write.csv(MonoLambdaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesLambdaResponse.csv", row.names = FALSE)
 
 
 # 2. Neutrophils 
-
-M2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Neutro_alpha", ident.2 = "Neutro_untreated", sep = "_") 
+system.time(M2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "neutrophils_alpha", ident.2 = "neutrophils_untreated", sep = "_"))  
 M2AlphaResponse$gene <- rownames(M2AlphaResponse)
 M2AlphaResponse <- filter(M2AlphaResponse, p_val_adj < 0.05)
 down <- filter(M2AlphaResponse, avg_log2FC < 0)
 up <- filter(M2AlphaResponse, avg_log2FC >= 0)
 neuAlphaResponse <- data.frame(Gene = M2AlphaResponse$gene, Log2FoldChange = M2AlphaResponse$avg_log2FC)  
-write.csv(neuAlphaResponse, "honours/results/DEAnalysis/after_filtering/neuAlphaResponse.csv", row.names = FALSE)
+write.csv(neuAlphaResponse, "honours/results/FinalIndex/DEAnalysis/neutrophilsAlphaResponse.csv", row.names = FALSE)
 # size = 1507 DEGs 
 
-M2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Neutro_lambda", ident.2 = "Neutro_untreated", sep = "_") 
+system.time(M2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "neutrophils_lambda", ident.2 = "neutrophils_untreated", sep = "_")) 
 M2LambdaResponse$gene <- rownames(M2LambdaResponse) 
 M2LambdaResponse <- filter(M2LambdaResponse, p_val_adj < 0.05)
 down <- filter(M2LambdaResponse, avg_log2FC < 0)
 up <- filter(M2LambdaResponse, avg_log2FC >= 0)
-neuLambdaResponse <- data.frame(Gene = M2LambdaResponse$gene, Log2FoldChange = M2LambdaResponse$avg_log2FC)  
-write.csv(neuLambdaResponse, "honours/results/DEAnalysis/after_filtering/neuLambdaResponse.csv", row.names = FALSE)
+M2LambdaResponse <- data.frame(Gene = M2LambdaResponse$gene, Log2FoldChange = M2LambdaResponse$avg_log2FC)  
+write.csv(M2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/neutrophilsLambdaResponse.csv", row.names = FALSE)
 
+# DENDRITIC CELL TYPES 
+# 1. DCs 
+system.time(D1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_alpha", ident.2 = "DCs_untreated", sep = "_"))
+D1AlphaResponse$gene <- rownames(D1AlphaResponse)
+D1AlphaResponse <- filter(D1AlphaResponse, p_val_adj < 0.05)
+down <- filter(D1AlphaResponse, avg_log2FC < 0)
+up <- filter(D1AlphaResponse, avg_log2FC >= 0)
+D1AlphaResponse <- data.frame(Gene = D1AlphaResponse$gene, Log2FoldChange = D1AlphaResponse$avg_log2FC)  
+write.csv(D1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/dcsAlphaResponse.csv", row.names = FALSE)
 
-# LYMPHOID CELL TYPES : 
-# 1. CD4_helper T cells 
-L1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4_helper_alpha", ident.2 = "CD4_helper_untreated", sep = "_") 
-L1AlphaResponse$gene <- rownames(L1AlphaResponse) 
-L1AlphaResponse  <- filter(L1AlphaResponse , p_val_adj < 0.05)
-down <- filter(L1AlphaResponse, avg_log2FC < 0)
-up <- filter(L1AlphaResponse, avg_log2FC >= 0)
-CD4hAlphaResponse <- data.frame(Gene = L1AlphaResponse$gene, Log2FoldChange = L1AlphaResponse$avg_log2FC)  
-write.csv(CD4hAlphaResponse, "honours/results/DEAnalysis/after_filtering/CD4hAlphaResponse.csv", row.names = FALSE)
+system.time(D1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_lambda", ident.2 = "DCs_untreated", sep = "_")) 
+D1LambdaResponse$gene <- rownames(D1LambdaResponse) 
+D1LambdaResponse <- filter(D1LambdaResponse, p_val_adj < 0.05)
+down <- filter(D1LambdaResponse, avg_log2FC < 0)
+up <- filter(D1LambdaResponse, avg_log2FC >= 0)
+D1LambdaResponse <- data.frame(Gene = D1LambdaResponse$gene, Log2FoldChange = D1LambdaResponse$avg_log2FC)  
+write.csv(D1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/dcsLambdaResponse.csv", row.names = FALSE)
 
+#2. mDCs
+system.time(D2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "mDCs_alpha", ident.2 = "mDCs_untreated", sep = "_")) 
+D2AlphaResponse$gene <- rownames(D2AlphaResponse)
+D2AlphaResponse <- filter(D2AlphaResponse, p_val_adj < 0.05)
+down <- filter(D2AlphaResponse, avg_log2FC < 0)
+up <- filter(D2AlphaResponse, avg_log2FC >= 0)
+D2AlphaResponse <- data.frame(Gene = D2AlphaResponse$gene, Log2FoldChange = D2AlphaResponse$avg_log2FC)  
+write.csv(D2AlphaResponse, "honours/results/FinalIndex/DEAnalysis/mdcsAlphaResponse.csv", row.names = FALSE)
 
-L1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4_helper_lambda", ident.2 = "CD4_helper_untreated", sep = "_") 
-L1LambdaResponse$gene <- rownames(L1LambdaResponse)
-L1LambdaResponse <- filter(L1LambdaResponse, p_val_adj < 0.05)
-down <- filter(L1LambdaResponse, avg_log2FC < 0)
-up <- filter(L1LambdaResponse, avg_log2FC >= 0)
-CD4hLambdaResponse <- data.frame(Gene = L1LambdaResponse$gene, Log2FoldChange = L1LambdaResponse$avg_log2FC)  
-write.csv(CD4hLambdaResponse, "honours/results/DEAnalysis/after_filtering/CD4hLambdaResponse.csv", row.names = FALSE)
+system.time(D2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "mDCs_lambda", ident.2 = "mDCs_untreated", sep = "_")) 
+D2LambdaResponse$gene <- rownames(D2LambdaResponse) 
+D2LambdaResponse <- filter(D2LambdaResponse, p_val_adj < 0.05)
+down <- filter(D2LambdaResponse, avg_log2FC < 0)
+up <- filter(D2LambdaResponse, avg_log2FC >= 0)
+D2LambdaResponse <- data.frame(Gene = D2LambdaResponse$gene, Log2FoldChange = D2LambdaResponse$avg_log2FC)  
+write.csv(D2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/mdcsLambdaResponse.csv", row.names = FALSE)
 
+# 3. pDCs : only in alpha dataset, therefore no DEG
+# system.time(D3AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "pDCs_alpha", ident.2 = "pDCs_untreated", sep = "_")) 
+# D3AlphaResponse$gene <- rownames(D3AlphaResponse)
+# D3AlphaResponse <- filter(D3AlphaResponse, p_val_adj < 0.05)
+# down <- filter(D3AlphaResponse, avg_log2FC < 0)
+# up <- filter(D3AlphaResponse, avg_log2FC >= 0)
+# D3AlphaResponse <- data.frame(Gene = D3AlphaResponse$gene, Log2FoldChange = D3AlphaResponse$avg_log2FC)  
+# write.csv(D3AlphaResponse, "honours/results/FinalIndex/DEAnalysis/pdcsAlphaResponse.csv", row.names = FALSE)
+# 
+# system.time(D3LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "pDCs_lambda", ident.2 = "pDCs_untreated", sep = "_")) 
+# D3LambdaResponse$gene <- rownames(D3LambdaResponse) 
+# D3LambdaResponse <- filter(D3LambdaResponse, p_val_adj < 0.05)
+# down <- filter(D3LambdaResponse, avg_log2FC < 0)
+# up <- filter(D3LambdaResponse, avg_log2FC >= 0)
+# D3LambdaResponse <- data.frame(Gene = D3LambdaResponse$gene, Log2FoldChange = D3LambdaResponse$avg_log2FC)  
+# write.csv(D3LambdaResponse, "honours/results/FinalIndex/DEAnalysis/pdcsLambdaResponse.csv", row.names = FALSE)
 
-# 2. Naive T cells 
+# PLATELETS : 
+system.time(PAlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_alpha", ident.2 = "platelets_untreated", sep = "_"))
+PAlphaResponse$gene <- rownames(PAlphaResponse)
+PAlphaResponse <- filter(PAlphaResponse, p_val_adj < 0.05)
+down <- filter(PAlphaResponse, avg_log2FC < 0)
+up <- filter(PAlphaResponse, avg_log2FC >= 0)
+PAlphaResponse <- data.frame(Gene = PAlphaResponse$gene, Log2FoldChange = PAlphaResponse$avg_log2FC)  
+write.csv(PAlphaResponse, "honours/results/FinalIndex/DEAnalysis/plateletsAlphaResponse.csv", row.names = FALSE)
 
-L2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4_naive_alpha", ident.2 = "CD4_naive_untreated", sep = "_") 
-L2AlphaResponse$gene <- rownames(L2AlphaResponse) 
-L2AlphaResponse <- filter(L2AlphaResponse, p_val_adj < 0.05)
-down <- filter(L2AlphaResponse, avg_log2FC < 0)
-up <- filter(L2AlphaResponse, avg_log2FC >= 0)
-CD4nAlphaResponse <- data.frame(Gene = L2AlphaResponse$gene, Log2FoldChange = L2AlphaResponse$avg_log2FC)  
-write.csv(CD4nAlphaResponse, "honours/results/DEAnalysis/after_filtering/CD4nAlphaResponse.csv", row.names = FALSE)
+system.time(PLambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_lambda", ident.2 = "platelets_untreated", sep = "_"))
+PLambdaResponse$gene <- rownames(PLambdaResponse) 
+PLambdaResponse <- filter(PLambdaResponse, p_val_adj < 0.05)
+down <- filter(PLambdaResponse, avg_log2FC < 0)
+up <- filter(PLambdaResponse, avg_log2FC >= 0)
+PLambdaResponse <- data.frame(Gene = PLambdaResponse$gene, Log2FoldChange = PLambdaResponse$avg_log2FC)  
+write.csv(PLambdaResponse, "honours/results/FinalIndex/DEAnalysis/plateletsLambdaResponse.csv", row.names = FALSE)
 
+# T CELL TYPES : 
+# 1. T cells
+system.time(T1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_alpha", ident.2 = "T_untreated", sep = "_")) 
+T1AlphaResponse$gene <- rownames(T1AlphaResponse)
+T1AlphaResponse <- filter(T1AlphaResponse, p_val_adj < 0.05)
+down <- filter(T1AlphaResponse, avg_log2FC < 0)
+up <- filter(T1AlphaResponse, avg_log2FC >= 0)
+T1AlphaResponse <- data.frame(Gene = T1AlphaResponse$gene, Log2FoldChange = T1AlphaResponse$avg_log2FC)  
+write.csv(T1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/TAlphaResponse.csv", row.names = FALSE)
 
-L2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4_naive_lambda", ident.2 = "CD4_naive_untreated", sep = "_") 
-L2LambdaResponse$gene <- rownames(L2LambdaResponse)
-L2LambdaResponse <- filter(L2LambdaResponse, p_val_adj < 0.05)
-down <- filter(L2LambdaResponse, avg_log2FC < 0)
-up <- filter(L2LambdaResponse, avg_log2FC >= 0)
-CD4nLambdaResponse <- data.frame(Gene = L2LambdaResponse$gene, Log2FoldChange = L2LambdaResponse$avg_log2FC)  
-write.csv(CD4nLambdaResponse, "honours/results/DEAnalysis/after_filtering/CD4nLambdaResponse.csv", row.names = FALSE)
+system.time(T1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_lambda", ident.2 = "T_untreated", sep = "_")) 
+T1LambdaResponse$gene <- rownames(T1LambdaResponse) 
+T1LambdaResponse <- filter(T1LambdaResponse, p_val_adj < 0.05)
+down <- filter(T1LambdaResponse, avg_log2FC < 0)
+up <- filter(T1LambdaResponse, avg_log2FC >= 0)
+T1LambdaResponse <- data.frame(Gene = T1LambdaResponse$gene, Log2FoldChange = T1LambdaResponse$avg_log2FC)  
+write.csv(T1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/TLambdaResponse.csv", row.names = FALSE)
+
+# 2. CD4+ helper T 
+system.time(T2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_helper_alpha", ident.2 = "CD4+_helper_untreated", sep = "_"))  
+T2AlphaResponse$gene <- rownames(T2AlphaResponse) 
+T2AlphaResponse  <- filter(T2AlphaResponse , p_val_adj < 0.05)
+down <- filter(T2AlphaResponse, avg_log2FC < 0)
+up <- filter(T2AlphaResponse, avg_log2FC >= 0)
+T2AlphaResponse <- data.frame(Gene = T2AlphaResponse$gene, Log2FoldChange = T2AlphaResponse$avg_log2FC)  
+write.csv(T2AlphaResponse, "honours/results/FinalIndex/DEAnalysis/CD4hAlphaResponse.csv", row.names = FALSE)
+
+system.time(T2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_helper_lambda", ident.2 = "CD4+_helper_untreated", sep = "_"))  
+T2LambdaResponse$gene <- rownames(T2LambdaResponse)
+T2LambdaResponse <- filter(T2LambdaResponse, p_val_adj < 0.05)
+down <- filter(T2LambdaResponse, avg_log2FC < 0)
+up <- filter(T2LambdaResponse, avg_log2FC >= 0)
+T2LambdaResponse <- data.frame(Gene = T2LambdaResponse$gene, Log2FoldChange = T2LambdaResponse$avg_log2FC)  
+write.csv(T2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/CD4hLambdaResponse.csv", row.names = FALSE)
+
+# 3. Naive CD8 T cells 
+system.time(T3AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "naive_CD8+_T_alpha", ident.2 = "naive_CD8+_T_untreated", sep = "_")) 
+T3AlphaResponse$gene <- rownames(T3AlphaResponse) 
+T3AlphaResponse <- filter(T3AlphaResponse, p_val_adj < 0.05)
+down <- filter(T3AlphaResponse, avg_log2FC < 0)
+up <- filter(T3AlphaResponse, avg_log2FC >= 0)
+T3AlphaResponse <- data.frame(Gene = T3AlphaResponse$gene, Log2FoldChange = T3AlphaResponse$avg_log2FC)  
+write.csv(T3AlphaResponse, "honours/results/FinalIndex/DEAnalysis/naivecd8AlphaResponse.csv", row.names = FALSE)
+
+system.time(T3LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "naive_CD8+_T_lambda", ident.2 = "naive_CD8+_T_untreated", sep = "_"))
+T3LambdaResponse$gene <- rownames(T3LambdaResponse)
+T3LambdaResponse <- filter(T3LambdaResponse, p_val_adj < 0.05)
+down <- filter(T3LambdaResponse, avg_log2FC < 0)
+up <- filter(T3LambdaResponse, avg_log2FC >= 0)
+T3LambdaResponse <- data.frame(Gene = T3LambdaResponse$gene, Log2FoldChange = T3LambdaResponse$avg_log2FC)  
+write.csv(T3LambdaResponse, "honours/results/FinalIndex/DEAnalysis/naivecd8LambdaResponse.csv", row.names = FALSE)
  
+# 4. NKT 
+system.time(T4AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NKT_alpha", ident.2 = "NKT_untreated", sep = "_"))  
+T4AlphaResponse$gene <- rownames(T4AlphaResponse) 
+T4AlphaResponse <- filter(T4AlphaResponse, p_val_adj < 0.05)
+down <- filter(T4AlphaResponse, avg_log2FC < 0)
+up <- filter(T4AlphaResponse, avg_log2FC >= 0)
+T4AlphaResponse <- data.frame(Gene = T4AlphaResponse$gene, Log2FoldChange = T4AlphaResponse$avg_log2FC)  
+write.csv(T4AlphaResponse, "honours/results/FinalIndex/DEAnalysis/NKTAlphaResponse.csv", row.names = FALSE)
 
-# 3. Tregs_ 
-L3AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Tregs_alpha", ident.2 = "Tregs_untreated", sep = "_") 
-L3AlphaResponse$gene <- rownames(L3AlphaResponse)
-L3AlphaResponse <- filter(L3AlphaResponse, p_val_adj < 0.05)
-down <- filter(L3AlphaResponse, avg_log2FC < 0)
-up <- filter(L3AlphaResponse, avg_log2FC >= 0)
-TregsAlphaResponse <- data.frame(Gene = L3AlphaResponse$gene, Log2FoldChange = L3AlphaResponse$avg_log2FC)  
-write.csv(TregsAlphaResponse, "honours/results/DEAnalysis/after_filtering/TregsAlphaResponse.csv", row.names = FALSE)
+system.time(T4LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NKT_lambda", ident.2 = "NKT_untreated", sep = "_"))
+T4LambdaResponse$gene <- rownames(T4LambdaResponse)
+T4LambdaResponse <- filter(T4LambdaResponse, p_val_adj < 0.05)
+down <- filter(T4LambdaResponse, avg_log2FC < 0)
+up <- filter(T4LambdaResponse, avg_log2FC >= 0)
+T4LambdaResponse <- data.frame(Gene = T4LambdaResponse$gene, Log2FoldChange = T4LambdaResponse$avg_log2FC)  
+write.csv(T4LambdaResponse, "honours/results/FinalIndex/DEAnalysis/NKTLambdaResponse.csv", row.names = FALSE)
+
+# 5. cytotoxic cd8 t cells : 
+system.time(T5AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "cytotoxic_CD8+_T_alpha", ident.2 = "cytotoxic_CD8+_T_untreated", sep = "_")) 
+T5AlphaResponse$gene <- rownames(T5AlphaResponse) 
+T5AlphaResponse <- filter(T5AlphaResponse, p_val_adj < 0.05)
+down <- filter(T5AlphaResponse, avg_log2FC < 0)
+up <- filter(T5AlphaResponse, avg_log2FC >= 0)
+T5AlphaResponse <- data.frame(Gene = T5AlphaResponse$gene, Log2FoldChange = T5AlphaResponse$avg_log2FC)  
+write.csv(T5AlphaResponse, "honours/results/FinalIndex/DEAnalysis/cytotoxiccd8AlphaResponse.csv", row.names = FALSE)
+
+system.time(T5LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "cytotoxic_CD8+_T_lambda", ident.2 = "cytotoxic_CD8+_T_untreated", sep = "_")) 
+T5LambdaResponse$gene <- rownames(T5LambdaResponse)
+T5LambdaResponse <- filter(T5LambdaResponse, p_val_adj < 0.05)
+down <- filter(T5LambdaResponse, avg_log2FC < 0)
+up <- filter(T5LambdaResponse, avg_log2FC >= 0)
+T5LambdaResponse <- data.frame(Gene = T5LambdaResponse$gene, Log2FoldChange = T5LambdaResponse$avg_log2FC)  
+write.csv(T5LambdaResponse, "honours/results/FinalIndex/DEAnalysis/cytotoxiccd8LambdaResponse.csv", row.names = FALSE)
+
+# 6. Tregs : 
+system.time(T6AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Tregs_alpha", ident.2 = "Tregs_untreated", sep = "_")) 
+T6AlphaResponse$gene <- rownames(T6AlphaResponse) 
+T6AlphaResponse <- filter(T6AlphaResponse, p_val_adj < 0.05)
+down <- filter(T6AlphaResponse, avg_log2FC < 0)
+up <- filter(T6AlphaResponse, avg_log2FC >= 0)
+T6AlphaResponse <- data.frame(Gene = T6AlphaResponse$gene, Log2FoldChange = T6AlphaResponse$avg_log2FC)  
+write.csv(T6AlphaResponse, "honours/results/FinalIndex/DEAnalysis/tregsAlphaResponse.csv", row.names = FALSE)
+
+system.time(T6LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Tregs_lambda", ident.2 = "Tregs_untreated", sep = "_")) 
+T6LambdaResponse$gene <- rownames(T6LambdaResponse)
+T6LambdaResponse <- filter(T6LambdaResponse, p_val_adj < 0.05)
+down <- filter(T6LambdaResponse, avg_log2FC < 0)
+up <- filter(T6LambdaResponse, avg_log2FC >= 0)
+T6LambdaResponse <- data.frame(Gene = T6LambdaResponse$gene, Log2FoldChange = T6LambdaResponse$avg_log2FC)  
+write.csv(T6LambdaResponse, "honours/results/FinalIndex/DEAnalysis/tregsLambdaResponse.csv", row.names = FALSE)
  
+# 7. CD4+ T cells : 
+system.time(T7AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_T_alpha", ident.2 = "CD4+_T_untreated", sep = "_")) 
+T7AlphaResponse$gene <- rownames(T7AlphaResponse) 
+T7AlphaResponse <- filter(T7AlphaResponse, p_val_adj < 0.05)
+down <- filter(T7AlphaResponse, avg_log2FC < 0)
+up <- filter(T7AlphaResponse, avg_log2FC >= 0)
+T7AlphaResponse <- data.frame(Gene = T7AlphaResponse$gene, Log2FoldChange = T7AlphaResponse$avg_log2FC)  
+write.csv(T7AlphaResponse, "honours/results/FinalIndex/DEAnalysis/cd4AlphaResponse.csv", row.names = FALSE)
 
-L3LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Tregs_lambda", ident.2 = "Tregs_untreated", sep = "_") 
-L3LambdaResponse$gene <- rownames(L3LambdaResponse)
-L3LambdaResponse <- filter(L3LambdaResponse, p_val_adj < 0.05)
-down <- filter(L3LambdaResponse, avg_log2FC < 0)
-up <- filter(L3LambdaResponse, avg_log2FC >= 0)
-TregsLambdaResponse <- data.frame(Gene = L3LambdaResponse$gene, Log2FoldChange = L3LambdaResponse$avg_log2FC)  
-write.csv(TregsLambdaResponse, "honours/results/DEAnalysis/after_filtering/TregsLambdaResponse.csv", row.names = FALSE)
+system.time(T7LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_T_lambda", ident.2 = "CD4+_T_untreated", sep = "_"))
+T7LambdaResponse$gene <- rownames(T7LambdaResponse)
+T7LambdaResponse <- filter(T7LambdaResponse, p_val_adj < 0.05)
+down <- filter(T7LambdaResponse, avg_log2FC < 0)
+up <- filter(T7LambdaResponse, avg_log2FC >= 0)
+T7LambdaResponse <- data.frame(Gene = T7LambdaResponse$gene, Log2FoldChange = T7LambdaResponse$avg_log2FC)  
+write.csv(T7LambdaResponse, "honours/results/FinalIndex/DEAnalysis/cd4LambdaResponse.csv", row.names = FALSE)
 
+# 8. NK cells 
+system.time(T8AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NK_alpha", ident.2 = "NK_untreated", sep = "_"))
+T8AlphaResponse$gene <- rownames(T8AlphaResponse) 
+T8AlphaResponse <- filter(T8AlphaResponse, p_val_adj < 0.05)
+down <- filter(T8AlphaResponse, avg_log2FC < 0)
+up <- filter(T8AlphaResponse, avg_log2FC >= 0)
+T8AlphaResponse <- data.frame(Gene = T8AlphaResponse$gene, Log2FoldChange = T8AlphaResponse$avg_log2FC)  
+write.csv(T8AlphaResponse, "honours/results/FinalIndex/DEAnalysis/NKAlphaResponse.csv", row.names = FALSE)
 
-# 4. CD8_alpha 
-L4AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD8_alpha", ident.2 = "CD8_untreated", sep = "_") 
-L4AlphaResponse$gene <- rownames(L4AlphaResponse)
-L4AlphaResponse <- filter(L4AlphaResponse, p_val_adj < 0.05)
-down <- filter(L4AlphaResponse, avg_log2FC < 0)
-up <- filter(L4AlphaResponse, avg_log2FC >= 0)
-CD8AlphaResponse <- data.frame(Gene = L4AlphaResponse$gene, Log2FoldChange = L4AlphaResponse$avg_log2FC)  
-write.csv(CD8AlphaResponse, "honours/results/DEAnalysis/after_filtering/CD8AlphaResponse.csv", row.names = FALSE)
- 
+system.time(T8LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NK_lambda", ident.2 = "NK_untreated", sep = "_")) 
+T8LambdaResponse$gene <- rownames(T8LambdaResponse)
+T8LambdaResponse <- filter(T8LambdaResponse, p_val_adj < 0.05)
+down <- filter(T8LambdaResponse, avg_log2FC < 0)
+up <- filter(T8LambdaResponse, avg_log2FC >= 0)
+T8LambdaResponse <- data.frame(Gene = T8LambdaResponse$gene, Log2FoldChange = T8LambdaResponse$avg_log2FC)  
+write.csv(T8LambdaResponse, "honours/results/FinalIndex/DEAnalysis/NKLambdaResponse.csv", row.names = FALSE)
 
-L4LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD8_lambda", ident.2 = "CD8_untreated", sep = "_") 
-L4LambdaResponse$gene <- rownames(L4LambdaResponse) 
-L4LambdaResponse <- filter(L4LambdaResponse, p_val_adj < 0.05)
-down <- filter(L4LambdaResponse, avg_log2FC < 0)
-up <- filter(L4LambdaResponse, avg_log2FC >= 0)
-CD8LambdaResponse <- data.frame(Gene = L4LambdaResponse$gene, Log2FoldChange = L4LambdaResponse$avg_log2FC)  
-write.csv(CD8LambdaResponse, "honours/results/DEAnalysis/after_filtering/CD8LambdaResponse.csv", row.names = FALSE)
- 
+# B CELLS 
+system.time(BAlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_alpha", ident.2 = "B_untreated", sep = "_")) 
+BAlphaResponse$gene <- rownames(BAlphaResponse) 
+BAlphaResponse <- filter(BAlphaResponse, p_val_adj < 0.05)
+down <- filter(BAlphaResponse, avg_log2FC < 0)
+up <- filter(BAlphaResponse, avg_log2FC >= 0)
+BAlphaResponse <- data.frame(Gene = BAlphaResponse$gene, Log2FoldChange = BAlphaResponse$avg_log2FC)  
+write.csv(BAlphaResponse, "honours/results/FinalIndex/DEAnalysis/BAlphaResponse.csv", row.names = FALSE)
 
-# 5. NK cells 
-L5AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NK_alpha", ident.2 = "NK_untreated", sep = "_") 
-L5AlphaResponse$gene <- rownames(L5AlphaResponse)
-L5AlphaResponse <- filter(L5AlphaResponse, p_val_adj < 0.05)
-down <- filter(L5AlphaResponse, avg_log2FC < 0)
-up <- filter(L5AlphaResponse, avg_log2FC >= 0)
-NKAlphaResponse <- data.frame(Gene = L5AlphaResponse$gene, Log2FoldChange = L5AlphaResponse$avg_log2FC)  
-write.csv(NKAlphaResponse, "honours/results/DEAnalysis/after_filtering/NKAlphaResponse.csv", row.names = FALSE)
-
-
-L5LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NK_lambda", ident.2 = "NK_untreated", sep = "_") 
-L5LambdaResponse$gene <- rownames(L5LambdaResponse)
-L5LambdaResponse <- filter(L5LambdaResponse, p_val_adj < 0.05)
-down <- filter(L5LambdaResponse, avg_log2FC < 0)
-up <- filter(L5LambdaResponse, avg_log2FC >= 0)
-NKLambdaResponse <- data.frame(Gene = L5LambdaResponse$gene, Log2FoldChange = L5LambdaResponse$avg_log2FC)  
-write.csv(CD8LambdaResponse, "honours/results/DEAnalysis/after_filtering/NKLambdaResponse.csv", row.names = FALSE)
-
-# 6. T CELLS
-
-
-# 7. B CELLS 
-L6AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_alpha", ident.2 = "B_untreated", sep = "_") # size = 1287
-L6AlphaResponse$gene <- rownames(L6AlphaResponse) # puts gene names into a column
-L6AlphaResponse <- filter(L6AlphaResponse, p_val_adj < 0.05)
-down <- filter(L6AlphaResponse, avg_log2FC < 0)
-up <- filter(L6AlphaResponse, avg_log2FC >= 0)
-BAlphaResponse <- data.frame(Gene = L6AlphaResponse$gene, Log2FoldChange = L6AlphaResponse$avg_log2FC)  
-write.csv(BAlphaResponse, "honours/results/DEAnalysis/after_filtering/BAlphaResponse.csv", row.names = FALSE) # next step requires entry as a csv hence this step 
-
-
-L6LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_lambda", ident.2 = "B_untreated", sep = "_") # size = 310 
-L6LambdaResponse$gene <- rownames(L6LambdaResponse)
-L6LambdaResponse <- filter(L6LambdaResponse, p_val_adj < 0.05)
-down <- filter(L6LambdaResponse, avg_log2FC < 0)
-up <- filter(L6LambdaResponse, avg_log2FC >= 0)
-BLambdaResponse <- data.frame(Gene = L6LambdaResponse$gene,Log2FoldChange = L6LambdaResponse$avg_log2FC)  
-write.csv(BLambdaResponse, "honours/results/DEAnalysis/after_filtering/BLambdaResponse.csv", row.names = FALSE)
+system.time(BLambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_lambda", ident.2 = "B_untreated", sep = "_"))
+BLambdaResponse$gene <- rownames(BLambdaResponse)
+BLambdaResponse <- filter(BLambdaResponse, p_val_adj < 0.05)
+down <- filter(BLambdaResponse, avg_log2FC < 0)
+up <- filter(BLambdaResponse, avg_log2FC >= 0)
+BLambdaResponse <- data.frame(Gene = BLambdaResponse$gene, Log2FoldChange = BLambdaResponse$avg_log2FC)  
+write.csv(BLambdaResponse, "honours/results/FinalIndex/DEAnalysis/BLambdaResponse.csv", row.names = FALSE)
 
 
 
+##### [2.2] DE with FIndMarkers() on broad cell types () #####
+
+# change annotations to create larger groups to test DE on : 
+TreatmentAnnotated <- RenameIdents(treatment, 
+                                   '0' = 'myeloid',
+                                   '1' = 'T',
+                                   '2' = 'myeloid',
+                                   '3' = 'T',
+                                   '4' = 'myeloid',
+                                   '5' = 'T',
+                                   '6' = 'B',
+                                   '7' = 'T',
+                                   '8' = 'DCs',
+                                   '9' = 'T',
+                                   '10' = 'T',
+                                   '11' = 'T',
+                                   '12' = 'platelets',
+                                   '13' = 'unknown',
+                                   '14' = 'DCs', 
+                                   '15' = 'T',
+                                   '16' = 'T',
+                                   '17' = 'DCs')
+
+
+TreatmentAnnotated$celltype.stim <- paste(Idents(TreatmentAnnotated), TreatmentAnnotated$treatment, sep = "_") # paste puts first entry followed by next entry and separates by indicated symbol 
+TreatmentAnnotated$celltype <- Idents(TreatmentAnnotated) # restores the cell type column 
+Idents(TreatmentAnnotated) <- "celltype.stim" # switch the idents to that column 
+# Now we can easily refer to a cell & treatment type, to see the options : 
+levels(TreatmentAnnotated) # list the options to perform DE on :
+
+# MYELOID CELL TYPES : 
+system.time(MAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "myeloid_alpha", ident.2 = "myeloid_untreated", sep = "_"))
+MAResponse$gene <- rownames(MAResponse) # puts gene names into a column
+MAResponse <- filter(MAResponse, p_val_adj < 0.05)
+down <- filter(MAResponse, avg_log2FC < 0)
+up <- filter(MAResponse, avg_log2FC >= 0)
+MAResponse <- data.frame(Gene = MAResponse$gene, Log2FoldChange = MAResponse$avg_log2FC)  # for cluster profiler 
+write.csv(MAResponse, "honours/results/FinalIndex/DEAnalysis/MyeloidAlphaResponse.csv", row.names = FALSE)
+
+system.time(MLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "myeloid_lambda", ident.2 = "myeloid_untreated", sep = "_"))
+MLResponse$gene <- rownames(MLResponse) # puts gene names into a column
+MLResponse <- filter(MLResponse, p_val_adj < 0.05)
+down <- filter(MLResponse, avg_log2FC < 0)
+up <- filter(MLResponse, avg_log2FC >= 0)
+MLResponse <- data.frame(Gene = MLResponse$gene, Log2FoldChange = MLResponse$avg_log2FC)  # for cluster profiler 
+write.csv(MLResponse, "honours/results/FinalIndex/DEAnalysis/MyeloidLambdaResponse.csv", row.names = FALSE)
+
+# Dendritic cell types : 
+system.time(DAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_alpha", ident.2 = "DCs_untreated", sep = "_"))
+DAResponse$gene <- rownames(DAResponse) # puts gene names into a column
+DAResponse <- filter(DAResponse, p_val_adj < 0.05)
+down <- filter(DAResponse, avg_log2FC < 0)
+up <- filter(DAResponse, avg_log2FC >= 0)
+DAResponse <- data.frame(Gene = DAResponse$gene, Log2FoldChange = DAResponse$avg_log2FC)  # for cluster profiler 
+write.csv(DAResponse, "honours/results/FinalIndex/DEAnalysis/DendriticAlphaResponse.csv", row.names = FALSE)
+
+system.time(DLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_lambda", ident.2 = "DCs_untreated", sep = "_"))
+DLResponse$gene <- rownames(DLResponse) # puts gene names into a column
+DLResponse <- filter(DLResponse, p_val_adj < 0.05)
+down <- filter(DLResponse, avg_log2FC < 0)
+up <- filter(DLResponse, avg_log2FC >= 0)
+DLResponse <- data.frame(Gene = DLResponse$gene, Log2FoldChange = DLResponse$avg_log2FC)  # for cluster profiler 
+write.csv(DLResponse, "honours/results/FinalIndex/DEAnalysis/DendriticLambdaResponse.csv", row.names = FALSE)
+
+# Platelets : 
+system.time(PAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_alpha", ident.2 = "platelets_untreated", sep = "_"))
+PAResponse$gene <- rownames(PAResponse) # puts gene names into a column
+PAResponse <- filter(PAResponse, p_val_adj < 0.05)
+down <- filter(PAResponse, avg_log2FC < 0)
+up <- filter(PAResponse, avg_log2FC >= 0)
+PAResponse <- data.frame(Gene = PAResponse$gene, Log2FoldChange = PAResponse$avg_log2FC)  # for cluster profiler 
+write.csv(PAResponse, "honours/results/FinalIndex/DEAnalysis/PlateletsAlphaResponse.csv", row.names = FALSE)
+
+system.time(PLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_lambda", ident.2 = "platelets_untreated", sep = "_"))
+PLResponse$gene <- rownames(PLResponse) # puts gene names into a column
+PLResponse <- filter(PLResponse, p_val_adj < 0.05)
+down <- filter(PLResponse, avg_log2FC < 0)
+up <- filter(PLResponse, avg_log2FC >= 0)
+PLResponse <- data.frame(Gene = PLResponse$gene, Log2FoldChange = PLResponse$avg_log2FC)  # for cluster profiler 
+write.csv(PLResponse, "honours/results/FinalIndex/DEAnalysis/PlateletsLambdaResponse.csv", row.names = FALSE)
+
+# T cells : 
+system.time(TAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_alpha", ident.2 = "T_untreated", sep = "_"))
+TAResponse$gene <- rownames(TAResponse) # puts gene names into a column
+TAResponse <- filter(TAResponse, p_val_adj < 0.05)
+down <- filter(TAResponse, avg_log2FC < 0)
+up <- filter(TAResponse, avg_log2FC >= 0)
+TAResponse <- data.frame(Gene = TAResponse$gene, Log2FoldChange = TAResponse$avg_log2FC)  # for cluster profiler 
+write.csv(TAResponse, "honours/results/FinalIndex/DEAnalysis/TAlphaResponse.csv", row.names = FALSE)
+
+system.time(TLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_lambda", ident.2 = "T_untreated", sep = "_"))
+TLResponse$gene <- rownames(TLResponse) # puts gene names into a column
+TLResponse <- filter(TLResponse, p_val_adj < 0.05)
+down <- filter(TLResponse, avg_log2FC < 0)
+up <- filter(TLResponse, avg_log2FC >= 0)
+TLResponse <- data.frame(Gene = TLResponse$gene, Log2FoldChange = TLResponse$avg_log2FC)  # for cluster profiler 
+write.csv(TLResponse, "honours/results/FinalIndex/DEAnalysis/TLambdaResponse.csv", row.names = FALSE)
+
+# B cells : 
+system.time(BAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_alpha", ident.2 = "B_untreated", sep = "_"))
+BAResponse$gene <- rownames(BAResponse) # puts gene names into a column
+BAResponse <- filter(BAResponse, p_val_adj < 0.05)
+down <- filter(BAResponse, avg_log2FC < 0)
+up <- filter(BAResponse, avg_log2FC >= 0)
+BAResponse <- data.frame(Gene = BAResponse$gene, Log2FoldChange = BAResponse$avg_log2FC)  # for cluster profiler 
+write.csv(BAResponse, "honours/results/FinalIndex/DEAnalysis/BAlphaResponse.csv", row.names = FALSE)
+
+system.time(BLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_lambda", ident.2 = "B_untreated", sep = "_"))
+BLResponse$gene <- rownames(BLResponse) # puts gene names into a column
+BLResponse <- filter(BLResponse, p_val_adj < 0.05)
+down <- filter(BLResponse, avg_log2FC < 0)
+up <- filter(BLResponse, avg_log2FC >= 0)
+BLResponse <- data.frame(Gene = BLResponse$gene, Log2FoldChange = BLResponse$avg_log2FC)  # for cluster profiler 
+write.csv(BLResponse, "honours/results/FinalIndex/DEAnalysis/BLambdaResponse.csv", row.names = FALSE)
 
 
 ##### [2.2] Extra use of FindMarkers() #####
 
 # [a] To find common DEG between 2 treatments compared to the control (same pathways?) : 
-B_cells_common_genes <- intersect(AlphaResponse$gene, LambdaResponse$gene)                # identify common genes
-B_cells_common_alpha <- AlphaResponse[AlphaResponse$gene %in% B_cells_common_genes, ]     # Extract common genes from each dataframe 
-B_cells_common_lambda <- LambdaResponse[LambdaResponse$gene %in% B_cells_common_genes, ]
-B_cells_common_dataframe <- merge(B_cells_common_alpha, B_cells_common_lambda, by = 'gene', all = TRUE) # # merge together the 2 subsetted dataframes to create 1 containing only common genes :
-# size = 223
+B_cells_common_genes <- intersect(BAResponse$Gene, BLResponse$Gene)                # identify common genes
 # [b] To find treatment specific DEGs : 
-B_cells_alpha_genes <- AlphaResponse$gene[!(AlphaResponse$gene %in% LambdaResponse$gene)] # - (all alpha in lambda) = all alpha not in lambda
+B_cells_alpha_genes <- BAResponse$gene[!(BAResponse$gene %in% BLResponse$gene)] # - (all alpha in lambda) = all alpha not in lambda
 B_cells_alpha <- AlphaResponse[AlphaResponse$gene %in% B_cells_alpha_genes, ]
 # size = 1064 genes unique to alpha 
-B_cells_lambda_genes <- LambdaResponse$gene[!(LambdaResponse$gene %in% AlphaResponse$gene)]
+
+B_cells_lambda_genes <- BLResponse$gene[!(BLResponse$gene %in% BLResponse$gene)]
 B_cells_lambda <- LambdaResponse[LambdaResponse$gene %in% B_cells_lambda_genes, ] 
 # size = 87 genes unique to lambda
 # [c] Store information in excel file 

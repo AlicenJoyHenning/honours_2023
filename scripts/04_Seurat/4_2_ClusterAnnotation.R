@@ -32,7 +32,7 @@ library(readxl)
 library(xlsx)
 
 # To read in the saved Seurat objects : 
-treatment <- readRDS("honours/work/1109/treatment.rds")
+treatment <- readRDS("honours/results/FinalIndex/adjtreatment.rds")
 
 ##### [2] Identify Conserved cell type markers for cell type annotation #####
 
@@ -338,7 +338,7 @@ TreatmentAnnotated <- RenameIdents(treatment,
                                    '2' = 'neutrophils',
                                    '3' = 'T',
                                    '4' = 'monocytes',
-                                   '5' = 'naive_CD8+ T',
+                                   '5' = 'naive_CD8+_T',
                                    '6' = 'B',
                                    '7' = 'NKT',
                                    '8' = 'mDCs',
