@@ -9,14 +9,15 @@ BiocManager::install("gageData")
 
 library(clusterProfiler)
 library(pathview)
-library(enrichplot)
 library(DOSE)
-library(biomaRt)
+library(biomaRt) # for entrezgenes 
 library(Seurat)
 library(pheatmap)
 library(tidyverse)
 library(cowplot)
 library(patchwork)
+library(openxlsx)
+library(mart)
 
 TreatmentAnnotated <- readRDS("honours/results/FinalIndex/TreatmentAnnotated.rds")
 Idents(TreatmentAnnotated)
@@ -316,7 +317,7 @@ write.csv(BLambdaResponse, "honours/results/FinalIndex/DEAnalysis/BLambdaRespons
 
 
 
-##### [2.2] DE with FIndMarkers() on broad cell types () #####
+##### [2.2] DE with FindMarkers() on broad cell types () #####
 
 # change annotations to create larger groups to test DE on : 
 TreatmentAnnotated <- RenameIdents(treatment, 
@@ -432,27 +433,31 @@ BLResponse <- data.frame(Gene = BLResponse$gene, Log2FoldChange = BLResponse$avg
 write.csv(BLResponse, "honours/results/FinalIndex/DEAnalysis/BLambdaResponse.csv", row.names = FALSE)
 
 
-##### [2.2] Extra use of FindMarkers() #####
+##### [2.3] Looking for common & unique DEGs #####
 
 # [a] To find common DEG between 2 treatments compared to the control (same pathways?) : 
 B_cells_common_genes <- intersect(BAResponse$Gene, BLResponse$Gene)                # identify common genes
-# [b] To find treatment specific DEGs : 
-B_cells_alpha_genes <- BAResponse$gene[!(BAResponse$gene %in% BLResponse$gene)] # - (all alpha in lambda) = all alpha not in lambda
-B_cells_alpha <- AlphaResponse[AlphaResponse$gene %in% B_cells_alpha_genes, ]
-# size = 1064 genes unique to alpha 
+B_cells_common_alpha <- BAResponse[BAResponse$Gene %in% B_cells_common_genes, ]     # Extract common genes from each dataframe 
+B_cells_common_lambda <- BLResponse[BLResponse$Gene %in% B_cells_common_genes, ]
+B_cells_common_dataframe <- merge(B_cells_common_alpha, B_cells_common_lambda, by = 'Gene', all = TRUE) # # merge together the 2 subseted dataframes to create 1 containing only common genes 
 
-B_cells_lambda_genes <- BLResponse$gene[!(BLResponse$gene %in% BLResponse$gene)]
-B_cells_lambda <- LambdaResponse[LambdaResponse$gene %in% B_cells_lambda_genes, ] 
-# size = 87 genes unique to lambda
+# [b] To find treatment specific DEGs : 
+B_cells_alpha_genes <- BAResponse$Gene[!(BAResponse$Gene %in% BLResponse$Gene)] # - (all alpha in lambda) = all alpha not in lambda
+B_cells_alpha <- BAResponse[BAResponse$Gene %in% B_cells_alpha_genes, ]
+
+
+B_cells_lambda_genes <- BLResponse$Gene[!(BLResponse$Gene %in% BAResponse$Gene)]
+B_cells_lambda <- BLResponse[BLResponse$Gene %in% B_cells_lambda_genes, ] 
+
+down <- filter(B_cells_alpha, Log2FoldChange < 0)
+up <- filter(B_cells_alpha, Log2FoldChange >= 0)
+
+
 # [c] Store information in excel file 
-B_cells <- list('B_cells_Alpha_Response' = AlphaResponse, 'B_cells_Lambda_Response' = LambdaResponse,'B_cells_common_response' = B_cells_common_dataframe, 'B_cells_alpha_specific' = B_cells_alpha,'B_cells_lambda_specific' = B_cells_lambda)
-openxlsx::write.xlsx(B_cells, file = "honours/results/DEAnalysis/B_cells.xlsx")
+B_cells <- list('AlphaResponse' = B_cells_alpha, 'LambdaResponse' = B_cells_lambda,'common' = B_cells_common_dataframe)
+openxlsx::write.xlsx(B_cells, file = "honours/results/FinalIndex/DEAnalysis/B_cells.xlsx")
 
 ##### [3] ClusterProfiler GO analysis #####
-
-?clusterProfiler # not helpful 
-ls("package:clusterProfiler")
-
 
 # 1 : install and load annotation for desired organism (human) : org.Hs.eg.db
 organism = "org.Hs.eg.db"
@@ -461,288 +466,370 @@ library(organism, character.only = TRUE)
 
 # 2 : have to convert DE gene list to contain entrezgene_ID BIOMART
 mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl") # Create a Mart object for the human genome
-listDatasets(mart) # List available datasets for the Mart 
+listDatasets(mart) # List available datasets for the Mart (214!)
 
 # 3:  Retrieve gene information for human genes :
 gene_ID <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"), 
-                 mart = mart)
+                 mart = mart) 
+
+# 4: create a background universe from the 2000 most variable genes 
+# Assuming 'mySeurat' is your integrated Seurat object
+# Access the integrated assay slot
+integrated_assay <- TreatmentAnnotated@assays[["integrated"]]
+rna_assay <- rownames(TreatmentAnnotated@assays[['RNA']])
+# Get the 2000 most variable genes
+top_variable_genes <- rownames(integrated_assay)[order(integrated_assay, decreasing = TRUE)[1:2000]]
+universe <- select(org.Hs.eg.db, keys = rna_assay, keytype = "SYMBOL", columns = "ENTREZID")
+universe <- universe$ENTREZID
+
+
+
 
 #### REPITITION STARTS HERE : 
 # 4 : merge this with DEGs datasets : 
-
-M1AlphaResponse <- merge(M1AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-M1LambdaResponse <- merge(M1LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-
+# myeloid 
+M1AlphaResponse <- unique(merge(M1AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name"))
+M1LambdaResponse <- unique(merge(M1LambdaResponse, gene_ID[,c(2,3)],by.x = "gene", by.y = "external_gene_name"))
 M2AlphaResponse <- merge(M2AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
 M2LambdaResponse <- merge(M2LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+MAResponse <- merge(MAResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+MLResponse <- merge(MLResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
 
-L1AlphaResponse <- merge(L1AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-L1LambdaResponse <- merge(L1LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+# dendritic 
+D1AlphaResponse <- merge(D1AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+D1LambdaResponse <- merge(D1LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+D2AlphaResponse <- merge(D2AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+D2LambdaResponse <- merge(D2LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+# D3AlphaResponse <- merge(D3AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+# D3LambdaResponse <- merge(D3LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+DAResponse <- merge(DAResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+DLResponse <- merge(DLResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
 
-L2AlphaResponse <- merge(L2AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-L2LambdaResponse <- merge(L2LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+# platelets : 
+PAlphaResponse <- merge(PAlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+PLambdaResponse <- merge(PLambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
 
-L3AlphaResponse <- merge(L3AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-L3LambdaResponse <- merge(L3LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+# T cells : 
+T1AlphaResponse <- merge(T1AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T1LambdaResponse <- merge(T1LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T2AlphaResponse <- merge(T2AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T2LambdaResponse <- merge(T2LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T3AlphaResponse <- merge(T3AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T3LambdaResponse <- merge(T3LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T4AlphaResponse <- merge(T4AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T4LambdaResponse <- merge(T4LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T5AlphaResponse <- merge(T5AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T5LambdaResponse <- merge(T5LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T6AlphaResponse <- merge(T6AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T6LambdaResponse <- merge(T6LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T7AlphaResponse <- merge(T7AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T7LambdaResponse <- merge(T7LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T8AlphaResponse <- merge(T8AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+T8LambdaResponse <- merge(T8LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+TAResponse <- merge(TAResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+TLResponse <- merge(TLResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
 
-L4AlphaResponse <- merge(L4AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-L4LambdaResponse <- merge(L4LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
 
-L5AlphaResponse <- merge(L5AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-L5LambdaResponse <- merge(L5LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+# B cells 
+BAlphaResponse <- merge(BAlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
 
-L6AlphaResponse <- merge(L6AlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-L6LambdaResponse <- merge(L6LambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
+BLambdaResponse <- unique(merge(BLambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name"))
+BLambdaResponse <- BLambdaResponse[, c(-7, -8)]
 
 # 5 : create object to perform GO analysis on, just the entrezgene  id column : 
-
+# myeloid 
 M1AlphaDE <- M1AlphaResponse$entrezgene_id
-M1LambdaDE <- M1LambdaResponse$entrezgene_id
+M1LambdaDE <- M1LambdaResponse$entrezgene_id.x
 M2AlphaDE <- M2AlphaResponse$entrezgene_id
 M2LambdaDE <- M2LambdaResponse$entrezgene_id
-L1AlphaDE <- L1AlphaResponse$entrezgene_id
-L1LambdaDE <- L1LambdaResponse$entrezgene_id
-L2AlphaDE <- L2AlphaResponse$entrezgene_id
-L2LambdaDE <- L2LambdaResponse$entrezgene_id
-L3AlphaDE <- L3AlphaResponse$entrezgene_id
-L3LambdaDE <- L3LambdaResponse$entrezgene_id
-L4AlphaDE <- L4AlphaResponse$entrezgene_id
-L4LambdaDE <- L4LambdaResponse$entrezgene_id
-L5AlphaDE <- L5AlphaResponse$entrezgene_id
-L5LambdaDE <- L5LambdaResponse$entrezgene_id
-L6AlphaDE <- L6AlphaResponse$entrezgene_id
-L6LambdaDE <- L6LambdaResponse$entrezgene_id
+MAlphaDE <- MAResponse$entrezgene_id
+MLambdaDE <- MLResponse$entrezgene_id
+
+# dendritic 
+D1AlphaDE <- D1AlphaResponse$entrezgene_id
+D1LambdaDE <- D1LambdaResponse$entrezgene_id
+D2AlphaDE <- D2AlphaResponse$entrezgene_id
+D2LambdaDE <- D2LambdaResponse$entrezgene_id
+# D3AlphaDE <- D3AlphaResponse$entrezgene_id
+# D3LambdaDE <- D3LambdaResponse$entrezgene_id
+DAlphaDE <- DAResponse$entrezgene_id
+DLambdaDE <- DLResponse$entrezgene_id
+
+# platelets 
+PAlphaDE <- PAlphaResponse$entrezgene_id
+PLambdaDE <- PLambdaResponse$entrezgene_id
+
+# T cells 
+T1AlphaDE <- T1AlphaResponse$entrezgene_id
+T1LambdaDE <- T1LambdaResponse$entrezgene_id
+T2AlphaDE <- T2AlphaResponse$entrezgene_id
+T2LambdaDE <- T2LambdaResponse$entrezgene_id
+T3AlphaDE <- T3AlphaResponse$entrezgene_id
+T3LambdaDE <- T3LambdaResponse$entrezgene_id
+T4AlphaDE <- T4AlphaResponse$entrezgene_id
+T4LambdaDE <- T4LambdaResponse$entrezgene_id
+T5AlphaDE <- T5AlphaResponse$entrezgene_id
+T5LambdaDE <- T5LambdaResponse$entrezgene_id
+T6AlphaDE <- T6AlphaResponse$entrezgene_id
+T6LambdaDE <- T6LambdaResponse$entrezgene_id
+T7AlphaDE <- T7AlphaResponse$entrezgene_id
+T7LambdaDE <- T7LambdaResponse$entrezgene_id
+T8AlphaDE <- T8AlphaResponse$entrezgene_id
+T8LambdaDE <- T8LambdaResponse$entrezgene_id
+TAlphaDE <- TAResponse$entrezgene_id
+TLambdaDE <- TLResponse$entrezgene_id
+
+# B cells 
+BAlphaDE <- BAlphaResponse$entrezgene_id
+BLambdaDE <- BLambdaResponse$entrezgene_id
 
 # 6 : perform GO analysis 
-# M1 : Monocytes 
-M1AlphaEGO <- enrichGO(gene = M1AlphaDE, 
-                OrgDb = org.Hs.eg.db, 
-                keyType = "ENTREZID",
-                ont = "BP",
-                pAdjustMethod = "BH",
-                pvalueCutoff = 0.05
-                )
+?enrichGO
+
+
+# Myeloid  
+M1AlphaEGO <- enrichGO(gene = M1AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH", universe = universe, pvalueCutoff = 0.05)
 M1AlphaEGO <- filter(M1AlphaEGO, M1AlphaEGO@result$p.adjust < 0.05)
-M1AlphaList <- M1AlphaEGO@result[, c("ID", "p.adjust")] 
-colnames(M1AlphaList) <- c("% GOterm", "enrichment_P-value")
-write_tsv(M1AlphaList, "honours/results/DEAnalysis/FortopGO/M1AlphaList.tsv")
-
-M1LambdaEGO <- enrichGO(gene = M1LambdaDE, 
-                       OrgDb = org.Hs.eg.db, 
-                       keyType = "ENTREZID",
-                       ont = "BP",
-                       pAdjustMethod = "BH",
-                       pvalueCutoff = 0.05
-)
+M1LambdaEGO <- enrichGO(gene = M1LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 M1LambdaEGO <- filter(M1LambdaEGO, M1LambdaEGO@result$p.adjust < 0.05)
-
-# M2 : Neutrophils
-
-M2AlphaEGO <- enrichGO(gene = M2AlphaDE, 
-                       OrgDb = org.Hs.eg.db, 
-                       keyType = "ENTREZID",
-                       ont = "BP",
-                       pAdjustMethod = "BH",
-                       pvalueCutoff = 0.05
-)
+M2AlphaEGO <- enrichGO(gene = M2AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 M2AlphaEGO <- filter(M2AlphaEGO, M2AlphaEGO@result$p.adjust < 0.05)
-
-M2LambdaEGO <- enrichGO(gene = M2LambdaDE, 
-                        OrgDb = org.Hs.eg.db, 
-                        keyType = "ENTREZID",
-                        ont = "BP",
-                        pAdjustMethod = "BH",
-                        pvalueCutoff = 0.05
-)
+M2LambdaEGO <- enrichGO(gene = M2LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 M2LambdaEGO <- filter(M2LambdaEGO, M2LambdaEGO@result$p.adjust < 0.05)
+MAlphaEGO <- enrichGO(gene = MAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+MAlphaEGO <- filter(MAlphaEGO, MAlphaEGO@result$p.adjust < 0.05)
+MLambdaEGO <- enrichGO(gene = MLambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+MLambdaEGO <- filter(MLambdaEGO, MLambdaEGO@result$p.adjust < 0.05)
 
-# L1 : CD4 helper T cells 
-L1AlphaEGO <- enrichGO(gene = L1AlphaDE, 
-                       OrgDb = org.Hs.eg.db, 
-                       keyType = "ENTREZID",
-                       ont = "BP",
-                       pAdjustMethod = "BH",
-                       pvalueCutoff = 0.05
-)
-L1AlphaEGO <- filter(L1AlphaEGO, L1AlphaEGO@result$p.adjust < 0.05)
+# Dendritic cells ; 
+D1AlphaEGO <- enrichGO(gene = D1AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+D1AlphaEGO <- filter(D1AlphaEGO, D1AlphaEGO@result$p.adjust < 0.05)
+D1LambdaEGO <- enrichGO(gene = D1LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+D1LambdaEGO <- filter(D1LambdaEGO, D1LambdaEGO@result$p.adjust < 0.05)
+D2AlphaEGO <- enrichGO(gene = D2AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+D2AlphaEGO <- filter(D2AlphaEGO, D2AlphaEGO@result$p.adjust < 0.05)
+D2LambdaEGO <- enrichGO(gene = D2LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+D2LambdaEGO <- filter(D2LambdaEGO, D2LambdaEGO@result$p.adjust < 0.05)
+# D3AlphaEGO <- enrichGO(gene = D3AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+# D3AlphaEGO <- filter(D3AlphaEGO, D3AlphaEGO@result$p.adjust < 0.05)
+# D3LambdaEGO <- enrichGO(gene = D3LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+# D3LambdaEGO <- filter(D3LambdaEGO, D3LambdaEGO@result$p.adjust < 0.05)
+DAlphaEGO <- enrichGO(gene = DAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+DAlphaEGO <- filter(DAlphaEGO, DAlphaEGO@result$p.adjust < 0.05)
+DLambdaEGO <- enrichGO(gene = DLambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+DLambdaEGO <- filter(DLambdaEGO, DLambdaEGO@result$p.adjust < 0.05)
 
-L1LambdaEGO <- enrichGO(gene = L1LambdaDE, 
-                        OrgDb = org.Hs.eg.db, 
-                        keyType = "ENTREZID",
-                        ont = "BP",
-                        pAdjustMethod = "BH",
-                        pvalueCutoff = 0.05
-)
-L1LambdaEGO <- filter(L1LambdaEGO, L1LambdaEGO@result$p.adjust < 0.05)
+# Platelets 
+PAlphaEGO <- enrichGO(gene = PAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+PAlphaEGO <- filter(PAlphaEGO, PAlphaEGO@result$p.adjust < 0.05)
+PLambdaEGO <- enrichGO(gene = PLambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+PLambdaEGO <- filter(PLambdaEGO, PLambdaEGO@result$p.adjust < 0.05)
 
+# T cells  
+T1AlphaEGO <- enrichGO(gene = T1AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T1AlphaEGO <- filter(T1AlphaEGO, T1AlphaEGO@result$p.adjust < 0.05)
+T1_Alpha <- T1AlphaEGO@result$Description
+# T1LambdaEGO <- enrichGO(gene = T1LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+# T1LambdaEGO <- filter(T1LambdaEGO, T1LambdaEGO@result$p.adjust < 0.05)
+T2AlphaEGO <- enrichGO(gene = T2AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T2AlphaEGO <- filter(T2AlphaEGO, T2AlphaEGO@result$p.adjust < 0.05)
+T2_Alpha <- T2AlphaEGO@result$Description
+# T2LambdaEGO <- enrichGO(gene = T2LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+# T2LambdaEGO <- filter(T2LambdaEGO, T2LambdaEGO@result$p.adjust < 0.05)
+T3AlphaEGO <- enrichGO(gene = T3AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T3AlphaEGO <- filter(T3AlphaEGO, T3AlphaEGO@result$p.adjust < 0.05)
+T3LambdaEGO <- enrichGO(gene = T3LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T3LambdaEGO <- filter(T3LambdaEGO, T3LambdaEGO@result$p.adjust < 0.05)
+T3_Lambda <- T3LambdaEGO@result$Description
+T4AlphaEGO <- enrichGO(gene = T4AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T4AlphaEGO <- filter(T4AlphaEGO, T4AlphaEGO@result$p.adjust < 0.05)
+T4_Alpha <- T4AlphaEGO@result$Description
+T4LambdaEGO <- enrichGO(gene = T4LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T4LambdaEGO <- filter(T4LambdaEGO, T4LambdaEGO@result$p.adjust < 0.05)
+T5AlphaEGO <- enrichGO(gene = T5AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T5AlphaEGO <- filter(T5AlphaEGO, T5AlphaEGO@result$p.adjust < 0.05)
+T5LambdaEGO <- enrichGO(gene = T5LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T5LambdaEGO <- filter(T5LambdaEGO, T5LambdaEGO@result$p.adjust < 0.05)
+T6AlphaEGO <- enrichGO(gene = T6AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T6AlphaEGO <- filter(T6AlphaEGO, T6AlphaEGO@result$p.adjust < 0.05)
+T6LambdaEGO <- enrichGO(gene = T6LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T6LambdaEGO <- filter(T6LambdaEGO, T6LambdaEGO@result$p.adjust < 0.05)
+T7AlphaEGO <- enrichGO(gene = T7AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T7AlphaEGO <- filter(T7AlphaEGO, T7AlphaEGO@result$p.adjust < 0.05)
+T7LambdaEGO <- enrichGO(gene = T7LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T7LambdaEGO <- filter(T7LambdaEGO, T7LambdaEGO@result$p.adjust < 0.05)
+T8AlphaEGO <- enrichGO(gene = T8AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T8AlphaEGO <- filter(T8AlphaEGO, T8AlphaEGO@result$p.adjust < 0.05)
+T8LambdaEGO <- enrichGO(gene = T8LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T8LambdaEGO <- filter(T8LambdaEGO, T8LambdaEGO@result$p.adjust < 0.05)
+TAlphaEGO <- enrichGO(gene = TAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+TAlphaEGO <- filter(TAlphaEGO, TAlphaEGO@result$p.adjust < 0.05)
+TLambdaEGO <- enrichGO(gene = TLambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+TLambdaEGO <- filter(TLambdaEGO, TLambdaEGO@result$p.adjust < 0.05)
+T_Alpha <- TAlphaEGO@result$Description
 
-# L2 : CD4 naive T cells 
-
-L2AlphaEGO <- enrichGO(gene = L2AlphaDE, 
-                       OrgDb = org.Hs.eg.db, 
-                       keyType = "ENTREZID",
-                       ont = "BP",
-                       pAdjustMethod = "BH",
-                       pvalueCutoff = 0.05
-)
-L2AlphaEGO <- filter(L2AlphaEGO, L2AlphaEGO@result$p.adjust < 0.05)
-
-
-L2LambdaEGO <- enrichGO(gene = L2LambdaDE, 
-                        OrgDb = org.Hs.eg.db, 
-                        keyType = "ENTREZID",
-                        ont = "BP",
-                        pAdjustMethod = "BH",
-                        pvalueCutoff = 0.05
-)
-L2LambdaEGO <- filter(L2LambdaEGO, L2LambdaEGO@result$p.adjust < 0.05)
-
-# L3 : T regulatory cells 
-
-L3AlphaEGO <- enrichGO(gene = L3AlphaDE, 
-                       OrgDb = org.Hs.eg.db, 
-                       keyType = "ENTREZID",
-                       ont = "BP",
-                       pAdjustMethod = "BH",
-                       pvalueCutoff = 0.05
-)
-L3AlphaEGO <- filter(L3AlphaEGO, L3AlphaEGO@result$p.adjust < 0.05)
-
-L3LambdaEGO <- enrichGO(gene = L3LambdaDE, 
-                        OrgDb = org.Hs.eg.db, 
-                        keyType = "ENTREZID",
-                        ont = "BP",
-                        pAdjustMethod = "BH",
-                        pvalueCutoff = 0.05
-)
-L3LambdaEGO <- filter(L3LambdaEGO, L3LambdaEGO@result$p.adjust < 0.05)
-
-# L4 : CD8 T cells 
-L4AlphaEGO <- enrichGO(gene = L4AlphaDE, 
-                       OrgDb = org.Hs.eg.db, 
-                       keyType = "ENTREZID",
-                       ont = "BP",
-                       pAdjustMethod = "BH",
-                       pvalueCutoff = 0.05
-)
-L4AlphaEGO <- filter(L4AlphaEGO, L4AlphaEGO@result$p.adjust < 0.05)
-
-L4LambdaEGO <- enrichGO(gene = L4LambdaDE, 
-                        OrgDb = org.Hs.eg.db, 
-                        keyType = "ENTREZID",
-                        ont = "BP",
-                        pAdjustMethod = "BH",
-                        pvalueCutoff = 0.05
-)
-L4LambdaEGO <- filter(L4LambdaEGO, L4LambdaEGO@result$p.adjust < 0.05)
-
-# L5 : NK cells 
-L5AlphaEGO <- enrichGO(gene = L5AlphaDE, 
-                       OrgDb = org.Hs.eg.db, 
-                       keyType = "ENTREZID",
-                       ont = "BP",
-                       pAdjustMethod = "BH",
-                       pvalueCutoff = 0.05
-)
-L5AlphaEGO <- filter(L5AlphaEGO, L5AlphaEGO@result$p.adjust < 0.05)
-
-L5LambdaEGO <- enrichGO(gene = L5LambdaDE, 
-                        OrgDb = org.Hs.eg.db, 
-                        keyType = "ENTREZID",
-                        ont = "BP",
-                        pAdjustMethod = "BH",
-                        pvalueCutoff = 0.05
-)
-L5LambdaEGO <- filter(L5LambdaEGO, L5LambdaEGO@result$p.adjust < 0.05)
+# B CELLS 
+BAlphaEGO <- enrichGO(gene = BAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH", pvalueCutoff = 0.05, universe = universe)
+BAlphaEGO <- filter(BAlphaEGO, BAlphaEGO@result$p.adjust < 0.05)
+BLambdaEGO <- enrichGO(gene = BLambdaDE, OrgDb = org.Hs.eg.db,keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",  pvalueCutoff = 0.05, universe = universe)
+BLambdaEGO <- filter(BLambdaEGO, BLambdaEGO@result$qvalue < 0.10)
 
 
-# L6 : B cells 
+# Then, proceed with enrichGO
+clusterProfiler_bp <- enrichGO(BLambdaDE, ont = "BP", OrgDb = org.Hs.eg.db)
 
-L6AlphaEGO <- enrichGO(gene = L6AlphaDE, 
-                       OrgDb = org.Hs.eg.db, 
-                       keyType = "ENTREZID",
-                       ont = "BP",
-                       pAdjustMethod = "BH",
-                       pvalueCutoff = 0.05
-)
-L6AlphaEGO <- filter(L6AlphaEGO, L6AlphaEGO@result$p.adjust < 0.05)
-
-L6LambdaEGO <- enrichGO(gene = L6LambdaDE, 
-                        OrgDb = org.Hs.eg.db, 
-                        keyType = "ENTREZID",
-                        ont = "BP",
-                        pAdjustMethod = "BH",
-                        pvalueCutoff = 0.05
-)
-L6LambdaEGO <- filter(L6LambdaEGO, L6LambdaEGO@result$p.adjust < 0.05)
-
-
-# 6 : of the descriptions found in alpha & lambda set, subset according to unique to alpha and lambda and the intersection 
-
-L6_common <- intersect(L6AlphaEGO@result$Description, L6LambdaEGO@result$Description )                # identify common genes
-L6_alpha <- L6AlphaEGO@result$Description[!(L6AlphaEGO@result$Description %in% L6LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-L6_lambda <- L6LambdaEGO@result$Description[!(L6LambdaEGO@result$Description %in% L6AlphaEGO@result$Description)]
-L6_lambda <- L6LambdaEGO[L6LambdaEGO@result$Description %in% L6_lambda, ] 
-L6_lambda_list <- L6_lambda[, c("ID", "p.adjust")] 
-write_tsv(L6_lambda_list, "honours/results/DEAnalysis/FortopGO/L6_lambda_list.tsv")
-
-L5_common <- intersect(L5AlphaEGO@result$Description, L5LambdaEGO@result$Description )                # identify common genes
-L5_alpha <- L5AlphaEGO@result$Description[!(L5AlphaEGO@result$Description %in% L5LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-L5_lambda <- L5LambdaEGO@result$Description[!(L5LambdaEGO@result$Description %in% L5AlphaEGO@result$Description)]
-L5_lambda <- L5LambdaEGO[L5LambdaEGO@result$Description %in% L5_lambda, ] 
-L5_lambda_list <- L5_lambda[, c("ID", "p.adjust")] 
-write_tsv(L5_lambda_list, "honours/results/DEAnalysis/FortopGO/L5_lambda_list.tsv")
-
-L4_common <- intersect(L4AlphaEGO@result$Description, L4LambdaEGO@result$Description )                # identify common genes
-L4_alpha <- L4AlphaEGO@result$Description[!(L4AlphaEGO@result$Description %in% L4LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-L4_lambda <- L4LambdaEGO@result$Description[!(L4LambdaEGO@result$Description %in% L4AlphaEGO@result$Description)]
-L4_lambda <- L4LambdaEGO[L4LambdaEGO@result$Description %in% L4_lambda, ] 
-L4_lambda_list <- L4_lambda[, c("ID", "p.adjust")] 
-write_tsv(L4_lambda_list, "honours/results/DEAnalysis/FortopGO/L4_lambda_list.tsv")
-
-L3_common <- intersect(L3AlphaEGO@result$Description, L3LambdaEGO@result$Description )                # identify common genes
-L3_alpha <- L3AlphaEGO@result$Description[!(L3AlphaEGO@result$Description %in% L3LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-L3_lambda <- L3LambdaEGO@result$Description[!(L3LambdaEGO@result$Description %in% L3AlphaEGO@result$Description)]
-L3_lambda <- L3LambdaEGO[L3LambdaEGO@result$Description %in% L3_lambda, ] 
-L3_lambda_list <- L3_lambda[, c("ID", "p.adjust")] 
-write_tsv(L3_lambda_list, "honours/results/DEAnalysis/FortopGO/L3_lambda_list.tsv")
-
-L2_common <- intersect(L2AlphaEGO@result$Description, L2LambdaEGO@result$Description )                # identify common genes
-L2_alpha <- L2AlphaEGO@result$Description[!(L2AlphaEGO@result$Description %in% L2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-L2_lambda <- L2LambdaEGO@result$Description[!(L2LambdaEGO@result$Description %in% L2AlphaEGO@result$Description)]
-L2_lambda <- L2LambdaEGO[L2LambdaEGO@result$Description %in% L2_lambda, ] 
-L2_lambda_list <- L2_lambda[, c("ID", "p.adjust")] 
-write_tsv(L2_lambda_list, "honours/results/DEAnalysis/FortopGO/L2_lambda_list.tsv")
-
-L1_common <- intersect(L1AlphaEGO@result$Description, L1LambdaEGO@result$Description )                # identify common genes
-L1_alpha <- L1AlphaEGO@result$Description[!(L1AlphaEGO@result$Description %in% L1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-L1_lambda <- L1LambdaEGO@result$Description[!(L1LambdaEGO@result$Description %in% L1AlphaEGO@result$Description)]
-L1_lambda <- L1LambdaEGO[L1LambdaEGO@result$Description %in% L1_lambda, ] 
-L1_lambda_list <- L1_lambda[, c("ID", "p.adjust")] 
-write_tsv(L1_lambda_list, "honours/results/DEAnalysis/FortopGO/L1_lambda_list.tsv")
-
+# 7 : of the descriptions found in alpha & lambda set, subset according to unique to alpha and lambda and the intersection 
+# Myeloid : 
 M1_common <- intersect(M1AlphaEGO@result$Description, M1LambdaEGO@result$Description )                # identify common genes
 M1_alpha <- M1AlphaEGO@result$Description[!(M1AlphaEGO@result$Description %in% M1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 M1_lambda <- M1LambdaEGO@result$Description[!(M1LambdaEGO@result$Description %in% M1AlphaEGO@result$Description)]
 M1_lambda <- M1LambdaEGO[M1LambdaEGO@result$Description %in% M1_lambda, ] 
 M1_lambda_list <- M1_lambda[, c("ID", "p.adjust")] 
-write_tsv(M1_lambda_list, "honours/results/DEAnalysis/FortopGO/M1_lambda_list.tsv")
+write_tsv(M1_lambda_list, "honours/results/FinalIndex/GOAnalysis/M1_lambda_list.tsv")
 
 M2_common <- intersect(M2AlphaEGO@result$Description, M2LambdaEGO@result$Description )                # identify common genes
 M2_alpha <- M2AlphaEGO@result$Description[!(M2AlphaEGO@result$Description %in% M2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
 M2_lambda <- M2LambdaEGO@result$Description[!(M2LambdaEGO@result$Description %in% M2AlphaEGO@result$Description)]
 M2_lambda <- M2LambdaEGO[M2LambdaEGO@result$Description %in% M2_lambda, ] 
 M2_lambda_list <- M2_lambda[, c("ID", "p.adjust")] 
-write_tsv(M2_lambda_list, "honours/results/DEAnalysis/FortopGO/M2_lambda_list.tsv")
+write_tsv(M2_lambda_list, "honours/results/FinalIndex/GOAnalysis/M2_lambda_list.tsv")
 
-length(M1_alpha)
-dim(M1_lambda)
+M_common <- intersect(MAlphaEGO@result$Description, MLambdaEGO@result$Description )                # identify common genes
+M_alpha <- MAlphaEGO@result$Description[!(MAlphaEGO@result$Description %in% MLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+M_lambda <- MLambdaEGO@result$Description[!(MLambdaEGO@result$Description %in% MAlphaEGO@result$Description)]
+M_lambda <- MLambdaEGO[MLambdaEGO@result$Description %in% M_lambda, ] 
+M_lambda_list <- M_lambda[, c("ID", "p.adjust")] 
+write_tsv(M_lambda_list, "honours/results/FinalIndex/GOAnalysis/M_lambda_list.tsv")
 
-# KEGG pathway analysis 
+# Dendritic cells : 
+D1_common <- intersect(D1AlphaEGO@result$Description, D1LambdaEGO@result$Description )                # identify common genes
+D1_alpha <- D1AlphaEGO@result$Description[!(D1AlphaEGO@result$Description %in% D1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+D1_lambda <- D1LambdaEGO@result$Description[!(D1LambdaEGO@result$Description %in% D1AlphaEGO@result$Description)]
+D1_lambda <- D1LambdaEGO[D1LambdaEGO@result$Description %in% D1_lambda, ] 
+D1_lambda_list <- D1_lambda[, c("ID", "p.adjust")] 
+write_tsv(D1_lambda_list, "honours/results/FinalIndex/GOAnalysis/D1_lambda_list.tsv")
 
+# D2_common <- intersect(D2AlphaEGO@result$Description, D2LambdaEGO@result$Description )                # identify common genes
+# D2_alpha <- D2AlphaEGO@result$Description[!(D2AlphaEGO@result$Description %in% D2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# D2_lambda <- D2LambdaEGO@result$Description[!(D2LambdaEGO@result$Description %in% D2AlphaEGO@result$Description)]
+# D2_lambda <- D2LambdaEGO[D2LambdaEGO@result$Description %in% D2_lambda, ] 
+# D2_lambda_list <- D2_lambda[, c("ID", "p.adjust")] 
+# write_tsv(D2_lambda_list, "honours/results/FinalIndex/GOAnalysis/D2_lambda_list.tsv")
 
+# D3_common <- intersect(D3AlphaEGO@result$Description, D3LambdaEGO@result$Description )                # identify common genes
+# D3_alpha <- D3AlphaEGO@result$Description[!(D3AlphaEGO@result$Description %in% D3LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# D3_lambda <- D3LambdaEGO@result$Description[!(D3LambdaEGO@result$Description %in% D3AlphaEGO@result$Description)]
+# D3_lambda <- D3LambdaEGO[D3LambdaEGO@result$Description %in% D3_lambda, ] 
+# D3_lambda_list <- D3_lambda[, c("ID", "p.adjust")] 
+# write_tsv(D3_lambda_list, "honours/results/FinalIndex/GOAnalysis/D3_lambda_list.tsv")
 
+D_common <- intersect(DAlphaEGO@result$Description, DLambdaEGO@result$Description )                # identify common genes
+D_alpha <- DAlphaEGO@result$Description[!(DAlphaEGO@result$Description %in% DLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+D_lambda <- DLambdaEGO@result$Description[!(DLambdaEGO@result$Description %in% DAlphaEGO@result$Description)]
+D_lambda <- DLambdaEGO[DLambdaEGO@result$Description %in% D_lambda, ] 
+D_lambda_list <- D_lambda[, c("ID", "p.adjust")] 
+write_tsv(D_lambda_list, "honours/results/FinalIndex/GOAnalysis/D_lambda_list.tsv")
 
+# Platelets : 
+P_common <- intersect(PAlphaEGO@result$Description, PLambdaEGO@result$Description )                # identify common genes
+P_alpha <- PAlphaEGO@result$Description[!(PAlphaEGO@result$Description %in% PLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+P_lambda <- PLambdaEGO@result$Description[!(PLambdaEGO@result$Description %in% PAlphaEGO@result$Description)]
+P_lambda <- PLambdaEGO[PLambdaEGO@result$Description %in% P_lambda, ] 
+P_lambda_list <- P_lambda[, c("ID", "p.adjust")] 
+write_tsv(P_lambda_list, "honours/results/FinalIndex/GOAnalysis/P_lambda_list.tsv")
+
+# T cells : 
+# T1_common <- intersect(T1AlphaEGO@result$Description, T1LambdaEGO@result$Description )                # identify common genes
+T1_alpha <- T1AlphaEGO@result$Description[!(T1AlphaEGO@result$Description %in% T1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# T1_lambda <- T1LambdaEGO@result$Description[!(T1LambdaEGO@result$Description %in% T1AlphaEGO@result$Description)]
+# T1_lambda <- T1LambdaEGO[T1LambdaEGO@result$Description %in% T1_lambda, ] 
+# T1_lambda_list <- T1_lambda[, c("ID", "p.adjust")] 
+# write_tsv(T1_lambda_list, "honours/results/FinalIndex/GOAnalysis/T1_lambda_list.tsv")
+# 
+# T2_common <- intersect(T2AlphaEGO@result$Description, T2LambdaEGO@result$Description )                # identify common genes
+# T2_alpha <- T2AlphaEGO@result$Description[!(T2AlphaEGO@result$Description %in% T2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# T2_lambda <- T2LambdaEGO@result$Description[!(T2LambdaEGO@result$Description %in% T2AlphaEGO@result$Description)]
+# T2_lambda <- T2LambdaEGO[T2LambdaEGO@result$Description %in% T2_lambda, ] 
+# T2_lambda_list <- T2_lambda[, c("ID", "p.adjust")] 
+# write_tsv(T2_lambda_list, "honours/results/FinalIndex/GOAnalysis/T2_lambda_list.tsv")
+
+# T3_common <- intersect(T3AlphaEGO@result$Description, T3LambdaEGO@result$Description )                # identify common genes
+# T3_alpha <- T3AlphaEGO@result$Description[!(T3AlphaEGO@result$Description %in% T3LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# T3_lambda <- T3LambdaEGO@result$Description[!(T3LambdaEGO@result$Description %in% T3AlphaEGO@result$Description)]
+# T3_lambda <- T3LambdaEGO[T3LambdaEGO@result$Description %in% T3_lambda, ] 
+# T3_lambda_list <- T3_lambda[, c("ID", "p.adjust")] 
+# write_tsv(T3_lambda_list, "honours/results/FinalIndex/GOAnalysis/T3_lambda_list.tsv")
+
+T4_common <- intersect(T4AlphaEGO@result$Description, T4LambdaEGO@result$Description )                # identify common genes
+T4_alpha <- T4AlphaEGO@result$Description[!(T4AlphaEGO@result$Description %in% T4LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+T4_lambda <- T4LambdaEGO@result$Description[!(T4LambdaEGO@result$Description %in% T4AlphaEGO@result$Description)]
+T4_lambda <- T4LambdaEGO[T4LambdaEGO@result$Description %in% T4_lambda, ] 
+T4_lambda_list <- T4_lambda[, c("ID", "p.adjust")] 
+write_tsv(T4_lambda_list, "honours/results/FinalIndex/GOAnalysis/T4_lambda_list.tsv")
+
+T5_common <- intersect(T5AlphaEGO@result$Description, T5LambdaEGO@result$Description )                # identify common genes
+T5_alpha <- T5AlphaEGO@result$Description[!(T5AlphaEGO@result$Description %in% T5LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+T5_lambda <- T5LambdaEGO@result$Description[!(T5LambdaEGO@result$Description %in% T5AlphaEGO@result$Description)]
+T5_lambda <- T5LambdaEGO[T5LambdaEGO@result$Description %in% T5_lambda, ] 
+T5_lambda_list <- T5_lambda[, c("ID", "p.adjust")] 
+write_tsv(T5_lambda_list, "honours/results/FinalIndex/GOAnalysis/T5_lambda_list.tsv")
+
+T6_common <- intersect(T6AlphaEGO@result$Description, T6LambdaEGO@result$Description )                # identify common genes
+T6_alpha <- T6AlphaEGO@result$Description[!(T6AlphaEGO@result$Description %in% T6LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+T6_lambda <- T6LambdaEGO@result$Description[!(T6LambdaEGO@result$Description %in% T6AlphaEGO@result$Description)]
+T6_lambda <- T6LambdaEGO[T6LambdaEGO@result$Description %in% T6_lambda, ] 
+T6_lambda_list <- T6_lambda[, c("ID", "p.adjust")] 
+write_tsv(T6_lambda_list, "honours/results/FinalIndex/GOAnalysis/T6_lambda_list.tsv")
+
+T7_common <- intersect(T7AlphaEGO@result$Description, T7LambdaEGO@result$Description )                # identify common genes
+T7_alpha <- T7AlphaEGO@result$Description[!(T7AlphaEGO@result$Description %in% T7LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+T7_lambda <- T7LambdaEGO@result$Description[!(T7LambdaEGO@result$Description %in% T7AlphaEGO@result$Description)]
+T7_lambda <- T7LambdaEGO[T7LambdaEGO@result$Description %in% T7_lambda, ] 
+T7_lambda_list <- T7_lambda[, c("ID", "p.adjust")] 
+write_tsv(T7_lambda_list, "honours/results/FinalIndex/GOAnalysis/T7_lambda_list.tsv")
+
+T8_common <- intersect(T8AlphaEGO@result$Description, T8LambdaEGO@result$Description )                # identify common genes
+T8_alpha <- T8AlphaEGO@result$Description[!(T8AlphaEGO@result$Description %in% T8LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+T8_lambda <- T8LambdaEGO@result$Description[!(T8LambdaEGO@result$Description %in% T8AlphaEGO@result$Description)]
+T8_lambda <- T8LambdaEGO[T8LambdaEGO@result$Description %in% T8_lambda, ] 
+T8_lambda_list <- T8_lambda[, c("ID", "p.adjust")] 
+write_tsv(T8_lambda_list, "honours/results/FinalIndex/GOAnalysis/T8_lambda_list.tsv")
+
+# BCELLS : 
+B_common <- intersect(BAlphaEGO@result$Description, BLambdaEGO@result$Description )                # identify common genes
+B_alpha <- BAlphaEGO@result$Description[!(BAlphaEGO@result$Description %in% BLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+B_lambda <- BLambdaEGO@result$Description[!(BLambdaEGO@result$Description %in% BAlphaEGO@result$Description)]
+B_lambda <- BLambdaEGO[BLambdaEGO@result$Description %in% B_lambda, ] 
+B_lambda_list <- B_lambda[, c("ID", "p.adjust")] 
+write_tsv(B_lambda_list, "honours/results/FinalIndex/GOAnalysis/B_lambda_list.tsv")
+
+# Saving the data to an excel sheet to annotate genes : 
+GOmyeloid <- list(# Myeloid cells : 
+                'MonocytesCommon' = M1_common, 'MonocytesAlpha' = M1_alpha,'MonocytesLambda' = M1_lambda,
+                'NeutrophilsCommon' = M2_common, 'NeutrophilsAlpha' = M2_alpha,'NeutrophilsLambda' = M2_lambda, 
+                'MyeloidCommon' = M_common, 'MyeloidAlpha' = M_alpha,'MyeloidLambda' = M_lambda)
+GOdendritic <- list(# Dendritic cells :
+                'DendriticCommon' = D1_common, 'DendriticAlpha' = D1_alpha, 'DendriticLambda' = D1_lambda, 
+                'allDendriticCommon' = D_alpha)
+GOplatelets <- list(# Platelets : 
+                'PlateletsCommon' = P_common, 'PlateletsAlpha' = P_alpha, 'PlatetletsLambda' = P_lambda)
+GOTcells <- list(# T cells : 
+                'TAlpha' = T1_Alpha,
+                'CD4hAlpha' = T2_Alpha, 
+                'naiveCD8Lambda' = T3_Lambda,
+                'NKTAlpha' = T4_Alpha, 
+                'cCD8common' = T5_common, 'cCD8Alpha' = T5_alpha, 'cCD8Lambda' = T5_lambda,
+                'Tregscommon' = T6_common, 'TregsAlpha' = T6_alpha, 'TregsLambda' = T6_lambda,
+                'CD4Alpha' = T7_alpha, 
+               'NKAlpha' = T8_alpha, 
+                'AllTalpha' = T_Alpha)
+GOBcells <- list('Bcommon' = B_common, 'BAlpha' = B_alpha, 'BLambda' = B_lambda)
+                
+openxlsx::write.xlsx(GOmyeloid, file = "honours/results/FinalIndex/GOAnalysis/GOmyeloid.xlsx") 
+openxlsx::write.xlsx(GOdendritic, file = "honours/results/FinalIndex/GOAnalysis/GOdendritic.xlsx") 
+openxlsx::write.xlsx(GOplatelets, file = "honours/results/FinalIndex/GOAnalysis/GOplatelets.xlsx")
+openxlsx::write.xlsx(GOTcells, file = "honours/results/FinalIndex/GOAnalysis/GOTcells.xlsx")
+openxlsx::write.xlsx(GOBcells, file = "honours/results/FinalIndex/GOAnalysis/GOBcells.xlsx")
 
 ##### [4] Gage KEGG analysis #####
 
