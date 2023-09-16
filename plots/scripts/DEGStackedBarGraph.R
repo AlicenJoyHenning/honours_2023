@@ -26,6 +26,7 @@ stimulation <- rep(c("alpha upreg", "lambda upreg", "alpha downreg", "lambda dow
 grouped <- data.frame(stimulation, CellTypes, DEGs)
 
 colours <- c("#b0d8da", "#57a8eb","#6ab5ba","#187bcd")
+colours <- c("#d3d3d3","#d3d3d3", "#6ab5ba","#6ab5ba")
 
 # Plot : 
 horizontal <- ggplot(
@@ -40,7 +41,26 @@ horizontal <- ggplot(
     axis.text.y = element_text(size = 16),
     axis.title = element_text(size = 18, face = "bold"),
     legend.title = element_text(size = 16, face = "bold"),
-    legend.text = element_text(size = 16)
+    legend.text = element_text(size = 16),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  )
+
+vertical <- ggplot(
+  grouped,
+  aes(fill = stimulation, y = CellTypes, x = DEGs)) +
+  geom_bar(color = "white", position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = colours) +
+  labs(title = "", x = "DEGs", y = "Immune Cell Types") +
+  theme(
+    axis.text.x = element_text(size = 18),
+    axis.text.y = element_text(size = 16),
+    axis.title = element_text(size = 18, face = "bold"),
+    legend.title = element_text(size = 16, face = "bold"),
+    legend.text = element_text(size = 16),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
   )
 
 
@@ -75,7 +95,7 @@ colours <- c("lightgrey", "#6ab5ba")
 # Plot : 
 horizontal <- ggplot(
   grouped,
-  aes(fill = Treatment, y = CellTypes, x = DEGs)) +
+  aes(fill = Treatment, y =DEGs, x = CellTypes)) +
   geom_bar(color = NA, position = "stack", stat = "identity") +
   theme_minimal() +
   scale_fill_manual(values = colours) +
