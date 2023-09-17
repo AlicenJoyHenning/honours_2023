@@ -67,14 +67,19 @@ vertical <- ggplot(
 ##### Stacked Bar graph DEGs #####
 
 # Y values : 
-DEGs <- c(1168, 24,
-          515, 9,
-          723, 26, 
-          795, 33, 
-          138, 8, 
-          854, 51, 
-          270, 3, 
-          516, 82
+DEGs <- c(1029, 11,
+          703, 10,
+          1209, 13, 
+          3, 0, 
+          80, 0, 
+          297, 51, 
+          270, 0, 
+          12, 0,
+          819, 23,
+          727, 26, 
+          682, 11, 
+          315, 8, 
+          187, 
 )
 # x groups : 
 CellTypes <- c(rep("Mono", 2), 
@@ -87,10 +92,16 @@ CellTypes <- c(rep("Mono", 2),
                rep("B", 2))
 # stacks : 
 Treatment <- rep(c("alpha", "lambda"), 8)
-# other : 
+# create data frame :  
 grouped <- data.frame(Treatment, CellTypes, DEGs)
 
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c("Mono", "Neu", "CD4h", "CD4n", "Tregs", "CD8", "NK", "B"))
+
+
 colours <- c("lightgrey", "#6ab5ba")
+
+
 
 # Plot : 
 horizontal <- ggplot(
