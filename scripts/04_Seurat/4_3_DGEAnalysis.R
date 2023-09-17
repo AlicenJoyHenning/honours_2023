@@ -25,10 +25,7 @@ Idents(TreatmentAnnotated)
 ##### [1.2] View the annotated clusters #####
 # View the current annotations for confirmation : 
 Idents(TreatmentAnnotated) 
-
 # Defined colour palette adjusted for cluster annotation : 
-
-
 # Visualise UMAP plot with annotations : 
 all <- DimPlot(TreatmentAnnotated, reduction = "umap", pt.size = 1.5, label = TRUE, label.color = "white", label.size = 6, label.box = TRUE, repel = TRUE, cols = palette.b)
 
@@ -43,8 +40,11 @@ f <- DotPlot(object = treatment,
 all | f
 
 ##### [2.1] DE with FindMarkers() on fine cell types (15) ######
-# Creating metadata column to hold cell type AND stimulation information (as opposed to just cell type) : 
+# Ensure the default assay is RNA not integrated : 
+DefaultAssay(TreatmentAnnotated)
+DefaultAssay(TreatmentAnnotated) <- "RNA"
 
+# Creating metadata column to hold cell type AND stimulation information (as opposed to just cell type) : 
 TreatmentAnnotated$celltype.stim <- paste(Idents(TreatmentAnnotated), TreatmentAnnotated$treatment, sep = "_") # paste puts first entry followed by next entry and separates by indicated symbol 
 TreatmentAnnotated$celltype <- Idents(TreatmentAnnotated) # restores the cell type column 
 Idents(TreatmentAnnotated) <- "celltype.stim" # switch the idents to that column 
@@ -53,271 +53,245 @@ Idents(TreatmentAnnotated) <- "celltype.stim" # switch the idents to that column
 levels(TreatmentAnnotated) # list the options to perform DE on :
 
 # Use FindMarkers() to find the genes that are different between stimulated and untreated cell types
-?FindMarkers()
 
 # MYELOID CELL TYPES : 
 # 1. Monocytes 
-system.time(M1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "monocytes_alpha", ident.2 = "monocytes_untreated", sep = "_"))
+M1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "monocytes_alpha", ident.2 = "monocytes_untreated", sep = "_")
 M1AlphaResponse$gene <- rownames(M1AlphaResponse) # puts gene names into a column
 M1AlphaResponse <- filter(M1AlphaResponse, p_val_adj < 0.05)
 down <- filter(M1AlphaResponse, avg_log2FC < 0)
 up <- filter(M1AlphaResponse, avg_log2FC >= 0)
-MonoAlphaResponse <- data.frame(Gene = M1AlphaResponse$gene, Log2FoldChange = M1AlphaResponse$avg_log2FC)  # for cluster profiler 
-write.csv(MonoAlphaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesAlphaResponse.csv", row.names = FALSE)
+saveRDS(M1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesAlphaResponse.rds")
+readRDS("honours/results/FinalIndex/DEAnalysis/monocytesAlphaResponse.rds")
 
-system.time(M1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "monocytes_lambda", ident.2 = "monocytes_untreated", sep = "_")) 
+M1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "monocytes_lambda", ident.2 = "monocytes_untreated", sep = "_") 
 M1LambdaResponse$gene <- rownames(M1LambdaResponse) 
 M1LambdaResponse <- filter(M1LambdaResponse, p_val_adj < 0.05)
 down <- filter(M1LambdaResponse, avg_log2FC < 0)
 up <- filter(M1LambdaResponse, avg_log2FC >= 0)
-MonoLambdaResponse <- data.frame(Gene = M1LambdaResponse$gene, Log2FoldChange = M1LambdaResponse$avg_log2FC)  
-write.csv(MonoLambdaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesLambdaResponse.csv", row.names = FALSE)
+saveRDS(M1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesLambdaResponse.rds")
 
 
 # 2. Neutrophils 
-system.time(M2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "neutrophils_alpha", ident.2 = "neutrophils_untreated", sep = "_"))  
+M2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "neutrophils_alpha", ident.2 = "neutrophils_untreated", sep = "_") 
 M2AlphaResponse$gene <- rownames(M2AlphaResponse)
 M2AlphaResponse <- filter(M2AlphaResponse, p_val_adj < 0.05)
 down <- filter(M2AlphaResponse, avg_log2FC < 0)
 up <- filter(M2AlphaResponse, avg_log2FC >= 0)
-neuAlphaResponse <- data.frame(Gene = M2AlphaResponse$gene, Log2FoldChange = M2AlphaResponse$avg_log2FC)  
-write.csv(neuAlphaResponse, "honours/results/FinalIndex/DEAnalysis/neutrophilsAlphaResponse.csv", row.names = FALSE)
-# size = 1507 DEGs 
+saveRDS(M2AlphaResponse, "honours/results/FinalIndex/DEAnalysis/NeutrophilsAlphaResponse.rds")
 
-system.time(M2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "neutrophils_lambda", ident.2 = "neutrophils_untreated", sep = "_")) 
+M2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "neutrophils_lambda", ident.2 = "neutrophils_untreated", sep = "_") 
 M2LambdaResponse$gene <- rownames(M2LambdaResponse) 
 M2LambdaResponse <- filter(M2LambdaResponse, p_val_adj < 0.05)
 down <- filter(M2LambdaResponse, avg_log2FC < 0)
 up <- filter(M2LambdaResponse, avg_log2FC >= 0)
-M2LambdaResponse <- data.frame(Gene = M2LambdaResponse$gene, Log2FoldChange = M2LambdaResponse$avg_log2FC)  
-write.csv(M2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/neutrophilsLambdaResponse.csv", row.names = FALSE)
+saveRDS(M2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/NeutrophilsLambdaResponse.rds")
 
 # DENDRITIC CELL TYPES 
 # 1. DCs 
-system.time(D1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_alpha", ident.2 = "DCs_untreated", sep = "_"))
+D1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_alpha", ident.2 = "DCs_untreated", sep = "_")
 D1AlphaResponse$gene <- rownames(D1AlphaResponse)
 D1AlphaResponse <- filter(D1AlphaResponse, p_val_adj < 0.05)
 down <- filter(D1AlphaResponse, avg_log2FC < 0)
 up <- filter(D1AlphaResponse, avg_log2FC >= 0)
-D1AlphaResponse <- data.frame(Gene = D1AlphaResponse$gene, Log2FoldChange = D1AlphaResponse$avg_log2FC)  
-write.csv(D1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/dcsAlphaResponse.csv", row.names = FALSE)
+saveRDS(D1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/DendriticAlphaResponse.rds")
 
-system.time(D1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_lambda", ident.2 = "DCs_untreated", sep = "_")) 
+D1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_lambda", ident.2 = "DCs_untreated", sep = "_") 
 D1LambdaResponse$gene <- rownames(D1LambdaResponse) 
 D1LambdaResponse <- filter(D1LambdaResponse, p_val_adj < 0.05)
 down <- filter(D1LambdaResponse, avg_log2FC < 0)
 up <- filter(D1LambdaResponse, avg_log2FC >= 0)
-D1LambdaResponse <- data.frame(Gene = D1LambdaResponse$gene, Log2FoldChange = D1LambdaResponse$avg_log2FC)  
-write.csv(D1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/dcsLambdaResponse.csv", row.names = FALSE)
+saveRDS(D1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/DendriticLambdaResponse.rds")
 
 #2. mDCs
-system.time(D2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "mDCs_alpha", ident.2 = "mDCs_untreated", sep = "_")) 
+D2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "mDCs_alpha", ident.2 = "mDCs_untreated", sep = "_")
 D2AlphaResponse$gene <- rownames(D2AlphaResponse)
 D2AlphaResponse <- filter(D2AlphaResponse, p_val_adj < 0.05)
 down <- filter(D2AlphaResponse, avg_log2FC < 0)
 up <- filter(D2AlphaResponse, avg_log2FC >= 0)
-D2AlphaResponse <- data.frame(Gene = D2AlphaResponse$gene, Log2FoldChange = D2AlphaResponse$avg_log2FC)  
-write.csv(D2AlphaResponse, "honours/results/FinalIndex/DEAnalysis/mdcsAlphaResponse.csv", row.names = FALSE)
+saveRDS(D2AlphaResponse, "honours/results/FinalIndex/DEAnalysis/mdcsAlphaResponse.rds")
 
-system.time(D2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "mDCs_lambda", ident.2 = "mDCs_untreated", sep = "_")) 
+D2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "mDCs_lambda", ident.2 = "mDCs_untreated", sep = "_")
 D2LambdaResponse$gene <- rownames(D2LambdaResponse) 
 D2LambdaResponse <- filter(D2LambdaResponse, p_val_adj < 0.05)
 down <- filter(D2LambdaResponse, avg_log2FC < 0)
 up <- filter(D2LambdaResponse, avg_log2FC >= 0)
 D2LambdaResponse <- data.frame(Gene = D2LambdaResponse$gene, Log2FoldChange = D2LambdaResponse$avg_log2FC)  
-write.csv(D2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/mdcsLambdaResponse.csv", row.names = FALSE)
+saveRDS(D2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/mdcsLambdaResponse.rds")
 
 # 3. pDCs : only in alpha dataset, therefore no DEG
-# system.time(D3AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "pDCs_alpha", ident.2 = "pDCs_untreated", sep = "_")) 
+# D3AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "pDCs_alpha", ident.2 = "pDCs_untreated", sep = "_")
 # D3AlphaResponse$gene <- rownames(D3AlphaResponse)
 # D3AlphaResponse <- filter(D3AlphaResponse, p_val_adj < 0.05)
 # down <- filter(D3AlphaResponse, avg_log2FC < 0)
 # up <- filter(D3AlphaResponse, avg_log2FC >= 0)
-# D3AlphaResponse <- data.frame(Gene = D3AlphaResponse$gene, Log2FoldChange = D3AlphaResponse$avg_log2FC)  
-# write.csv(D3AlphaResponse, "honours/results/FinalIndex/DEAnalysis/pdcsAlphaResponse.csv", row.names = FALSE)
+# D3AlphaResponse <- data.frame(Gene = D3AlphaResponse$gene, Log2FoldChange = D3AlphaResponse$avg_log2FC)
+# saveRDS(D3AlphaResponse, "honours/results/FinalIndex/DEAnalysis/pdcsAlphaResponse.rds")
 # 
-# system.time(D3LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "pDCs_lambda", ident.2 = "pDCs_untreated", sep = "_")) 
-# D3LambdaResponse$gene <- rownames(D3LambdaResponse) 
+# D3LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "pDCs_lambda", ident.2 = "pDCs_untreated", sep = "_")
+# D3LambdaResponse$gene <- rownames(D3LambdaResponse)
 # D3LambdaResponse <- filter(D3LambdaResponse, p_val_adj < 0.05)
 # down <- filter(D3LambdaResponse, avg_log2FC < 0)
 # up <- filter(D3LambdaResponse, avg_log2FC >= 0)
-# D3LambdaResponse <- data.frame(Gene = D3LambdaResponse$gene, Log2FoldChange = D3LambdaResponse$avg_log2FC)  
-# write.csv(D3LambdaResponse, "honours/results/FinalIndex/DEAnalysis/pdcsLambdaResponse.csv", row.names = FALSE)
+# D3LambdaResponse <- data.frame(Gene = D3LambdaResponse$gene, Log2FoldChange = D3LambdaResponse$avg_log2FC)
+# saveRDS(D3LambdaResponse, "honours/results/FinalIndex/DEAnalysis/pdcsLambdaResponse.csv")
 
 # PLATELETS : 
-system.time(PAlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_alpha", ident.2 = "platelets_untreated", sep = "_"))
+PAlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_alpha", ident.2 = "platelets_untreated", sep = "_")
 PAlphaResponse$gene <- rownames(PAlphaResponse)
 PAlphaResponse <- filter(PAlphaResponse, p_val_adj < 0.05)
 down <- filter(PAlphaResponse, avg_log2FC < 0)
 up <- filter(PAlphaResponse, avg_log2FC >= 0)
-PAlphaResponse <- data.frame(Gene = PAlphaResponse$gene, Log2FoldChange = PAlphaResponse$avg_log2FC)  
-write.csv(PAlphaResponse, "honours/results/FinalIndex/DEAnalysis/plateletsAlphaResponse.csv", row.names = FALSE)
+saveRDS(PAlphaResponse, "honours/results/FinalIndex/DEAnalysis/plateletsAlphaResponse.rds")
 
-system.time(PLambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_lambda", ident.2 = "platelets_untreated", sep = "_"))
+PLambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_lambda", ident.2 = "platelets_untreated", sep = "_")
 PLambdaResponse$gene <- rownames(PLambdaResponse) 
 PLambdaResponse <- filter(PLambdaResponse, p_val_adj < 0.05)
 down <- filter(PLambdaResponse, avg_log2FC < 0)
 up <- filter(PLambdaResponse, avg_log2FC >= 0)
-PLambdaResponse <- data.frame(Gene = PLambdaResponse$gene, Log2FoldChange = PLambdaResponse$avg_log2FC)  
-write.csv(PLambdaResponse, "honours/results/FinalIndex/DEAnalysis/plateletsLambdaResponse.csv", row.names = FALSE)
+saveRDS(PLambdaResponse, "honours/results/FinalIndex/DEAnalysis/plateletsLambdaResponse.rds")
 
 # T CELL TYPES : 
 # 1. T cells
-system.time(T1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_alpha", ident.2 = "T_untreated", sep = "_")) 
+T1AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_alpha", ident.2 = "T_untreated", sep = "_") 
 T1AlphaResponse$gene <- rownames(T1AlphaResponse)
 T1AlphaResponse <- filter(T1AlphaResponse, p_val_adj < 0.05)
 down <- filter(T1AlphaResponse, avg_log2FC < 0)
 up <- filter(T1AlphaResponse, avg_log2FC >= 0)
-T1AlphaResponse <- data.frame(Gene = T1AlphaResponse$gene, Log2FoldChange = T1AlphaResponse$avg_log2FC)  
-write.csv(T1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/TAlphaResponse.csv", row.names = FALSE)
+saveRDS(T1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/TAlphaResponse.rds")
 
-system.time(T1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_lambda", ident.2 = "T_untreated", sep = "_")) 
+T1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_lambda", ident.2 = "T_untreated", sep = "_") 
 T1LambdaResponse$gene <- rownames(T1LambdaResponse) 
 T1LambdaResponse <- filter(T1LambdaResponse, p_val_adj < 0.05)
 down <- filter(T1LambdaResponse, avg_log2FC < 0)
 up <- filter(T1LambdaResponse, avg_log2FC >= 0)
-T1LambdaResponse <- data.frame(Gene = T1LambdaResponse$gene, Log2FoldChange = T1LambdaResponse$avg_log2FC)  
-write.csv(T1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/TLambdaResponse.csv", row.names = FALSE)
+saveRDS(T1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/TLambdaResponse.rds")
 
 # 2. CD4+ helper T 
-system.time(T2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_helper_alpha", ident.2 = "CD4+_helper_untreated", sep = "_"))  
+T2AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_helper_alpha", ident.2 = "CD4+_helper_untreated", sep = "_")  
 T2AlphaResponse$gene <- rownames(T2AlphaResponse) 
 T2AlphaResponse  <- filter(T2AlphaResponse , p_val_adj < 0.05)
 down <- filter(T2AlphaResponse, avg_log2FC < 0)
 up <- filter(T2AlphaResponse, avg_log2FC >= 0)
-T2AlphaResponse <- data.frame(Gene = T2AlphaResponse$gene, Log2FoldChange = T2AlphaResponse$avg_log2FC)  
-write.csv(T2AlphaResponse, "honours/results/FinalIndex/DEAnalysis/CD4hAlphaResponse.csv", row.names = FALSE)
+saveRDS(T2AlphaResponse, "honours/results/FinalIndex/DEAnalysis/CD4hAlphaResponse.rds")
 
-system.time(T2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_helper_lambda", ident.2 = "CD4+_helper_untreated", sep = "_"))  
+T2LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_helper_lambda", ident.2 = "CD4+_helper_untreated", sep = "_")  
 T2LambdaResponse$gene <- rownames(T2LambdaResponse)
 T2LambdaResponse <- filter(T2LambdaResponse, p_val_adj < 0.05)
 down <- filter(T2LambdaResponse, avg_log2FC < 0)
 up <- filter(T2LambdaResponse, avg_log2FC >= 0)
-T2LambdaResponse <- data.frame(Gene = T2LambdaResponse$gene, Log2FoldChange = T2LambdaResponse$avg_log2FC)  
-write.csv(T2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/CD4hLambdaResponse.csv", row.names = FALSE)
+saveRDS(T2LambdaResponse, "honours/results/FinalIndex/DEAnalysis/CD4hLambdaResponse.rds")
 
 # 3. Naive CD8 T cells 
-system.time(T3AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "naive_CD8+_T_alpha", ident.2 = "naive_CD8+_T_untreated", sep = "_")) 
+T3AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "naive_CD8+ T_alpha", ident.2 = "naive_CD8+ T_untreated", sep = "_") 
 T3AlphaResponse$gene <- rownames(T3AlphaResponse) 
 T3AlphaResponse <- filter(T3AlphaResponse, p_val_adj < 0.05)
 down <- filter(T3AlphaResponse, avg_log2FC < 0)
 up <- filter(T3AlphaResponse, avg_log2FC >= 0)
-T3AlphaResponse <- data.frame(Gene = T3AlphaResponse$gene, Log2FoldChange = T3AlphaResponse$avg_log2FC)  
-write.csv(T3AlphaResponse, "honours/results/FinalIndex/DEAnalysis/naivecd8AlphaResponse.csv", row.names = FALSE)
+saveRDS(T3AlphaResponse, "honours/results/FinalIndex/DEAnalysis/naivecd8AlphaResponse.rds")
 
-system.time(T3LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "naive_CD8+_T_lambda", ident.2 = "naive_CD8+_T_untreated", sep = "_"))
+T3LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "naive_CD8+ T_lambda", ident.2 = "naive_CD8+ T_untreated", sep = "_")
 T3LambdaResponse$gene <- rownames(T3LambdaResponse)
 T3LambdaResponse <- filter(T3LambdaResponse, p_val_adj < 0.05)
 down <- filter(T3LambdaResponse, avg_log2FC < 0)
 up <- filter(T3LambdaResponse, avg_log2FC >= 0)
-T3LambdaResponse <- data.frame(Gene = T3LambdaResponse$gene, Log2FoldChange = T3LambdaResponse$avg_log2FC)  
-write.csv(T3LambdaResponse, "honours/results/FinalIndex/DEAnalysis/naivecd8LambdaResponse.csv", row.names = FALSE)
+saveRDS(T3LambdaResponse, "honours/results/FinalIndex/DEAnalysis/naivecd8LambdaResponse.rds")
  
 # 4. NKT 
-system.time(T4AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NKT_alpha", ident.2 = "NKT_untreated", sep = "_"))  
+T4AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NKT_alpha", ident.2 = "NKT_untreated", sep = "_")  
 T4AlphaResponse$gene <- rownames(T4AlphaResponse) 
 T4AlphaResponse <- filter(T4AlphaResponse, p_val_adj < 0.05)
 down <- filter(T4AlphaResponse, avg_log2FC < 0)
 up <- filter(T4AlphaResponse, avg_log2FC >= 0)
-T4AlphaResponse <- data.frame(Gene = T4AlphaResponse$gene, Log2FoldChange = T4AlphaResponse$avg_log2FC)  
-write.csv(T4AlphaResponse, "honours/results/FinalIndex/DEAnalysis/NKTAlphaResponse.csv", row.names = FALSE)
+saveRDS(T4AlphaResponse, "honours/results/FinalIndex/DEAnalysis/NKTAlphaResponse.rds")
 
-system.time(T4LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NKT_lambda", ident.2 = "NKT_untreated", sep = "_"))
+T4LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NKT_lambda", ident.2 = "NKT_untreated", sep = "_")
 T4LambdaResponse$gene <- rownames(T4LambdaResponse)
 T4LambdaResponse <- filter(T4LambdaResponse, p_val_adj < 0.05)
 down <- filter(T4LambdaResponse, avg_log2FC < 0)
 up <- filter(T4LambdaResponse, avg_log2FC >= 0)
-T4LambdaResponse <- data.frame(Gene = T4LambdaResponse$gene, Log2FoldChange = T4LambdaResponse$avg_log2FC)  
-write.csv(T4LambdaResponse, "honours/results/FinalIndex/DEAnalysis/NKTLambdaResponse.csv", row.names = FALSE)
+saveRDS(T4LambdaResponse, "honours/results/FinalIndex/DEAnalysis/NKTLambdaResponse.rds")
 
 # 5. cytotoxic cd8 t cells : 
-system.time(T5AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "cytotoxic_CD8+_T_alpha", ident.2 = "cytotoxic_CD8+_T_untreated", sep = "_")) 
+T5AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "cytotoxic_CD8+_T_alpha", ident.2 = "cytotoxic_CD8+_T_untreated", sep = "_")
 T5AlphaResponse$gene <- rownames(T5AlphaResponse) 
 T5AlphaResponse <- filter(T5AlphaResponse, p_val_adj < 0.05)
 down <- filter(T5AlphaResponse, avg_log2FC < 0)
 up <- filter(T5AlphaResponse, avg_log2FC >= 0)
-T5AlphaResponse <- data.frame(Gene = T5AlphaResponse$gene, Log2FoldChange = T5AlphaResponse$avg_log2FC)  
-write.csv(T5AlphaResponse, "honours/results/FinalIndex/DEAnalysis/cytotoxiccd8AlphaResponse.csv", row.names = FALSE)
+saveRDS(T5AlphaResponse, "honours/results/FinalIndex/DEAnalysis/cytotoxiccd8AlphaResponse.rds")
 
-system.time(T5LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "cytotoxic_CD8+_T_lambda", ident.2 = "cytotoxic_CD8+_T_untreated", sep = "_")) 
+T5LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "cytotoxic_CD8+_T_lambda", ident.2 = "cytotoxic_CD8+_T_untreated", sep = "_") 
 T5LambdaResponse$gene <- rownames(T5LambdaResponse)
 T5LambdaResponse <- filter(T5LambdaResponse, p_val_adj < 0.05)
 down <- filter(T5LambdaResponse, avg_log2FC < 0)
 up <- filter(T5LambdaResponse, avg_log2FC >= 0)
-T5LambdaResponse <- data.frame(Gene = T5LambdaResponse$gene, Log2FoldChange = T5LambdaResponse$avg_log2FC)  
-write.csv(T5LambdaResponse, "honours/results/FinalIndex/DEAnalysis/cytotoxiccd8LambdaResponse.csv", row.names = FALSE)
+saveRDS(T5LambdaResponse, "honours/results/FinalIndex/DEAnalysis/cytotoxiccd8LambdaResponse.rds")
 
 # 6. Tregs : 
-system.time(T6AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Tregs_alpha", ident.2 = "Tregs_untreated", sep = "_")) 
+T6AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Tregs_alpha", ident.2 = "Tregs_untreated", sep = "_") 
 T6AlphaResponse$gene <- rownames(T6AlphaResponse) 
 T6AlphaResponse <- filter(T6AlphaResponse, p_val_adj < 0.05)
 down <- filter(T6AlphaResponse, avg_log2FC < 0)
 up <- filter(T6AlphaResponse, avg_log2FC >= 0)
-T6AlphaResponse <- data.frame(Gene = T6AlphaResponse$gene, Log2FoldChange = T6AlphaResponse$avg_log2FC)  
-write.csv(T6AlphaResponse, "honours/results/FinalIndex/DEAnalysis/tregsAlphaResponse.csv", row.names = FALSE)
+saveRDS(T6AlphaResponse, "honours/results/FinalIndex/DEAnalysis/tregsAlphaResponse.rds")
 
-system.time(T6LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Tregs_lambda", ident.2 = "Tregs_untreated", sep = "_")) 
+T6LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "Tregs_lambda", ident.2 = "Tregs_untreated", sep = "_") 
 T6LambdaResponse$gene <- rownames(T6LambdaResponse)
 T6LambdaResponse <- filter(T6LambdaResponse, p_val_adj < 0.05)
 down <- filter(T6LambdaResponse, avg_log2FC < 0)
 up <- filter(T6LambdaResponse, avg_log2FC >= 0)
-T6LambdaResponse <- data.frame(Gene = T6LambdaResponse$gene, Log2FoldChange = T6LambdaResponse$avg_log2FC)  
-write.csv(T6LambdaResponse, "honours/results/FinalIndex/DEAnalysis/tregsLambdaResponse.csv", row.names = FALSE)
+saveRDS(T6LambdaResponse, "honours/results/FinalIndex/DEAnalysis/tregsLambdaResponse.rds")
  
 # 7. CD4+ T cells : 
-system.time(T7AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_T_alpha", ident.2 = "CD4+_T_untreated", sep = "_")) 
+T7AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_T_alpha", ident.2 = "CD4+_T_untreated", sep = "_") 
 T7AlphaResponse$gene <- rownames(T7AlphaResponse) 
 T7AlphaResponse <- filter(T7AlphaResponse, p_val_adj < 0.05)
 down <- filter(T7AlphaResponse, avg_log2FC < 0)
 up <- filter(T7AlphaResponse, avg_log2FC >= 0)
-T7AlphaResponse <- data.frame(Gene = T7AlphaResponse$gene, Log2FoldChange = T7AlphaResponse$avg_log2FC)  
-write.csv(T7AlphaResponse, "honours/results/FinalIndex/DEAnalysis/cd4AlphaResponse.csv", row.names = FALSE)
+saveRDS(T7AlphaResponse, "honours/results/FinalIndex/DEAnalysis/cd4AlphaResponse.rds")
 
-system.time(T7LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_T_lambda", ident.2 = "CD4+_T_untreated", sep = "_"))
+T7LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "CD4+_T_lambda", ident.2 = "CD4+_T_untreated", sep = "_")
 T7LambdaResponse$gene <- rownames(T7LambdaResponse)
 T7LambdaResponse <- filter(T7LambdaResponse, p_val_adj < 0.05)
 down <- filter(T7LambdaResponse, avg_log2FC < 0)
 up <- filter(T7LambdaResponse, avg_log2FC >= 0)
-T7LambdaResponse <- data.frame(Gene = T7LambdaResponse$gene, Log2FoldChange = T7LambdaResponse$avg_log2FC)  
-write.csv(T7LambdaResponse, "honours/results/FinalIndex/DEAnalysis/cd4LambdaResponse.csv", row.names = FALSE)
+saveRDS(T7LambdaResponse, "honours/results/FinalIndex/DEAnalysis/cd4LambdaResponse.rds")
 
 # 8. NK cells 
-system.time(T8AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NK_alpha", ident.2 = "NK_untreated", sep = "_"))
+T8AlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NK_alpha", ident.2 = "NK_untreated", sep = "_")
 T8AlphaResponse$gene <- rownames(T8AlphaResponse) 
 T8AlphaResponse <- filter(T8AlphaResponse, p_val_adj < 0.05)
 down <- filter(T8AlphaResponse, avg_log2FC < 0)
 up <- filter(T8AlphaResponse, avg_log2FC >= 0)
-T8AlphaResponse <- data.frame(Gene = T8AlphaResponse$gene, Log2FoldChange = T8AlphaResponse$avg_log2FC)  
-write.csv(T8AlphaResponse, "honours/results/FinalIndex/DEAnalysis/NKAlphaResponse.csv", row.names = FALSE)
+saveRDS(T8AlphaResponse, "honours/results/FinalIndex/DEAnalysis/NKAlphaResponse.rds")
 
-system.time(T8LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NK_lambda", ident.2 = "NK_untreated", sep = "_")) 
+T8LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "NK_lambda", ident.2 = "NK_untreated", sep = "_") 
 T8LambdaResponse$gene <- rownames(T8LambdaResponse)
 T8LambdaResponse <- filter(T8LambdaResponse, p_val_adj < 0.05)
 down <- filter(T8LambdaResponse, avg_log2FC < 0)
 up <- filter(T8LambdaResponse, avg_log2FC >= 0)
-T8LambdaResponse <- data.frame(Gene = T8LambdaResponse$gene, Log2FoldChange = T8LambdaResponse$avg_log2FC)  
-write.csv(T8LambdaResponse, "honours/results/FinalIndex/DEAnalysis/NKLambdaResponse.csv", row.names = FALSE)
+saveRDS(T8LambdaResponse, "honours/results/FinalIndex/DEAnalysis/NKLambdaResponse.rds")
 
 # B CELLS 
-system.time(BAlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_alpha", ident.2 = "B_untreated", sep = "_")) 
+BAlphaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_alpha", ident.2 = "B_untreated", sep = "_") 
 BAlphaResponse$gene <- rownames(BAlphaResponse) 
 BAlphaResponse <- filter(BAlphaResponse, p_val_adj < 0.05)
 down <- filter(BAlphaResponse, avg_log2FC < 0)
 up <- filter(BAlphaResponse, avg_log2FC >= 0)
-BAlphaResponse <- data.frame(Gene = BAlphaResponse$gene, Log2FoldChange = BAlphaResponse$avg_log2FC)  
-write.csv(BAlphaResponse, "honours/results/FinalIndex/DEAnalysis/BAlphaResponse.csv", row.names = FALSE)
+saveRDS(BAlphaResponse, "honours/results/FinalIndex/DEAnalysis/BAlphaResponse.rds")
 
-system.time(BLambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_lambda", ident.2 = "B_untreated", sep = "_"))
+BLambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_lambda", ident.2 = "B_untreated", sep = "_")
 BLambdaResponse$gene <- rownames(BLambdaResponse)
 BLambdaResponse <- filter(BLambdaResponse, p_val_adj < 0.05)
 down <- filter(BLambdaResponse, avg_log2FC < 0)
 up <- filter(BLambdaResponse, avg_log2FC >= 0)
-BLambdaResponse <- data.frame(Gene = BLambdaResponse$gene, Log2FoldChange = BLambdaResponse$avg_log2FC)  
-write.csv(BLambdaResponse, "honours/results/FinalIndex/DEAnalysis/BLambdaResponse.csv", row.names = FALSE)
+saveRDS(BLambdaResponse, "honours/results/FinalIndex/DEAnalysis/BLambdaResponse.rds")
 
 
 
 ##### [2.2] DE with FindMarkers() on broad cell types () #####
+treatment <- readRDS("honours/results/FinalIndex/adjtreatment.rds")
+DefaultAssay(treatment) <- "RNA"
 
 # change annotations to create larger groups to test DE on : 
 TreatmentAnnotated <- RenameIdents(treatment, 
@@ -353,16 +327,14 @@ MAResponse$gene <- rownames(MAResponse) # puts gene names into a column
 MAResponse <- filter(MAResponse, p_val_adj < 0.05)
 down <- filter(MAResponse, avg_log2FC < 0)
 up <- filter(MAResponse, avg_log2FC >= 0)
-MAResponse <- data.frame(Gene = MAResponse$gene, Log2FoldChange = MAResponse$avg_log2FC)  # for cluster profiler 
-write.csv(MAResponse, "honours/results/FinalIndex/DEAnalysis/MyeloidAlphaResponse.csv", row.names = FALSE)
+saveRDS(MAResponse, "honours/results/FinalIndex/DEAnalysis/MyeloidAlphaResponse.rds")
 
 system.time(MLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "myeloid_lambda", ident.2 = "myeloid_untreated", sep = "_"))
 MLResponse$gene <- rownames(MLResponse) # puts gene names into a column
 MLResponse <- filter(MLResponse, p_val_adj < 0.05)
 down <- filter(MLResponse, avg_log2FC < 0)
 up <- filter(MLResponse, avg_log2FC >= 0)
-MLResponse <- data.frame(Gene = MLResponse$gene, Log2FoldChange = MLResponse$avg_log2FC)  # for cluster profiler 
-write.csv(MLResponse, "honours/results/FinalIndex/DEAnalysis/MyeloidLambdaResponse.csv", row.names = FALSE)
+saveRDS(MLResponse, "honours/results/FinalIndex/DEAnalysis/MyeloidLambdaResponse.rds")
 
 # Dendritic cell types : 
 system.time(DAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_alpha", ident.2 = "DCs_untreated", sep = "_"))
@@ -370,33 +342,15 @@ DAResponse$gene <- rownames(DAResponse) # puts gene names into a column
 DAResponse <- filter(DAResponse, p_val_adj < 0.05)
 down <- filter(DAResponse, avg_log2FC < 0)
 up <- filter(DAResponse, avg_log2FC >= 0)
-DAResponse <- data.frame(Gene = DAResponse$gene, Log2FoldChange = DAResponse$avg_log2FC)  # for cluster profiler 
-write.csv(DAResponse, "honours/results/FinalIndex/DEAnalysis/DendriticAlphaResponse.csv", row.names = FALSE)
+saveRDS(DAResponse, "honours/results/FinalIndex/DEAnalysis/DendriticAlphaResponse.rds")
 
 system.time(DLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "DCs_lambda", ident.2 = "DCs_untreated", sep = "_"))
 DLResponse$gene <- rownames(DLResponse) # puts gene names into a column
 DLResponse <- filter(DLResponse, p_val_adj < 0.05)
 down <- filter(DLResponse, avg_log2FC < 0)
 up <- filter(DLResponse, avg_log2FC >= 0)
-DLResponse <- data.frame(Gene = DLResponse$gene, Log2FoldChange = DLResponse$avg_log2FC)  # for cluster profiler 
-write.csv(DLResponse, "honours/results/FinalIndex/DEAnalysis/DendriticLambdaResponse.csv", row.names = FALSE)
+saveRDS(DLResponse, "honours/results/FinalIndex/DEAnalysis/DendriticLambdaResponse.rds")
 
-# Platelets : 
-system.time(PAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_alpha", ident.2 = "platelets_untreated", sep = "_"))
-PAResponse$gene <- rownames(PAResponse) # puts gene names into a column
-PAResponse <- filter(PAResponse, p_val_adj < 0.05)
-down <- filter(PAResponse, avg_log2FC < 0)
-up <- filter(PAResponse, avg_log2FC >= 0)
-PAResponse <- data.frame(Gene = PAResponse$gene, Log2FoldChange = PAResponse$avg_log2FC)  # for cluster profiler 
-write.csv(PAResponse, "honours/results/FinalIndex/DEAnalysis/PlateletsAlphaResponse.csv", row.names = FALSE)
-
-system.time(PLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "platelets_lambda", ident.2 = "platelets_untreated", sep = "_"))
-PLResponse$gene <- rownames(PLResponse) # puts gene names into a column
-PLResponse <- filter(PLResponse, p_val_adj < 0.05)
-down <- filter(PLResponse, avg_log2FC < 0)
-up <- filter(PLResponse, avg_log2FC >= 0)
-PLResponse <- data.frame(Gene = PLResponse$gene, Log2FoldChange = PLResponse$avg_log2FC)  # for cluster profiler 
-write.csv(PLResponse, "honours/results/FinalIndex/DEAnalysis/PlateletsLambdaResponse.csv", row.names = FALSE)
 
 # T cells : 
 system.time(TAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_alpha", ident.2 = "T_untreated", sep = "_"))
@@ -404,33 +358,14 @@ TAResponse$gene <- rownames(TAResponse) # puts gene names into a column
 TAResponse <- filter(TAResponse, p_val_adj < 0.05)
 down <- filter(TAResponse, avg_log2FC < 0)
 up <- filter(TAResponse, avg_log2FC >= 0)
-TAResponse <- data.frame(Gene = TAResponse$gene, Log2FoldChange = TAResponse$avg_log2FC)  # for cluster profiler 
-write.csv(TAResponse, "honours/results/FinalIndex/DEAnalysis/TAlphaResponse.csv", row.names = FALSE)
+saveRDS(TAResponse, "honours/results/FinalIndex/DEAnalysis/allTAlphaResponse.rds")
 
 system.time(TLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "T_lambda", ident.2 = "T_untreated", sep = "_"))
 TLResponse$gene <- rownames(TLResponse) # puts gene names into a column
 TLResponse <- filter(TLResponse, p_val_adj < 0.05)
 down <- filter(TLResponse, avg_log2FC < 0)
 up <- filter(TLResponse, avg_log2FC >= 0)
-TLResponse <- data.frame(Gene = TLResponse$gene, Log2FoldChange = TLResponse$avg_log2FC)  # for cluster profiler 
-write.csv(TLResponse, "honours/results/FinalIndex/DEAnalysis/TLambdaResponse.csv", row.names = FALSE)
-
-# B cells : 
-system.time(BAResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_alpha", ident.2 = "B_untreated", sep = "_"))
-BAResponse$gene <- rownames(BAResponse) # puts gene names into a column
-BAResponse <- filter(BAResponse, p_val_adj < 0.05)
-down <- filter(BAResponse, avg_log2FC < 0)
-up <- filter(BAResponse, avg_log2FC >= 0)
-BAResponse <- data.frame(Gene = BAResponse$gene, Log2FoldChange = BAResponse$avg_log2FC)  # for cluster profiler 
-write.csv(BAResponse, "honours/results/FinalIndex/DEAnalysis/BAlphaResponse.csv", row.names = FALSE)
-
-system.time(BLResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "B_lambda", ident.2 = "B_untreated", sep = "_"))
-BLResponse$gene <- rownames(BLResponse) # puts gene names into a column
-BLResponse <- filter(BLResponse, p_val_adj < 0.05)
-down <- filter(BLResponse, avg_log2FC < 0)
-up <- filter(BLResponse, avg_log2FC >= 0)
-BLResponse <- data.frame(Gene = BLResponse$gene, Log2FoldChange = BLResponse$avg_log2FC)  # for cluster profiler 
-write.csv(BLResponse, "honours/results/FinalIndex/DEAnalysis/BLambdaResponse.csv", row.names = FALSE)
+saveRDS(TLResponse, "honours/results/FinalIndex/DEAnalysis/allTLambdaResponse.rds")
 
 
 ##### [2.3] Looking for common & unique DEGs #####
@@ -472,17 +407,15 @@ listDatasets(mart) # List available datasets for the Mart (214!)
 gene_ID <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"), 
                  mart = mart) 
 
-# 4: create a background universe from the 2000 most variable genes 
-# Assuming 'mySeurat' is your integrated Seurat object
-# Access the integrated assay slot
-integrated_assay <- TreatmentAnnotated@assays[["integrated"]]
-rna_assay <- rownames(TreatmentAnnotated@assays[['RNA']])
-# Get the 2000 most variable genes
-top_variable_genes <- rownames(integrated_assay)[order(integrated_assay, decreasing = TRUE)[1:2000]]
-universe <- select(org.Hs.eg.db, keys = rna_assay, keytype = "SYMBOL", columns = "ENTREZID")
-universe <- universe$ENTREZID
-
-
+# # 4: create a background universe from the 2000 most variable genes 
+# # Assuming 'mySeurat' is your integrated Seurat object
+# # Access the integrated assay slot
+# integrated_assay <- TreatmentAnnotated@assays[["integrated"]]
+# rna_assay <- rownames(TreatmentAnnotated@assays[['RNA']])
+# # Get the 2000 most variable genes
+# top_variable_genes <- rownames(integrated_assay)[order(integrated_assay, decreasing = TRUE)[1:2000]]
+# universe <- select(org.Hs.eg.db, keys = rna_assay, keytype = "SYMBOL", columns = "ENTREZID")
+# universe <- universe$ENTREZID
 
 
 #### REPITITION STARTS HERE : 
@@ -532,63 +465,60 @@ TLResponse <- merge(TLResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "externa
 
 # B cells 
 BAlphaResponse <- merge(BAlphaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name")
-
 BLambdaResponse <- unique(merge(BLambdaResponse, gene_ID[,c(2,3)], by.x = "gene", by.y = "external_gene_name"))
-BLambdaResponse <- BLambdaResponse[, c(-7, -8)]
 
 # 5 : create object to perform GO analysis on, just the entrezgene  id column : 
 # myeloid 
-M1AlphaDE <- M1AlphaResponse$entrezgene_id
-M1LambdaDE <- M1LambdaResponse$entrezgene_id.x
-M2AlphaDE <- M2AlphaResponse$entrezgene_id
-M2LambdaDE <- M2LambdaResponse$entrezgene_id
-MAlphaDE <- MAResponse$entrezgene_id
-MLambdaDE <- MLResponse$entrezgene_id
+M1AlphaDE <- na.omit(M1AlphaResponse$entrezgene_id)
+M1LambdaDE <- na.omit(M1LambdaResponse$entrezgene_id)
+M2AlphaDE <- na.omit(M2AlphaResponse$entrezgene_id)
+M2LambdaDE <- na.omit(M2LambdaResponse$entrezgene_id)
+MAlphaDE <- na.omit(MAResponse$entrezgene_id)
+MLambdaDE <- na.omit(MLResponse$entrezgene_id)
 
 # dendritic 
-D1AlphaDE <- D1AlphaResponse$entrezgene_id
-D1LambdaDE <- D1LambdaResponse$entrezgene_id
-D2AlphaDE <- D2AlphaResponse$entrezgene_id
-D2LambdaDE <- D2LambdaResponse$entrezgene_id
+D1AlphaDE <- na.omit(D1AlphaResponse$entrezgene_id)
+D1LambdaDE <- na.omit(D1LambdaResponse$entrezgene_id)
+D2AlphaDE <- na.omit(D2AlphaResponse$entrezgene_id)
+D2LambdaDE <- na.omit(D2LambdaResponse$entrezgene_id)
 # D3AlphaDE <- D3AlphaResponse$entrezgene_id
 # D3LambdaDE <- D3LambdaResponse$entrezgene_id
-DAlphaDE <- DAResponse$entrezgene_id
-DLambdaDE <- DLResponse$entrezgene_id
+DAlphaDE <- na.omit(DAResponse$entrezgene_id)
+DLambdaDE <- na.omit(DLResponse$entrezgene_id)
 
 # platelets 
-PAlphaDE <- PAlphaResponse$entrezgene_id
-PLambdaDE <- PLambdaResponse$entrezgene_id
+PAlphaDE <- na.omit(PAlphaResponse$entrezgene_id)
+PLambdaDE <- na.omit(PLambdaResponse$entrezgene_id)
 
 # T cells 
-T1AlphaDE <- T1AlphaResponse$entrezgene_id
-T1LambdaDE <- T1LambdaResponse$entrezgene_id
-T2AlphaDE <- T2AlphaResponse$entrezgene_id
-T2LambdaDE <- T2LambdaResponse$entrezgene_id
-T3AlphaDE <- T3AlphaResponse$entrezgene_id
-T3LambdaDE <- T3LambdaResponse$entrezgene_id
-T4AlphaDE <- T4AlphaResponse$entrezgene_id
-T4LambdaDE <- T4LambdaResponse$entrezgene_id
-T5AlphaDE <- T5AlphaResponse$entrezgene_id
-T5LambdaDE <- T5LambdaResponse$entrezgene_id
-T6AlphaDE <- T6AlphaResponse$entrezgene_id
-T6LambdaDE <- T6LambdaResponse$entrezgene_id
-T7AlphaDE <- T7AlphaResponse$entrezgene_id
-T7LambdaDE <- T7LambdaResponse$entrezgene_id
-T8AlphaDE <- T8AlphaResponse$entrezgene_id
-T8LambdaDE <- T8LambdaResponse$entrezgene_id
-TAlphaDE <- TAResponse$entrezgene_id
-TLambdaDE <- TLResponse$entrezgene_id
+T1AlphaDE <- na.omit(T1AlphaResponse$entrezgene_id)
+T1LambdaDE <- na.omit(T1LambdaResponse$entrezgene_id)
+T2AlphaDE <- na.omit(T2AlphaResponse$entrezgene_id)
+T2LambdaDE <- na.omit(T2LambdaResponse$entrezgene_id)
+T3AlphaDE <- na.omit(T3AlphaResponse$entrezgene_id)
+T3LambdaDE <- na.omit(T3LambdaResponse$entrezgene_id)
+T4AlphaDE <- na.omit(T4AlphaResponse$entrezgene_id)
+T4LambdaDE <- na.omit(T4LambdaResponse$entrezgene_id)
+T5AlphaDE <- na.omit(T5AlphaResponse$entrezgene_id)
+T5LambdaDE <- na.omit(T5LambdaResponse$entrezgene_id)
+T6AlphaDE <- na.omit(T6AlphaResponse$entrezgene_id)
+T6LambdaDE <- na.omit(T6LambdaResponse$entrezgene_id)
+T7AlphaDE <- na.omit(T7AlphaResponse$entrezgene_id)
+T7LambdaDE <- na.omit(T7LambdaResponse$entrezgene_id)
+T8AlphaDE <- na.omit(T8AlphaResponse$entrezgene_id)
+T8LambdaDE <- na.omit(T8LambdaResponse$entrezgene_id)
+TAlphaDE <- na.omit(TAResponse$entrezgene_id)
+TLambdaDE <- na.omit(TLResponse$entrezgene_id)
 
 # B cells 
-BAlphaDE <- BAlphaResponse$entrezgene_id
-BLambdaDE <- BLambdaResponse$entrezgene_id
+BAlphaDE <- na.omit(BAlphaResponse$entrezgene_id)
+BLambdaDE <- na.omit(BLambdaResponse$entrezgene_id)
 
 # 6 : perform GO analysis 
 ?enrichGO
 
-
 # Myeloid  
-M1AlphaEGO <- enrichGO(gene = M1AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH", universe = universe, pvalueCutoff = 0.05)
+M1AlphaEGO <- enrichGO(gene = M1AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH", pvalueCutoff = 0.05)
 M1AlphaEGO <- filter(M1AlphaEGO, M1AlphaEGO@result$p.adjust < 0.05)
 M1LambdaEGO <- enrichGO(gene = M1LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 M1LambdaEGO <- filter(M1LambdaEGO, M1LambdaEGO@result$p.adjust < 0.05)
@@ -604,46 +534,41 @@ MLambdaEGO <- filter(MLambdaEGO, MLambdaEGO@result$p.adjust < 0.05)
 # Dendritic cells ; 
 D1AlphaEGO <- enrichGO(gene = D1AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 D1AlphaEGO <- filter(D1AlphaEGO, D1AlphaEGO@result$p.adjust < 0.05)
-D1LambdaEGO <- enrichGO(gene = D1LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
-D1LambdaEGO <- filter(D1LambdaEGO, D1LambdaEGO@result$p.adjust < 0.05)
+# D1LambdaEGO <- enrichGO(gene = D1LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+# D1LambdaEGO <- filter(D1LambdaEGO, D1LambdaEGO@result$p.adjust < 0.05)
 D2AlphaEGO <- enrichGO(gene = D2AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 D2AlphaEGO <- filter(D2AlphaEGO, D2AlphaEGO@result$p.adjust < 0.05)
-D2LambdaEGO <- enrichGO(gene = D2LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
-D2LambdaEGO <- filter(D2LambdaEGO, D2LambdaEGO@result$p.adjust < 0.05)
+# D2LambdaEGO <- enrichGO(gene = D2LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+# D2LambdaEGO <- filter(D2LambdaEGO, D2LambdaEGO@result$p.adjust < 0.05)
 # D3AlphaEGO <- enrichGO(gene = D3AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 # D3AlphaEGO <- filter(D3AlphaEGO, D3AlphaEGO@result$p.adjust < 0.05)
 # D3LambdaEGO <- enrichGO(gene = D3LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 # D3LambdaEGO <- filter(D3LambdaEGO, D3LambdaEGO@result$p.adjust < 0.05)
 DAlphaEGO <- enrichGO(gene = DAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 DAlphaEGO <- filter(DAlphaEGO, DAlphaEGO@result$p.adjust < 0.05)
-DLambdaEGO <- enrichGO(gene = DLambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
-DLambdaEGO <- filter(DLambdaEGO, DLambdaEGO@result$p.adjust < 0.05)
+
 
 # Platelets 
 PAlphaEGO <- enrichGO(gene = PAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 PAlphaEGO <- filter(PAlphaEGO, PAlphaEGO@result$p.adjust < 0.05)
-PLambdaEGO <- enrichGO(gene = PLambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
-PLambdaEGO <- filter(PLambdaEGO, PLambdaEGO@result$p.adjust < 0.05)
+# PLambdaEGO <- enrichGO(gene = PLambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+# PLambdaEGO <- filter(PLambdaEGO, PLambdaEGO@result$p.adjust < 0.05)
 
 # T cells  
 T1AlphaEGO <- enrichGO(gene = T1AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 T1AlphaEGO <- filter(T1AlphaEGO, T1AlphaEGO@result$p.adjust < 0.05)
-T1_Alpha <- T1AlphaEGO@result$Description
-# T1LambdaEGO <- enrichGO(gene = T1LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
-# T1LambdaEGO <- filter(T1LambdaEGO, T1LambdaEGO@result$p.adjust < 0.05)
+T1LambdaEGO <- enrichGO(gene = T1LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T1LambdaEGO <- filter(T1LambdaEGO, T1LambdaEGO@result$p.adjust < 0.05)
 T2AlphaEGO <- enrichGO(gene = T2AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 T2AlphaEGO <- filter(T2AlphaEGO, T2AlphaEGO@result$p.adjust < 0.05)
-T2_Alpha <- T2AlphaEGO@result$Description
-# T2LambdaEGO <- enrichGO(gene = T2LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
-# T2LambdaEGO <- filter(T2LambdaEGO, T2LambdaEGO@result$p.adjust < 0.05)
+T2LambdaEGO <- enrichGO(gene = T2LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+T2LambdaEGO <- filter(T2LambdaEGO, T2LambdaEGO@result$p.adjust < 0.05)
 T3AlphaEGO <- enrichGO(gene = T3AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 T3AlphaEGO <- filter(T3AlphaEGO, T3AlphaEGO@result$p.adjust < 0.05)
 T3LambdaEGO <- enrichGO(gene = T3LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 T3LambdaEGO <- filter(T3LambdaEGO, T3LambdaEGO@result$p.adjust < 0.05)
-T3_Lambda <- T3LambdaEGO@result$Description
 T4AlphaEGO <- enrichGO(gene = T4AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 T4AlphaEGO <- filter(T4AlphaEGO, T4AlphaEGO@result$p.adjust < 0.05)
-T4_Alpha <- T4AlphaEGO@result$Description
 T4LambdaEGO <- enrichGO(gene = T4LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 T4LambdaEGO <- filter(T4LambdaEGO, T4LambdaEGO@result$p.adjust < 0.05)
 T5AlphaEGO <- enrichGO(gene = T5AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
@@ -656,8 +581,8 @@ T6LambdaEGO <- enrichGO(gene = T6LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTR
 T6LambdaEGO <- filter(T6LambdaEGO, T6LambdaEGO@result$p.adjust < 0.05)
 T7AlphaEGO <- enrichGO(gene = T7AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 T7AlphaEGO <- filter(T7AlphaEGO, T7AlphaEGO@result$p.adjust < 0.05)
-T7LambdaEGO <- enrichGO(gene = T7LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
-T7LambdaEGO <- filter(T7LambdaEGO, T7LambdaEGO@result$p.adjust < 0.05)
+# T7LambdaEGO <- enrichGO(gene = T7LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
+# T7LambdaEGO <- filter(T7LambdaEGO, T7LambdaEGO@result$p.adjust < 0.05)
 T8AlphaEGO <- enrichGO(gene = T8AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 T8AlphaEGO <- filter(T8AlphaEGO, T8AlphaEGO@result$p.adjust < 0.05)
 T8LambdaEGO <- enrichGO(gene = T8LambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
@@ -666,18 +591,50 @@ TAlphaEGO <- enrichGO(gene = TAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID
 TAlphaEGO <- filter(TAlphaEGO, TAlphaEGO@result$p.adjust < 0.05)
 TLambdaEGO <- enrichGO(gene = TLambdaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",pvalueCutoff = 0.05)
 TLambdaEGO <- filter(TLambdaEGO, TLambdaEGO@result$p.adjust < 0.05)
-T_Alpha <- TAlphaEGO@result$Description
 
 # B CELLS 
-BAlphaEGO <- enrichGO(gene = BAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH", pvalueCutoff = 0.05, universe = universe)
+BAlphaEGO <- enrichGO(gene = BAlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH", pvalueCutoff = 0.05)
 BAlphaEGO <- filter(BAlphaEGO, BAlphaEGO@result$p.adjust < 0.05)
-BLambdaEGO <- enrichGO(gene = BLambdaDE, OrgDb = org.Hs.eg.db,keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",  pvalueCutoff = 0.05, universe = universe)
+BLambdaEGO <- enrichGO(gene = BLambdaDE, OrgDb = org.Hs.eg.db,keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH",  pvalueCutoff = 0.05)
 BLambdaEGO <- filter(BLambdaEGO, BLambdaEGO@result$qvalue < 0.10)
 
+# save enrich GO output : 
+saveRDS(M1AlphaEGO, "honours/results/FinalIndex/DEAnalysis/MonocytesAlphaEGO.rds")
+saveRDS(M1LambdaEGO, "honours/results/FinalIndex/DEAnalysis/MonocytesLambdaEGO.rds")
+saveRDS(M2AlphaEGO, "honours/results/FinalIndex/DEAnalysis/NeutrophilsAlphaEGO.rds")
+saveRDS(M2LambdaEGO, "honours/results/FinalIndex/DEAnalysis/NeutrophilsLambdaEGO.rds")
+saveRDS(MAlphaEGO, "honours/results/FinalIndex/DEAnalysis/MyeloidAlphaEGO.rds")
+saveRDS(MLambdaEGO, "honours/results/FinalIndex/DEAnalysis/MyeloidLambdaEGO.rds")
+
+saveRDS(D1AlphaEGO, "honours/results/FinalIndex/DEAnalysis/DendriticAlphaEGO.rds")
+saveRDS(D2AlphaEGO, "honours/results/FinalIndex/DEAnalysis/mDendriticAlphaEGO.rds")
+saveRDS(DAlphaEGO, "honours/results/FinalIndex/DEAnalysis/AllDendriticAlphaEGO.rds")
+
+saveRDS(PAlphaEGO, "honours/results/FinalIndex/DEAnalysis/PlateletsAlphaEGO.rds")
+
+saveRDS(T1AlphaEGO, "honours/results/FinalIndex/DEAnalysis/TAlphaEGO.rds")
+saveRDS(T1LambdaEGO, "honours/results/FinalIndex/DEAnalysis/TLambdaEGO.rds")
+saveRDS(T2AlphaEGO, "honours/results/FinalIndex/DEAnalysis/CD4hAlphaEGO.rds")
+saveRDS(T2LambdaEGO, "honours/results/FinalIndex/DEAnalysis/CD4hLambdaEGO.rds")
+saveRDS(T3AlphaEGO, "honours/results/FinalIndex/DEAnalysis/naiveCD8AlphaEGO.rds")
+saveRDS(T3LambdaEGO, "honours/results/FinalIndex/DEAnalysis/naiveCD8LambdaEGO.rds")
+saveRDS(T4AlphaEGO, "honours/results/FinalIndex/DEAnalysis/NKTAlphaEGO.rds")
+saveRDS(T4LambdaEGO, "honours/results/FinalIndex/DEAnalysis/NKTLambdaEGO.rds")
+saveRDS(T5AlphaEGO, "honours/results/FinalIndex/DEAnalysis/cytoCD8AlphaEGO.rds")
+saveRDS(T5LambdaEGO, "honours/results/FinalIndex/DEAnalysis/cytoCD8LambdaEGO.rds")
+saveRDS(T6AlphaEGO, "honours/results/FinalIndex/DEAnalysis/TregslphaEGO.rds")
+saveRDS(T6LambdaEGO, "honours/results/FinalIndex/DEAnalysis/TregsLambdaEGO.rds")
+saveRDS(T7AlphaEGO, "honours/results/FinalIndex/DEAnalysis/CD4AlphaEGO.rds")
+#saveRDS(T7LambdaEGO, "honours/results/FinalIndex/DEAnalysis/CD4LambdaEGO.rds")
+saveRDS(T8AlphaEGO, "honours/results/FinalIndex/DEAnalysis/NKAlphaEGO.rds")
+saveRDS(T8LambdaEGO, "honours/results/FinalIndex/DEAnalysis/NKLambdaEGO.rds")
+saveRDS(TAlphaEGO, "honours/results/FinalIndex/DEAnalysis/AllTAlphaEGO.rds")
+saveRDS(TLambdaEGO, "honours/results/FinalIndex/DEAnalysis/AllTLambdaEGO.rds")
+
+saveRDS(BAlphaEGO, "honours/results/FinalIndex/DEAnalysis/BAlphaEGO.rds")
+saveRDS(BLambdaEGO, "honours/results/FinalIndex/DEAnalysis/BLambdaEGO.rds")
 
 # Then, proceed with enrichGO
-clusterProfiler_bp <- enrichGO(BLambdaDE, ont = "BP", OrgDb = org.Hs.eg.db)
-
 # 7 : of the descriptions found in alpha & lambda set, subset according to unique to alpha and lambda and the intersection 
 # Myeloid : 
 M1_common <- intersect(M1AlphaEGO@result$Description, M1LambdaEGO@result$Description )                # identify common genes
@@ -702,12 +659,12 @@ M_lambda_list <- M_lambda[, c("ID", "p.adjust")]
 write_tsv(M_lambda_list, "honours/results/FinalIndex/GOAnalysis/M_lambda_list.tsv")
 
 # Dendritic cells : 
-D1_common <- intersect(D1AlphaEGO@result$Description, D1LambdaEGO@result$Description )                # identify common genes
-D1_alpha <- D1AlphaEGO@result$Description[!(D1AlphaEGO@result$Description %in% D1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-D1_lambda <- D1LambdaEGO@result$Description[!(D1LambdaEGO@result$Description %in% D1AlphaEGO@result$Description)]
-D1_lambda <- D1LambdaEGO[D1LambdaEGO@result$Description %in% D1_lambda, ] 
-D1_lambda_list <- D1_lambda[, c("ID", "p.adjust")] 
-write_tsv(D1_lambda_list, "honours/results/FinalIndex/GOAnalysis/D1_lambda_list.tsv")
+# D1_common <- intersect(D1AlphaEGO@result$Description, D1LambdaEGO@result$Description )                # identify common genes
+# D1_alpha <- D1AlphaEGO@result$Description[!(D1AlphaEGO@result$Description %in% D1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# D1_lambda <- D1LambdaEGO@result$Description[!(D1LambdaEGO@result$Description %in% D1AlphaEGO@result$Description)]
+# D1_lambda <- D1LambdaEGO[D1LambdaEGO@result$Description %in% D1_lambda, ] 
+# D1_lambda_list <- D1_lambda[, c("ID", "p.adjust")] 
+# write_tsv(D1_lambda_list, "honours/results/FinalIndex/GOAnalysis/D1_lambda_list.tsv")
 
 # D2_common <- intersect(D2AlphaEGO@result$Description, D2LambdaEGO@result$Description )                # identify common genes
 # D2_alpha <- D2AlphaEGO@result$Description[!(D2AlphaEGO@result$Description %in% D2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
@@ -723,42 +680,42 @@ write_tsv(D1_lambda_list, "honours/results/FinalIndex/GOAnalysis/D1_lambda_list.
 # D3_lambda_list <- D3_lambda[, c("ID", "p.adjust")] 
 # write_tsv(D3_lambda_list, "honours/results/FinalIndex/GOAnalysis/D3_lambda_list.tsv")
 
-D_common <- intersect(DAlphaEGO@result$Description, DLambdaEGO@result$Description )                # identify common genes
-D_alpha <- DAlphaEGO@result$Description[!(DAlphaEGO@result$Description %in% DLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-D_lambda <- DLambdaEGO@result$Description[!(DLambdaEGO@result$Description %in% DAlphaEGO@result$Description)]
-D_lambda <- DLambdaEGO[DLambdaEGO@result$Description %in% D_lambda, ] 
-D_lambda_list <- D_lambda[, c("ID", "p.adjust")] 
-write_tsv(D_lambda_list, "honours/results/FinalIndex/GOAnalysis/D_lambda_list.tsv")
+# D_common <- intersect(DAlphaEGO@result$Description, DLambdaEGO@result$Description )                # identify common genes
+# D_alpha <- DAlphaEGO@result$Description[!(DAlphaEGO@result$Description %in% DLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# D_lambda <- DLambdaEGO@result$Description[!(DLambdaEGO@result$Description %in% DAlphaEGO@result$Description)]
+# D_lambda <- DLambdaEGO[DLambdaEGO@result$Description %in% D_lambda, ] 
+# D_lambda_list <- D_lambda[, c("ID", "p.adjust")] 
+# write_tsv(D_lambda_list, "honours/results/FinalIndex/GOAnalysis/D_lambda_list.tsv")
 
 # Platelets : 
-P_common <- intersect(PAlphaEGO@result$Description, PLambdaEGO@result$Description )                # identify common genes
-P_alpha <- PAlphaEGO@result$Description[!(PAlphaEGO@result$Description %in% PLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-P_lambda <- PLambdaEGO@result$Description[!(PLambdaEGO@result$Description %in% PAlphaEGO@result$Description)]
-P_lambda <- PLambdaEGO[PLambdaEGO@result$Description %in% P_lambda, ] 
-P_lambda_list <- P_lambda[, c("ID", "p.adjust")] 
-write_tsv(P_lambda_list, "honours/results/FinalIndex/GOAnalysis/P_lambda_list.tsv")
+# P_common <- intersect(PAlphaEGO@result$Description, PLambdaEGO@result$Description )                # identify common genes
+# P_alpha <- PAlphaEGO@result$Description[!(PAlphaEGO@result$Description %in% PLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# P_lambda <- PLambdaEGO@result$Description[!(PLambdaEGO@result$Description %in% PAlphaEGO@result$Description)]
+# P_lambda <- PLambdaEGO[PLambdaEGO@result$Description %in% P_lambda, ] 
+# P_lambda_list <- P_lambda[, c("ID", "p.adjust")] 
+# write_tsv(P_lambda_list, "honours/results/FinalIndex/GOAnalysis/P_lambda_list.tsv")
 
 # T cells : 
-# T1_common <- intersect(T1AlphaEGO@result$Description, T1LambdaEGO@result$Description )                # identify common genes
+T1_common <- intersect(T1AlphaEGO@result$Description, T1LambdaEGO@result$Description )                # identify common genes
 T1_alpha <- T1AlphaEGO@result$Description[!(T1AlphaEGO@result$Description %in% T1LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-# T1_lambda <- T1LambdaEGO@result$Description[!(T1LambdaEGO@result$Description %in% T1AlphaEGO@result$Description)]
-# T1_lambda <- T1LambdaEGO[T1LambdaEGO@result$Description %in% T1_lambda, ] 
-# T1_lambda_list <- T1_lambda[, c("ID", "p.adjust")] 
-# write_tsv(T1_lambda_list, "honours/results/FinalIndex/GOAnalysis/T1_lambda_list.tsv")
-# 
-# T2_common <- intersect(T2AlphaEGO@result$Description, T2LambdaEGO@result$Description )                # identify common genes
-# T2_alpha <- T2AlphaEGO@result$Description[!(T2AlphaEGO@result$Description %in% T2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-# T2_lambda <- T2LambdaEGO@result$Description[!(T2LambdaEGO@result$Description %in% T2AlphaEGO@result$Description)]
-# T2_lambda <- T2LambdaEGO[T2LambdaEGO@result$Description %in% T2_lambda, ] 
-# T2_lambda_list <- T2_lambda[, c("ID", "p.adjust")] 
-# write_tsv(T2_lambda_list, "honours/results/FinalIndex/GOAnalysis/T2_lambda_list.tsv")
+T1_lambda <- T1LambdaEGO@result$Description[!(T1LambdaEGO@result$Description %in% T1AlphaEGO@result$Description)]
+T1_lambda <- T1LambdaEGO[T1LambdaEGO@result$Description %in% T1_lambda, ]
+T1_lambda_list <- T1_lambda[, c("ID", "p.adjust")]
+write_tsv(T1_lambda_list, "honours/results/FinalIndex/GOAnalysis/T1_lambda_list.tsv")
 
-# T3_common <- intersect(T3AlphaEGO@result$Description, T3LambdaEGO@result$Description )                # identify common genes
-# T3_alpha <- T3AlphaEGO@result$Description[!(T3AlphaEGO@result$Description %in% T3LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-# T3_lambda <- T3LambdaEGO@result$Description[!(T3LambdaEGO@result$Description %in% T3AlphaEGO@result$Description)]
-# T3_lambda <- T3LambdaEGO[T3LambdaEGO@result$Description %in% T3_lambda, ] 
-# T3_lambda_list <- T3_lambda[, c("ID", "p.adjust")] 
-# write_tsv(T3_lambda_list, "honours/results/FinalIndex/GOAnalysis/T3_lambda_list.tsv")
+T2_common <- intersect(T2AlphaEGO@result$Description, T2LambdaEGO@result$Description )                # identify common genes
+T2_alpha <- T2AlphaEGO@result$Description[!(T2AlphaEGO@result$Description %in% T2LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+T2_lambda <- T2LambdaEGO@result$Description[!(T2LambdaEGO@result$Description %in% T2AlphaEGO@result$Description)]
+T2_lambda <- T2LambdaEGO[T2LambdaEGO@result$Description %in% T2_lambda, ]
+T2_lambda_list <- T2_lambda[, c("ID", "p.adjust")]
+write_tsv(T2_lambda_list, "honours/results/FinalIndex/GOAnalysis/T2_lambda_list.tsv")
+
+T3_common <- intersect(T3AlphaEGO@result$Description, T3LambdaEGO@result$Description )                # identify common genes
+T3_alpha <- T3AlphaEGO@result$Description[!(T3AlphaEGO@result$Description %in% T3LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+T3_lambda <- T3LambdaEGO@result$Description[!(T3LambdaEGO@result$Description %in% T3AlphaEGO@result$Description)]
+T3_lambda <- T3LambdaEGO[T3LambdaEGO@result$Description %in% T3_lambda, ]
+T3_lambda_list <- T3_lambda[, c("ID", "p.adjust")]
+write_tsv(T3_lambda_list, "honours/results/FinalIndex/GOAnalysis/T3_lambda_list.tsv")
 
 T4_common <- intersect(T4AlphaEGO@result$Description, T4LambdaEGO@result$Description )                # identify common genes
 T4_alpha <- T4AlphaEGO@result$Description[!(T4AlphaEGO@result$Description %in% T4LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
@@ -781,12 +738,12 @@ T6_lambda <- T6LambdaEGO[T6LambdaEGO@result$Description %in% T6_lambda, ]
 T6_lambda_list <- T6_lambda[, c("ID", "p.adjust")] 
 write_tsv(T6_lambda_list, "honours/results/FinalIndex/GOAnalysis/T6_lambda_list.tsv")
 
-T7_common <- intersect(T7AlphaEGO@result$Description, T7LambdaEGO@result$Description )                # identify common genes
-T7_alpha <- T7AlphaEGO@result$Description[!(T7AlphaEGO@result$Description %in% T7LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
-T7_lambda <- T7LambdaEGO@result$Description[!(T7LambdaEGO@result$Description %in% T7AlphaEGO@result$Description)]
-T7_lambda <- T7LambdaEGO[T7LambdaEGO@result$Description %in% T7_lambda, ] 
-T7_lambda_list <- T7_lambda[, c("ID", "p.adjust")] 
-write_tsv(T7_lambda_list, "honours/results/FinalIndex/GOAnalysis/T7_lambda_list.tsv")
+# T7_common <- intersect(T7AlphaEGO@result$Description, T7LambdaEGO@result$Description )                # identify common genes
+# T7_alpha <- T7AlphaEGO@result$Description[!(T7AlphaEGO@result$Description %in% T7LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+# T7_lambda <- T7LambdaEGO@result$Description[!(T7LambdaEGO@result$Description %in% T7AlphaEGO@result$Description)]
+# T7_lambda <- T7LambdaEGO[T7LambdaEGO@result$Description %in% T7_lambda, ] 
+# T7_lambda_list <- T7_lambda[, c("ID", "p.adjust")] 
+# write_tsv(T7_lambda_list, "honours/results/FinalIndex/GOAnalysis/T7_lambda_list.tsv")
 
 T8_common <- intersect(T8AlphaEGO@result$Description, T8LambdaEGO@result$Description )                # identify common genes
 T8_alpha <- T8AlphaEGO@result$Description[!(T8AlphaEGO@result$Description %in% T8LambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
@@ -794,6 +751,14 @@ T8_lambda <- T8LambdaEGO@result$Description[!(T8LambdaEGO@result$Description %in
 T8_lambda <- T8LambdaEGO[T8LambdaEGO@result$Description %in% T8_lambda, ] 
 T8_lambda_list <- T8_lambda[, c("ID", "p.adjust")] 
 write_tsv(T8_lambda_list, "honours/results/FinalIndex/GOAnalysis/T8_lambda_list.tsv")
+
+T_common <- intersect(TAlphaEGO@result$Description, TLambdaEGO@result$Description )                # identify common genes
+T_alpha <- TAlphaEGO@result$Description[!(TAlphaEGO@result$Description %in% TLambdaEGO@result$Description)] # - (all alpha in lambda) = all alpha not in lambda
+T_lambda <- TLambdaEGO@result$Description[!(TLambdaEGO@result$Description %in% TAlphaEGO@result$Description)]
+T_lambda <- TLambdaEGO[TLambdaEGO@result$Description %in% T_lambda, ] 
+T_lambda_list <- T_lambda[, c("ID", "p.adjust")] 
+write_tsv(T_lambda_list, "honours/results/FinalIndex/GOAnalysis/T_lambda_list.tsv")
+
 
 # BCELLS : 
 B_common <- intersect(BAlphaEGO@result$Description, BLambdaEGO@result$Description )                # identify common genes
@@ -808,26 +773,28 @@ GOmyeloid <- list(# Myeloid cells :
                 'MonocytesCommon' = M1_common, 'MonocytesAlpha' = M1_alpha,'MonocytesLambda' = M1_lambda,
                 'NeutrophilsCommon' = M2_common, 'NeutrophilsAlpha' = M2_alpha,'NeutrophilsLambda' = M2_lambda, 
                 'MyeloidCommon' = M_common, 'MyeloidAlpha' = M_alpha,'MyeloidLambda' = M_lambda)
-GOdendritic <- list(# Dendritic cells :
-                'DendriticCommon' = D1_common, 'DendriticAlpha' = D1_alpha, 'DendriticLambda' = D1_lambda, 
-                'allDendriticCommon' = D_alpha)
-GOplatelets <- list(# Platelets : 
-                'PlateletsCommon' = P_common, 'PlateletsAlpha' = P_alpha, 'PlatetletsLambda' = P_lambda)
+# GOdendritic <- list(# Dendritic cells :
+#                 'DendriticAlpha' = D1_alpha, 
+#                 'NeutrophilAlpha' = D2_alpha,
+#                 'allDendriticCommon' = D_alpha)
+# GOplatelets <- list(# Platelets : 
+#                 'PlateletsCommon' = P_common, 'PlateletsAlpha' = P_alpha, 'PlatetletsLambda' = P_lambda)
 GOTcells <- list(# T cells : 
-                'TAlpha' = T1_Alpha,
-                'CD4hAlpha' = T2_Alpha, 
-                'naiveCD8Lambda' = T3_Lambda,
-                'NKTAlpha' = T4_Alpha, 
+                'Tcommon' = T1_common,'TAlpha' = T1_alpha, 'TLambda' = T1_lambda,
+                'CD4hcommon' = T2_common,'CD4hAlpha' = T2_alpha, 'CD4hLambda' = T2_lambda,
+                'naiveCD8common' = T3_common,'naiveCD8alpha' = T3_alpha,'naiveCD8Lambda' = T3_lambda,
+                'NKTcommon' = T4_common, 'NKTAlpha' = T4_alpha, 'NKTLambda' = T4_lambda, 
                 'cCD8common' = T5_common, 'cCD8Alpha' = T5_alpha, 'cCD8Lambda' = T5_lambda,
                 'Tregscommon' = T6_common, 'TregsAlpha' = T6_alpha, 'TregsLambda' = T6_lambda,
-                'CD4Alpha' = T7_alpha, 
-               'NKAlpha' = T8_alpha, 
-                'AllTalpha' = T_Alpha)
+                # 'CD4Alpha' = T7_alpha, 'CD4Alpha' = T7_alpha,'CD4Alpha' = T7_alp,
+               'NKcommon' = T8_common, 'NKAlpha' = T8_alpha,'NKLambda' = T8_lambda,
+                'AllTcommon' = T_common,'AllTalpha' = T_alpha,'AllTlambda' = T_lambda)
+
 GOBcells <- list('Bcommon' = B_common, 'BAlpha' = B_alpha, 'BLambda' = B_lambda)
                 
 openxlsx::write.xlsx(GOmyeloid, file = "honours/results/FinalIndex/GOAnalysis/GOmyeloid.xlsx") 
-openxlsx::write.xlsx(GOdendritic, file = "honours/results/FinalIndex/GOAnalysis/GOdendritic.xlsx") 
-openxlsx::write.xlsx(GOplatelets, file = "honours/results/FinalIndex/GOAnalysis/GOplatelets.xlsx")
+#openxlsx::write.xlsx(GOdendritic, file = "honours/results/FinalIndex/GOAnalysis/GOdendritic.xlsx") 
+#openxlsx::write.xlsx(GOplatelets, file = "honours/results/FinalIndex/GOAnalysis/GOplatelets.xlsx")
 openxlsx::write.xlsx(GOTcells, file = "honours/results/FinalIndex/GOAnalysis/GOTcells.xlsx")
 openxlsx::write.xlsx(GOBcells, file = "honours/results/FinalIndex/GOAnalysis/GOBcells.xlsx")
 
@@ -996,4 +963,14 @@ ego <- enrichGO(gene = gene_list,
          readable = TRUE)
 
 ego2 <- pairwise_termsim(gseGO, method = "Wang", semData )
+
+
+##### checking DEGs 
+getwd()
+read_csv("honours/results/FinalIndex/DEAnalysis/BAlphaResponse.csv")
+read_csv("honours/results/FinalIndex/DEAnalysis/BLambdaResponse.csv")
+read_csv("honours/results/FinalIndex/DEAnalysis/TAlphaResponse.csv")
+read_csv("honours/results/FinalIndex/DEAnalysis/TLambdaResponse.csv", spec(), show_col_types = TRUE)
+
+
 

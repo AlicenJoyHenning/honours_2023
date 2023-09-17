@@ -352,6 +352,9 @@ TreatmentAnnotated <- RenameIdents(treatment,
                                    '16' = 'CD4+_T',
                                    '17' = 'pDCs')
 
+TreatmentAnnotated <- RenameIdents(TreatmentAnnotated, 
+                                   'naive_CD8+ T' = 'naive_CD8+_T')
+
 saveRDS(treatment, "honours/results/FinalIndex/adjtreatment.rds")
 saveRDS(TreatmentAnnotated, "honours/results/FinalIndex/TreatmentAnnotated.rds")
 
