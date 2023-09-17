@@ -1,5 +1,7 @@
 # DEG quantification stacked bar graph 
 
+library(ggplot2)
+
 ##### Stacked Bar graph DEGs up & down #####
 # Y values : 
 DEGs <- c(442, 17, -726, -7,
@@ -67,36 +69,59 @@ vertical <- ggplot(
 ##### Stacked Bar graph DEGs #####
 
 # Y values : 
-DEGs <- c(1029, 11,
-          703, 10,
-          1209, 13, 
-          3, 0, 
-          80, 0, 
-          297, 51, 
-          270, 0, 
-          12, 0,
-          819, 23,
-          727, 26, 
-          682, 11, 
-          315, 8, 
-          187, 
+DEGs <- c(1029, 11, # monocytes
+          703, 10, # neutrophils
+          # 1209, 13, # myeloid 
+          3, 0,   # DCs
+          80, 0, # myeloid dericed dendritic cells
+          0,0, # pDCs
+
+          # 297, 51, # dendritic cells 
+
+          12, 0, # platelets 
+
+          819, 23, # T cells
+          727, 26, # CD4h
+          682, 11, # naive cd8
+          315, 8, # NKT
+          187, 2, # cyto CD8
+          153, 6, # T regs 
+          62, 0, # CD4
+          151, 1, # NK
+          # 935, 33, # overall T 
+
+          352, 36 # B
 )
+
 # x groups : 
-CellTypes <- c(rep("Mono", 2), 
-               rep("Neu", 2),
+CellTypes <- c(rep("mono", 2), 
+               rep("neu", 2),
+               # rep("myeloid", 2),
+               rep("DCs", 2),
+               rep("mDCs", 2),
+               rep("pDCs", 2),
+
+               rep("platelets", 2),
+
+               rep("T", 2),
                rep("CD4h", 2),
-               rep("CD4n", 2),
+               rep("nCD8", 2),
+               rep("NKT", 2),
+               rep("cCD8", 2),
                rep("Tregs", 2),
-               rep("CD8", 2),
+               rep("CD4", 2),
                rep("NK", 2),
+               # rep("all_T", 2),
+
                rep("B", 2))
 # stacks : 
-Treatment <- rep(c("alpha", "lambda"), 8)
+Treatment <- rep(c("alpha", "lambda"), 15)
 # create data frame :  
 grouped <- data.frame(Treatment, CellTypes, DEGs)
 
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
-grouped$CellTypes <- factor(grouped$CellTypes, levels = c("Mono", "Neu", "CD4h", "CD4n", "Tregs", "CD8", "NK", "B"))
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+  "mono", "neu", "DCs","mDCs","pDCs","platelets","T","CD4h","nCD8","NKT","cCD8","Tregs","CD4","NK","B"))
 
 
 colours <- c("lightgrey", "#6ab5ba")
@@ -110,7 +135,7 @@ horizontal <- ggplot(
   geom_bar(color = NA, position = "stack", stat = "identity") +
   theme_minimal() +
   scale_fill_manual(values = colours) +
-  labs(title = "", x = "Number of DEGs", y = "Immune Cell Types") +
+  labs(title = "", x = "PBMC cell types", y = "Number of DEGs") +
   theme(
     axis.text.x = element_text(size = 18, colour = "black"),
     axis.text.y = element_text(size = 16, colour = "black"),
