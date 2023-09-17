@@ -36,7 +36,33 @@ ggplot(alignQC, aes(fill = Metrics, y = Percentage, x = Datasets)) +
 
 
 ##### Alpha Plot #####
+Metrics <- rep(c("Alignment \n    Rate" , "Percentage \n  Whitelist" ), )
+Percentage <- c(63.4, 95.54)
 
+alignalphaQC <- data.frame(Metrics,Percentage)
+
+
+ggplot(alignalphaQC, aes(y = Percentage, x = Metrics)) +
+  geom_bar(position = "dodge", stat = "identity", fill = "#d3d3d3", color = "white") +  # Add black outline and change fill color
+  geom_text(aes(label = Percentage), 
+            position = position_dodge(width = 0.9), 
+            hjust = -0.5,  # Adjust the horizontal position to the right of the bars
+            vjust = 0.5,   # Center the labels vertically within the bars
+            size = 4,  # Adjust the font size for the labels
+            color = "black") +  # Adjust the font color for the labels
+  theme_minimal() +
+  theme(
+    panel.grid.major.y = element_blank(),  # Remove y-axis major grid lines
+    panel.grid.minor = element_blank(),    # Remove minor grid lines
+    axis.text.x = element_text(size = 12, color = "black"),  # Customize x-axis text
+    axis.text.y = element_text(size = 12, color = "black", hjust = 0),  # Customize y-axis text and adjust alignment
+    axis.title.x = element_text(size = 14, color = "black"),  # Customize x-axis title
+    axis.title.y = element_text(size = 14, color = "black")   # Customize y-axis title
+  ) +
+  labs(
+    x = "",  # Customize the x-axis label
+    y = "") +
+  coord_flip()
 
 ##### Lambda Plot #####
 
