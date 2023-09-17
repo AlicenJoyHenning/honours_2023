@@ -1,6 +1,6 @@
 # DEG quantification stacked bar graph 
 
-##### Stacked Bar graph attempt #####
+##### Stacked Bar graph DEGs up & down #####
 # Y values : 
 DEGs <- c(442, 17, -726, -7,
           316, 6, -199, -3, 
@@ -64,7 +64,7 @@ vertical <- ggplot(
   )
 
 
-##### just DEs, not up or down #####
+##### Stacked Bar graph DEGs #####
 
 # Y values : 
 DEGs <- c(1168, 24,
