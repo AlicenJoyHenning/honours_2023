@@ -6,7 +6,7 @@ BiocManager::install('plotly')
 library(plotly)
 
 ##### [2] Load & Prepare your Seurat Object : ####
-TreatmentAnnotated <- read_rds("honours/results/FinalIndex/TreatmentAnnotatedforLabels.rds")
+TreatmentAnnotated <- readRDS("honours/results/FinalIndex/TreatmentAnnotatedforLabels.rds")
 
 # Rerun UMAP to get three UMAP axes : 
 TreatmentAnnotated <- RunUMAP(TreatmentAnnotated,
@@ -21,15 +21,15 @@ Embeddings(object = TreatmentAnnotated, reduction = "umap")
 
 # Prepare a dataframe for cell plotting 
 plot.data <- FetchData(object = TreatmentAnnotated,
-                       vars = c("UMAP_1", "UMAP_2", "UMAP_3", "cell_type"))
+                       vars = c("UMAP_1", "UMAP_2", "UMAP_3", "treatment"))
 
 # Make a column of row name identities (these will be your cell/barcode names)
 plot.data$label <- paste(rownames(plot.data))
 plot.data$label2 <- paste(TreatmentAnnotated@meta.data$cell_type)
-
+plot.data$label3 <- paste(TreatmentAnnotated@meta.data$treatment)
 
 ##### [3] Make plot  ####
-# define colour palette : 
+# define colour palette for clusters: 
 palette.b <- c("#15c284", #0 mono
                "#d72554", #1 CD4_helper
                "#7ac745", #2 neutrophils
@@ -49,14 +49,22 @@ palette.b <- c("#15c284", #0 mono
                # "white", #16 CD4 +  
                "#55bbaa") #17 pDC
 
+# define colour palette for treatment type: 
+palette.c <- c(
+               "#a0d9e9", #1 IFN lambda 
+               "#c674bc", #2 IFN alpha
+               "grey"  #3 untreated
+              ) 
+
+
 fig <- plot_ly(data = plot.data, 
                x = ~UMAP_1, y = ~UMAP_2, z = ~UMAP_3, 
-               color = ~cell_type, 
-               colors = palette.b,
+               color = ~treatment, 
+               colors = palette.c,
                type = "scatter3d", 
                mode = "markers", 
                marker = list(size = 5, width=2), # controls size of points
-               text=~label2, #This is that extra column we made earlier for which we will use for cell ID
+               text=~label3, #This is that extra column we made earlier for which we will use for cell ID
                hoverinfo="text")
 
 # Customize layout to remove gridlines and axes labels

@@ -1,4 +1,4 @@
-# 
+# ADJUSTING T2G FOR SASCRiP
 
 # Load necessary libraries :
 library(tidyverse)
@@ -6,7 +6,7 @@ library(tidyverse)
 # Set the working directory
 setwd("~/DownloadedMtxTest/AlicenTest/2309114/")
 
-##### Read in the files that we need #####
+##### Direct Adjustment to t2g :  #####
 # Output of SASCRiP kallisto_bustools_count 
 transcripts <- read_tsv(
   file = "../2309113/Counts_2309113/Count_analysis/transcripts.txt",
@@ -79,7 +79,7 @@ write_tsv(
 )
 
 
-##### From SASCRiP Editing #####
+##### Indirect Adjustment using SASCRiP output : #####
 # In the transcripts df - make a new column with transcripts only (the ENST in the t2g)
 transcripts <- separate(
   transcripts,
