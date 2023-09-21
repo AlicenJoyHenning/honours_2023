@@ -177,6 +177,7 @@ openxlsx::write.xlsx(clusters, file = "honours/results/FinalIndex/Annotation/Seu
 openxlsx::write.xlsx(Cluster2v3Markers, file = "honours/results/IntegratedMarkers/Cluster2v3Markers.xlsx")
 
 ##### [3] View FindConservedMarkers() for each cluster #####
+DefaultAssay(treatment)
 
 # CLUSTER 0 
 features <- c("CCL3", "CCL4", "CCL4L2", "CD82", "CSF3R", "CXCL8", "FPR1", "IFITM3", "ITGAX", "SRGN", "TREM1")
@@ -301,8 +302,9 @@ DotPlot(object = treatment, features = features, cols = c("grey", "#a0d9e9"))
 +  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Adjust x-axis labels angle
 +  geom_hline(yintercept = c(9, 11), linetype = "dotted", color = "black")
 
+# FeaturePlots 
 
-
+FeaturePlot(treatment, features, cols = c("grey", "black"))
 
 ##### [4] Tools for Manual Annotation checking literature markers  #####
 
@@ -329,6 +331,11 @@ DotPlot(object = treatment,
         cols = c("grey", "#265221")) +  coord_flip() +  # Flip the x and y a
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + # Adjust x-axis labels angle
   geom_hline(yintercept = c(9, 11), linetype = "dotted", color = "black")
+
+
+
+
+
 
 ##### [5] After research, rename the clusters according to immune cell type : #####
 
