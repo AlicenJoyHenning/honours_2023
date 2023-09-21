@@ -1,4 +1,4 @@
-# Scatter plot for cell quality 
+# Scatter plots for cell quality 
 install.packages("ggpubr")
 
 library(ggplot2)
@@ -40,7 +40,11 @@ alphascatter <-
   ) +
   labs(title = "alpha") +
   guides(color = guide_legend(override.aes = list(size = 7))) # Adjust point size in the legend
-  
+
+
+# Before stabilization 
+
+
 
 ##### LAMBDA #####
 

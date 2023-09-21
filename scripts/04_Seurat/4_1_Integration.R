@@ -121,6 +121,7 @@ lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 200
 untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
 
 
+
 ##### [3] Prepare datasets for integration #####
 
 # Create a list of Seurat objects : 
