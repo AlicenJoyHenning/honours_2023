@@ -193,7 +193,7 @@ lambda <- ggplot(lambdapie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=categ
 # UNTREATED : 
 # Create data frame 
 untreatedpie <- data.frame(
-  QCmetric =c("kept", "high count", "low count 0.05 ", "mt percent", "high count & mt percent", "low count & mt percent"),
+  QCmetric =c("kept", "high count", "low count", "mt percent", "high count\n& mt percent", "low count\n& mt percent"),
   count=c(2870, 782, 0, 2243, 336, 5)
 )
 
@@ -220,16 +220,20 @@ ggplot(untreatedpie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=QCmetric)) +
   coord_polar(theta="y") +
   xlim(c(2.7, 4)) +
   theme_void() +
-  theme(legend.position = "right")
+  theme(legend.position = "right",
+        legend.text = 14)
 
 untreated <- ggplot(untreatedpie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=QCmetric)) +
   geom_rect() +
   # geom_label( x=3.5, aes(y=labelPosition, label=label), size=8) +
   scale_fill_manual(values = palette.d)+ 
   coord_polar(theta="y") +
+  labs(fill = "Barcode Metrics", size = 14) +
   xlim(c(2.7, 4)) +
   theme_void() +
-  theme(legend.position = "none")
+  theme(legend.position = "right",
+        legend.text = element_text(size = 14), # Adjust legend text size
+        legend.title = element_text(size = 14, face = "bold"))  # Adjust legend text size)
 
 
 # all 

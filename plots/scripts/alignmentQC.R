@@ -9,30 +9,34 @@ font_import(pattern = "EBGaramond")
 # BLUE "#a0d9e9"
 
 ##### Merged Plot (all datasets) ####
-Datasets <- c(rep("alpha" , 2), rep("lambda", 2), rep("untreated", 2)) 
-Metrics <- rep(c("Alignment Rate" , "Percentage Whitelist" ),3)
-Percentage <- c(56.6, 95.6, 55.3, 95.7, 54.1, 96.1)
+Datasets <- c(rep("α" , 2), rep("λ", 2), rep("U", 2)) 
+Metrics <- rep(c("Percentage\nPsuedoaligned" , "Percentage\nWhitelist" ),3)
+Percentage <- c(63.4, 95.5, 61.4, 95.6, 60.5, 96.0)
 
 alignQC <- data.frame(Datasets,Metrics,Percentage)
 
 # Grouped
 ggplot(alignQC, aes(fill = Metrics, y = Percentage, x = Datasets)) +
-  geom_bar(position = "dodge", stat = "identity", color = "black") +  # Add a black outline to the bars
-  geom_text(aes(label = Percentage), position = position_dodge(width = 0.9), vjust = -0.5, size = 3.5) +
+  geom_bar(position = "dodge", stat = "identity", color = "white") +  # Add a black outline to the bars
+  geom_text(aes(label = Percentage), position = position_dodge(width = 0.9), vjust = -0.5, hjust = -0.5, size = 5.5) +
   theme_minimal() +
-  scale_fill_manual(values = c("#dedede", "#dedede")) +
+  scale_fill_manual(values = c("#dedede", "grey")) +
   theme(
     panel.grid.major = element_blank(),  # Remove major grid lines
     panel.grid.minor = element_blank(),  # Remove minor grid lines
-    axis.text.x = element_text(size = 12, color = "black"),  # Customize x-axis text
-    axis.text.y = element_text(size = 12, color = "black"),  # Customize y-axis text
-    axis.title.x = element_text(size = 14, color = "black"),  # Customize x-axis title
-    axis.title.y = element_text(size = 14, color = "black")   # Customize y-axis title
+    axis.text.x = element_text(size = 18,  color = "black"),  # Adjust x-axis text angle and hjust ),  # Customize x-axis text
+    axis.text.y = element_text(size = 22, color = "black", face = "bold"),  # Customize y-axis text
+    axis.title.x = element_text(size = 20, color = "black", vjust = -0.2),  # Customize x-axis title
+    axis.title.y = element_text(size = 20, color = "black"),  # Customize y-axis title
+    legend.text = element_text(size = 18),  # Adjust legend text size
+    legend.title = element_text(size = 18, face = "bold")
   ) +
   labs(
-    x = "X-Axis Label",  # Customize the x-axis label
-    y = "Y-Axis Label")+  # Customize the y-axis label) +
-  coord_flip()
+    x = "",  # Customize the x-axis label
+    y = "Percentage",  # Customize the y-axis label
+    fill = "Alignment Metrics") + # customize legend 
+  scale_x_discrete(expand = c(0.5, 0)) +  # Adjust x-axis limits to expand the range
+  coord_flip() 
 
 
 ##### Alpha Plot #####
@@ -42,30 +46,92 @@ Percentage <- c(63.4, 95.54)
 alignalphaQC <- data.frame(Metrics,Percentage)
 
 
-ggplot(alignalphaQC, aes(y = Percentage, x = Metrics)) +
+aligna <- 
+  ggplot(alignalphaQC, aes(y = Percentage, x = Metrics)) +
   geom_bar(position = "dodge", stat = "identity", fill = "#d3d3d3", color = "white") +  # Add black outline and change fill color
   geom_text(aes(label = Percentage), 
-            position = position_dodge(width = 0.9), 
+            #position = position_dodge(width = 0.9), 
             hjust = -0.5,  # Adjust the horizontal position to the right of the bars
-            vjust = 0.5,   # Center the labels vertically within the bars
-            size = 4,  # Adjust the font size for the labels
+            #vjust = -.5,   # Center the labels vertically within the bars
+            size = 8,  # Adjust the font size for the labels
             color = "black") +  # Adjust the font color for the labels
   theme_minimal() +
   theme(
     panel.grid.major.y = element_blank(),  # Remove y-axis major grid lines
+    panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank(),    # Remove minor grid lines
-    axis.text.x = element_text(size = 12, color = "black"),  # Customize x-axis text
-    axis.text.y = element_text(size = 12, color = "black", hjust = 0),  # Customize y-axis text and adjust alignment
-    axis.title.x = element_text(size = 14, color = "black"),  # Customize x-axis title
-    axis.title.y = element_text(size = 14, color = "black")   # Customize y-axis title
+    axis.text.x = element_text(size = 20, color = "black"),  # Customize x-axis text
+    axis.text.y = element_text(size = 20, color = "black", hjust = 0),  # Customize y-axis text and adjust alignment
+    axis.title.x = element_text(size = 20, color = "black"),  # Customize x-axis title
+    axis.title.y = element_text(size = 20, color = "black")   # Customize y-axis title
+  ) +
+  labs(
+    x = "",  # Customize the x-axis label
+    y = "",
+    legend =) +
+  coord_flip()
+
+##### Lambda Plot #####
+Metrics <- rep(c("Alignment \n    Rate" , "Percentage \n  Whitelist" ), )
+Percentage <- c(61.4, 95.61)
+
+lambdaQC <- data.frame(Metrics,Percentage)
+
+
+alignl <- 
+  ggplot(lambdaQC, aes(y = Percentage, x = Metrics)) +
+  geom_bar(position = "dodge", stat = "identity", fill = "#d3d3d3", color = "white") +  # Add black outline and change fill color
+  geom_text(aes(label = Percentage), 
+            #position = position_dodge(width = 0.9), 
+            hjust = -0.5,  # Adjust the horizontal position to the right of the bars
+            #vjust = -.5,   # Center the labels vertically within the bars
+            size = 8,  # Adjust the font size for the labels
+            color = "black") +  # Adjust the font color for the labels
+  theme_minimal() +
+  theme(
+    panel.grid.major.y = element_blank(),  # Remove y-axis major grid lines
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),    # Remove minor grid lines
+    axis.text.x = element_text(size = 20, color = "black"),  # Customize x-axis text
+    axis.text.y = element_text(size = 20, color = "black", hjust = 0),  # Customize y-axis text and adjust alignment
+    axis.title.x = element_text(size = 20, color = "black"),  # Customize x-axis title
+    axis.title.y = element_text(size = 20, color = "black")   # Customize y-axis title
   ) +
   labs(
     x = "",  # Customize the x-axis label
     y = "") +
   coord_flip()
 
-##### Lambda Plot #####
-
-
 ##### Untreated Plot ####
+Metrics <- rep(c("Alignment \n    Rate" , "Percentage \n  Whitelist" ), )
+Percentage <- c(60.5, 95.98)
 
+untreatedQC <- data.frame(Metrics,Percentage)
+
+alignu <- 
+  ggplot(untreatedQC, aes(y = Percentage, x = Metrics)) +
+  geom_bar(position = "dodge", stat = "identity", fill = "#d3d3d3", color = "white") +  # Add black outline and change fill color
+  geom_text(aes(label = Percentage), 
+            #position = position_dodge(width = 0.9), 
+            hjust = -0.5,  # Adjust the horizontal position to the right of the bars
+            #vjust = -.5,   # Center the labels vertically within the bars
+            size = 8,  # Adjust the font size for the labels
+            color = "black") +  # Adjust the font color for the labels
+  theme_minimal() +
+  theme(
+    panel.grid.major.y = element_blank(),  # Remove y-axis major grid lines
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),    # Remove minor grid lines
+    axis.text.x = element_text(size = 20, color = "black"),  # Customize x-axis text
+    axis.text.y = element_text(size = 20, color = "black", hjust = 0),  # Customize y-axis text and adjust alignment
+    axis.title.x = element_text(size = 20, color = "black"),  # Customize x-axis title
+    axis.title.y = element_text(size = 20, color = "black")   # Customize y-axis title
+  ) +
+  labs(
+    x = "",  # Customize the x-axis label
+    y = "") +
+  coord_flip()
+
+# altogether : 
+
+aligna / alignl / alignu
