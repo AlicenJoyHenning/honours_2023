@@ -341,22 +341,22 @@ DotPlot(object = treatment,
 
 TreatmentAnnotated <- RenameIdents(treatment, 
                                    '0' = 'monocytes',
-                                   '1' = 'CD4+_helper',
+                                   '1' = 'CD4+ helper',
                                    '2' = 'neutrophils',
                                    '3' = 'T',
                                    '4' = 'monocytes',
-                                   '5' = 'naive_CD8+_T',
+                                   '5' = 'naive CD8+ T',
                                    '6' = 'B',
                                    '7' = 'NKT',
                                    '8' = 'mDCs',
-                                   '9' = 'cytotoxic_CD8+_T',
+                                   '9' = 'cytotoxic CD8+ T',
                                    '10' = 'Tregs',
                                    '11' = 'NK',
                                    '12' = 'platelets',
                                    '13' = 'unknown',
                                    '14' = 'DCs', 
-                                   '15' = 'CD4+_T',
-                                   '16' = 'CD4+_T',
+                                   '15' = 'CD4+ T',
+                                   '16' = 'CD4+ T',
                                    '17' = 'pDCs')
 
 TreatmentAnnotated <- RenameIdents(TreatmentAnnotated, 
@@ -401,11 +401,11 @@ palette.b <- c("#15c284", #0 mono
 p2 <- DimPlot(TreatmentAnnotated, 
               reduction = "umap", 
               pt.size = 1.5,
-              #label = TRUE, 
-              #label.color = "white",
-             # label.box = TRUE,
-              #label.size = 5, 
-             # repel = TRUE,
+             # label = TRUE, 
+            #  label.color = "white",
+            #  label.box = TRUE,
+             # label.size = 5, 
+            #  repel = TRUE,
               group.by = "cell_type") +  # Map to the cluster variable
   scale_color_manual(values = palette.b) +
   scale_fill_manual(values = palette.b) +
@@ -415,7 +415,7 @@ p2 <- DimPlot(TreatmentAnnotated,
 ?DimPlot()
 
 features <- c("MNDA", # 0 & 4 : monocytes
-              "CCR7", # 1 CD4 helper
+              "CD3G", # 1 CD4 helper (CCR7)
               "CSF3R", # 2 neutrophils
               "MAF", # 3 T cells
               "CD8B", # 5 naive CD8 T cells
@@ -425,14 +425,14 @@ features <- c("MNDA", # 0 & 4 : monocytes
               "CXCR6", # 9 cytotoxic CD8 
               "FOXP3", # 10 Treg
               "KLRF1", # 11 NK
-              "GP9", # 12 
+              "GP9", # 12 platelets (NRGN)
               "VEGFA", # 14 DCs
-              "", # 15 CD4 T 
+              "NRGN", # 15 CD4 T 
               "IRF8") # 17 pDcs ) 
 
 DotPlot(object = TreatmentAnnotated, 
         features = features,
-        cols = c("#d3d3d3", "grey")) + 
+        cols = c("#d3d3d3", "#55bbaa")) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_y_discrete(position = "right")
 

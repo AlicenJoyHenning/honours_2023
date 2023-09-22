@@ -12,9 +12,10 @@ library(pathview)
 library(DOSE)
 library(biomaRt) # for entrezgenes 
 library(Seurat)
+library(SeuratObject)
 library(pheatmap)
 library(tidyverse)
-library(cowplot)
+library(dplyr)
 library(patchwork)
 library(openxlsx)
 library(mart)
@@ -369,23 +370,27 @@ saveRDS(TLResponse, "honours/results/FinalIndex/DEAnalysis/allTLambdaResponse.rd
 
 
 ##### [2.3] Looking for common & unique DEGs #####
+lambda_datasets <- list(M1LambdaResponse, M2LambdaResponse, T1LambdaResponse, T2LambdaResponse, 
+  T3LambdaResponse, T4LambdaResponse, T5LambdaResponse, T6LambdaResponse, 
+  T8LambdaResponse, BLambdaResponse)
 
-# [a] To find common DEG between 2 treatments compared to the control (same pathways?) : 
-B_cells_common_genes <- intersect(BAResponse$Gene, BLResponse$Gene)                # identify common genes
-B_cells_common_alpha <- BAResponse[BAResponse$Gene %in% B_cells_common_genes, ]     # Extract common genes from each dataframe 
-B_cells_common_lambda <- BLResponse[BLResponse$Gene %in% B_cells_common_genes, ]
-B_cells_common_dataframe <- merge(B_cells_common_alpha, B_cells_common_lambda, by = 'Gene', all = TRUE) # # merge together the 2 subseted dataframes to create 1 containing only common genes 
+alpha_datasets <- list(M1AlphaResponse, M2AlphaResponse, T1AlphaResponse, T2AlphaResponse, 
+  T3AlphaResponse, T4AlphaResponse, T5AlphaResponse, T6AlphaResponse, 
+  T8AlphaResponse, BAlphaResponse)
 
-# [b] To find treatment specific DEGs : 
-B_cells_alpha_genes <- BAResponse$Gene[!(BAResponse$Gene %in% BLResponse$Gene)] # - (all alpha in lambda) = all alpha not in lambda
-B_cells_alpha <- BAResponse[BAResponse$Gene %in% B_cells_alpha_genes, ]
+# Initialize a list to store the number of unique DEGs for each comparison
+unique_degs_counts <- list()
 
+# Loop through each lambda dataset
+for (i in 1:length(lambda_datasets)) {            # Extract gene names from the current lambda dataset
+  lambda_genes <- lambda_datasets[[i]]$gene       # Extract gene names from the corresponding alpha dataset
+  alpha_genes <- alpha_datasets[[i]]$gene         # Find unique DEGs in the lambda dataset but not in the alpha dataset
+  unique_lambda_genes <- setdiff(lambda_genes, alpha_genes) # Get the count of unique DEGs for this comparison
+  num_unique_lambda_genes <- length(unique_lambda_genes)    # Store the count in the list
+  unique_degs_counts[[i]] <- num_unique_lambda_genes        # Print the number of unique DEGs for this comparison
+  cat("Number of unique DEGs in lambda dataset", i, "over alpha dataset", i, ":", num_unique_lambda_genes, "\n")
+}
 
-B_cells_lambda_genes <- BLResponse$Gene[!(BLResponse$Gene %in% BAResponse$Gene)]
-B_cells_lambda <- BLResponse[BLResponse$Gene %in% B_cells_lambda_genes, ] 
-
-down <- filter(B_cells_alpha, Log2FoldChange < 0)
-up <- filter(B_cells_alpha, Log2FoldChange >= 0)
 
 
 # [c] Store information in excel file 

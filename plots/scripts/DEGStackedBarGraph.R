@@ -54,7 +54,8 @@ vertical <- ggplot(
   geom_bar(color = "white", position = "stack", stat = "identity") +
   theme_minimal() +
   scale_fill_manual(values = colours) +
-  labs(title = "", x = "DEGs", y = "Immune Cell Types") +
+  #labs(title = "", x = "DEGs", y = "Immune Cell Types") +
+  labs(title = "", x = "DEGs", y = "enrichGO terms") +
   theme(
     axis.text.x = element_text(size = 18),
     axis.text.y = element_text(size = 16),
@@ -141,11 +142,29 @@ horizontal <- ggplot(
     axis.text.y = element_text(size = 16, colour = "black"),
     axis.title = element_text(size = 18, face = "bold", colour = "black", margin = margin(t = 10)),
     legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
+    legend.text = element_text(size = 16, colour= "black", hjust = 1), # legend left align text
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank(), # Remove minor grid lines
+  )
+  
+
+# Plot : 
+vertical <- ggplot(
+  grouped,
+  aes(fill = Treatment, y = CellTypes, x = DEGs)) +
+  geom_bar(color = NA, position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = colours) +
+  labs(title = "", x = "Number of DEGs", y = "PBMC cell types") +
+  theme(
+    axis.text.x = element_text(size = 18, colour = "black"),
+    axis.text.y = element_text(size = 16, colour = "black"),
+    axis.title = element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
     legend.text = element_text(size = 16, colour= "black"),
     panel.grid.major = element_blank(), # Remove major grid lines
     panel.grid.minor = element_blank()  # Remove minor grid lines
   )
-
 
 ##### DGEA #####
 

@@ -13,6 +13,7 @@ library(SeuratObject)
 getwd()
 setwd("C:/Users/alice")
 treatment <- readRDS("honours/work/1109/treatment.rds")
+DefaultAssay(treatment) <- "RNA"
 
 # Extract UMAP coordinates and cluster information : 
 treatment.umap.coords <- as.data.frame(treatment@reductions$umap@cell.embeddings)
