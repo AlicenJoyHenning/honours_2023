@@ -52,18 +52,21 @@ Abarcodes <- "honours/work/1109/alpha/barcodes.tsv.gz"
 Afeatures <- "honours/work/1109/alpha/features.tsv.gz"
 AlphaMatrix <- ReadMtx(Amatrix, Abarcodes, Afeatures)
 alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=0)
+saveRDS(alpha, "honours/work/1109/alpha/alphaCountMatrix.rds")
 
 Lmatrix <- "honours/work/1109/lambda/matrix.mtx.gz"
 Lbarcodes <- "honours/work/1109/lambda/barcodes.tsv.gz"
 Lfeatures <- "honours/work/1109/lambda/features.tsv.gz"
 LambdaMatrix <- ReadMtx(Lmatrix, Lbarcodes, Lfeatures)
 lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features = 0)
+saveRDS(lambda, "honours/work/1109/lambda/lambdaCountMatrix.rds")
 
 Umatrix <- "honours/work/1109/untreated/matrix.mtx.gz"
 Ubarcodes <- "honours/work/1109/untreated/barcodes.tsv.gz"
 Ufeatures <- "honours/work/1109/untreated/features.tsv.gz"
 UntreatedMatrix <- ReadMtx(Umatrix, Ubarcodes, Ufeatures)
 untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features = 0)
+saveRDS(untreated, "honours/work/1109/untreated/untreatedCountMatrix.rds")
 
 # noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
 # fixes new sizes : 193,  219, 198 MB
@@ -120,6 +123,9 @@ alpha <- FindVariableFeatures(alpha, selection.method = "vst", nfeatures = 2000)
 lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 2000)
 untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
 
+saveRDS(alpha, "honours/work/1109/lambda/alphaCountMatrixFiltered.rds")
+saveRDS(lambda, "honours/work/1109/lambda/lambdaCountMatrixFiltered.rds")
+saveRDS(untreated, "honours/work/1109/lambda/untreatedCountMatrixFiltered.rds")
 
 
 ##### [3] Prepare datasets for integration #####

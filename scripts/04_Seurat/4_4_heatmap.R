@@ -66,48 +66,44 @@ pheatmap(
 
 
 
-
-
 ### 
-genes <- c(
-           "CAMP", 
-           "TSPAN18",
-           "CD14", 
-           "STEAP4",
-           "CXCL10",   
-           "S100A4", "S100A6","S100A8", "S100A9","S100A10", "S100A11", "S100A12", "S100A13", 
-           "SRGN",
-           "CD93", 
-           "CEBPB", 
-           "FN1", 
-           "NINJ1", 
-           "LILRB4", 
-           "SEMA6B", 
-           "THBD"
-           )
+# genes <- c("CAMP", 
+#            "TSPAN18",
+#            "CD14", 
+#            "STEAP4",
+#            "CXCL10",   
+#            "S100A4", "S100A6","S100A8", "S100A9","S100A10", "S100A11", "S100A12", "S100A13", 
+#            "SRGN",
+#            "CD93", 
+#            "CEBPB", 
+#            "FN1", 
+#            "NINJ1", 
+#            "LILRB4", 
+#            "SEMA6B", 
+#            "THBD"
+#            )
 
-avgexp <- AverageExpression(Neutrophils, assay = "RNA", return.seurat = T, group.by = 'treatment', colnames = TRUE)
-logexp <- LogNormalize(Neutrophils)
-avgexp <- AverageExpression(logexp, assay = "RNA", return.seurat = T, group.by = 'treatment', colnames = TRUE)
+genes <- c("CAMP", "CD14", "CXCL10", "CD93", "LILRB4", "SEMA6B", "THBD", "IL10", "CCL2", "DEFA1")
+
+avgexp <- AverageExpression(Neutrophils, assay = "RNA", group.by = 'treatment', colnames = TRUE)
+# logexp <- LogNormalize(Neutrophils)
+# avgexp <- AverageExpression(logexp, assay = "RNA", return.seurat = T, group.by = 'treatment', colnames = TRUE)
 
 
-matrix <- avgexp@assays$RNA@counts
-expression_df <- as.data.frame(matrix, rownames = TRUE)
-expression_df <- rownames_to_column(expression_df, var = "Gene")
-expression_df <- subset(expression_df, Gene %in% genes)
+avgexp <- as.data.frame(avgexp, rownames = TRUE)
+avgexp <- rownames_to_column(avgexp, var = "Gene")
+avgexp <- subset(avgexp, Gene %in% genes)
 
-matrix_data <- as.matrix(expression_df[, -1])
-row_names <- expression_df$Gene        
-
+matrix_data <- as.matrix(avgexp[, -1])
+row_names <- avgexp$Gene        
 
 pheatmap(
   mat = matrix_data,
   labels_row = row_names,  # Row labels
   cluster_rows = FALSE,    # Disable row clustering
   cluster_cols = TRUE,     # Enable column clustering
-  color = colorRampPalette(c("#6ab5ba", "white", "grey"))(50),  # Color palette
-  main = "Average Gene Expression Heatmap"
-)
+  color = colorRampPalette(c("grey", "white", "#6ab5ba"))(50),  # Color palette
+  main = "Average Gene Expression Heatmap")
 
 ##### Seurat Default heatmap #####
 genes <- c(
@@ -158,4 +154,7 @@ DoHeatmap(
   combine = TRUE
 )
   
-  
+###### Gene sets #####
+neutrophilDEGs <- readRDS("honours/results/FinalIndex/DGEAnalysis/RNAAssayDEGs/NeutrophilsLambdaResponse.rds")
+genes <- neutrophilDEGs$gene
+genes <- genes[-2]
