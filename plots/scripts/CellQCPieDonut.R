@@ -133,7 +133,7 @@ alpha <- ggplot(alphapie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Metric)
     geom_rect() + 
 # geom_rect(color = "black", size = 0.65) +
 # geom_label( x=3.5, aes(y=labelPosition, label=label), size=8) +
-  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 4) +  # Add labels with percentages
+  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 6) +  # Add labels with percentages
   scale_fill_manual(values = palette.d)+ 
   coord_polar(theta="y") +
   xlim(c(2.7, 4)) +
@@ -169,7 +169,7 @@ lambda <- ggplot(lambdapie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=categ
   geom_rect() + 
   # geom_rect(color = "black", size = 0.65) +
   # geom_label( x=3.5, aes(y=labelPosition, label=label), size=8) +
-  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 4) +
+  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 6) +
   scale_fill_manual(values = palette.d)+ 
   coord_polar(theta="y") +
   xlim(c(2.7, 4)) +
@@ -180,7 +180,7 @@ lambda <- ggplot(lambdapie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=categ
 # UNTREATED : 
 # Create data frame 
 untreatedpie <- data.frame(
-  QCmetric =c("kept", "high count",  "low count\n& mt percent", "mt percent", "high count\n& mt percent"),
+  QCmetric =c("kept", "high count",  "low count\n mt percent", "mt percent", "high count\n mt percent"),
   count=c(2870, 782, 5, 2243, 336)
 )
 
@@ -204,7 +204,7 @@ untreated <- ggplot(untreatedpie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill
   geom_rect() + 
   # geom_rect(color = "black", size = 0.65) +
   # geom_label( x=3.5, aes(y=labelPosition, label=label), size=8) +
-  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 4) +
+  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 6) +
   scale_fill_manual(values = palette.d)+ 
   coord_polar(theta="y") +
   xlim(c(2.7, 4)) +

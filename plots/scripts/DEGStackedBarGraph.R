@@ -221,7 +221,8 @@ verticalGO <- ggplot(
   geom_bar(color = NA, position = "stack", stat = "identity") +
   theme_minimal() +
   scale_fill_manual(values = rev(colours)) +
-  labs(title = "", x = "Number of enriched GO terms", y = "") +
+  # number of enriched GO terms 
+  labs(title = "", x = "Percent \n Expressed", y = "PBMC \n populations") +
   theme(
     axis.text.x = element_text(size = 18, colour = "black"),
     axis.text.y = element_text(size = 16, colour = "black", hjust = 0.5),  # Center-align y-axis text

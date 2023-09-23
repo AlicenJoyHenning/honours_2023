@@ -9,8 +9,8 @@ font_import(pattern = "EBGaramond")
 # BLUE "#a0d9e9"
 
 ##### Merged Plot (all datasets) ####
-Datasets <- c(rep("α" , 2), rep("λ", 2), rep("U", 2)) 
-Metrics <- rep(c("Percentage\nPsuedoaligned" , "Percentage\nWhitelist" ),3)
+Datasets <- c(rep("α" , 2), rep("λ", 2), rep("u", 2)) 
+Metrics <- rep(c("Percentage Psuedoaligned" , "Percentage Whitelist" ),3)
 Percentage <- c(63.4, 95.5, 61.4, 95.6, 60.5, 96.0)
 
 alignQC <- data.frame(Datasets,Metrics,Percentage)
@@ -18,25 +18,25 @@ alignQC <- data.frame(Datasets,Metrics,Percentage)
 # Grouped
 ggplot(alignQC, aes(fill = Metrics, y = Percentage, x = Datasets)) +
   geom_bar(position = "dodge", stat = "identity", color = "white") +  # Add a black outline to the bars
-  geom_text(aes(label = Percentage), position = position_dodge(width = 0.9), vjust = -0.5, hjust = -0.5, size = 5.5) +
+  geom_text(aes(label = Percentage), position = position_dodge(width = 0.9), vjust = -0.5, hjust = 0.5, size = 5.5) +
   theme_minimal() +
   scale_fill_manual(values = c("#dedede", "grey")) +
   theme(
     panel.grid.major = element_blank(),  # Remove major grid lines
     panel.grid.minor = element_blank(),  # Remove minor grid lines
     axis.text.x = element_text(size = 18,  color = "black"),  # Adjust x-axis text angle and hjust ),  # Customize x-axis text
-    axis.text.y = element_text(size = 22, color = "black", face = "bold"),  # Customize y-axis text
+    axis.text.y = element_text(size = 18, color = "black"),  # Customize y-axis text
     axis.title.x = element_text(size = 20, color = "black", vjust = -0.2),  # Customize x-axis title
-    axis.title.y = element_text(size = 20, color = "black"),  # Customize y-axis title
+    axis.title.y = element_text(size = 20, color = "black",  face = "bold"),  # Customize y-axis title
     legend.text = element_text(size = 18),  # Adjust legend text size
     legend.title = element_text(size = 18, face = "bold")
   ) +
   labs(
     x = "",  # Customize the x-axis label
     y = "Percentage",  # Customize the y-axis label
-    fill = "Alignment Metrics") + # customize legend 
-  scale_x_discrete(expand = c(0.5, 0)) +  # Adjust x-axis limits to expand the range
-  coord_flip() 
+    fill = "Barcode Metrics") + # customize legend 
+  scale_x_discrete(expand = c(0.5, 0))   # Adjust x-axis limits to expand the range
+  #coord_flip() 
 
 
 ##### Alpha Plot #####

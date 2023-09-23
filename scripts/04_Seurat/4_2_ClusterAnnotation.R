@@ -360,7 +360,7 @@ TreatmentAnnotated <- RenameIdents(treatment,
                                    '17' = 'pDCs')
 
 TreatmentAnnotated <- RenameIdents(TreatmentAnnotated, 
-                                   'naive_CD8+ T' = 'naive_CD8+_T')
+                                   'CD4+_helper' = 'CD4+ helper')
 
 saveRDS(treatment, "honours/results/FinalIndex/adjtreatment.rds")
 saveRDS(TreatmentAnnotated, "honours/results/FinalIndex/TreatmentAnnotated.rds")
@@ -430,9 +430,11 @@ features <- c("MNDA", # 0 & 4 : monocytes
               "NRGN", # 15 CD4 T 
               "IRF8") # 17 pDcs ) 
 
+DefaultAssay(TreatmentAnnotated) <- "RNA"
+
 DotPlot(object = TreatmentAnnotated, 
         features = features,
-        cols = c("#d3d3d3", "#55bbaa")) + 
+        cols = c("#d3d3d3", "grey")) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_y_discrete(position = "right")
 

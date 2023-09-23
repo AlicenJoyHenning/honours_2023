@@ -133,16 +133,17 @@ ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
 
 ##### [2] Treatment-specific UMAP plots #####
 
-clusters.new <- treatment$treatment
+clusters.new <- TreatmentAnnotated$treatment
+TreatmentAnnotated.umap.coords <- as.data.frame(TreatmentAnnotated@reductions$umap@cell.embeddings)
 
 # Create a dataframe for ggplot : 
 treatment.df.new <- data.frame(
-  x = treatment.umap.coords$UMAP_1,
-  y = treatment.umap.coords$UMAP_2,
+  x = TreatmentAnnotated.umap.coords$UMAP_1,
+  y = TreatmentAnnotated.umap.coords$UMAP_2,
   clusters = factor(clusters.new)
 )
 
-colours <- c("#c35cad","#6ab5ba","#d3d3d3")
+colours <- c("#6ab5ba","#9dcfd3", "#d3d3d3")
 
 # Define custom colors based on the 'stim' column : 
 alpha_cluster_color <- ifelse(treatment.df.new$clusters == "alpha", colours[1], "grey")
@@ -150,20 +151,21 @@ alpha_cluster_color <- ifelse(treatment.df.new$clusters == "alpha", colours[1], 
 alpha.plot <- 
   ggplot(treatment.df.new, aes(x, y, colour = clusters)) +
   geom_point(size = 0.8) +
-  scale_colour_manual(values = c("#c35cad", "#d3d3d3", "#d3d3d3")) +
+  scale_colour_manual(values = c("#44a8e0", "#d3d3d3", "#d3d3d3")) +
   labs(
     x = "UMAP 1",
-    y = "UMAP 2",
+    y = "",
     color = ""
   ) + 
   theme_void() + 
   theme(
     panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-    axis.text = element_text(size = 12),
+    panel.grid.major = element_blank(),    
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(),
     axis.title = element_text(size = 14),
     plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
-    panel.border = element_rect(color = "black", fill = NA),
+    #panel.border = element_rect(color = "black", fill = NA),
     legend.position = "none", 
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 14),
@@ -181,17 +183,18 @@ lambda.plot <-
   scale_colour_manual(values = c("#d3d3d3", "#6ab5ba", "#d3d3d3")) +
   labs(
     x = "UMAP 1",
-    y = "UMAP 2",
+    y = "",
     color = ""
   ) + 
-  theme_void() + 
+  theme_minimal() + 
   theme(
     panel.grid.minor = element_blank(),
-    panel.grid.major = element_blank(),
-    axis.text = element_text(size = 12),
+    panel.grid.major = element_blank(),    
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_blank(),
     axis.title = element_text(size = 14),
     plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
-    panel.border = element_rect(color = "black", fill = NA),
+    #panel.border = element_rect(color = "black", fill = NA),
     legend.position = "none", 
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 14),
@@ -212,14 +215,14 @@ untreated.plot <-
     y = "UMAP 2",
     color = ""
   ) + 
-  theme_void() + 
+  theme_minimal() + 
   theme(
     panel.grid.minor = element_blank(),
     panel.grid.major = element_blank(),
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 14),
     plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
-    panel.border = element_rect(color = "black", fill = NA),
+    #panel.border = element_rect(color = "black", fill = NA),
     legend.position = "none", 
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 14),
@@ -229,7 +232,7 @@ untreated.plot <-
 print(untreated.plot)
 
 
-
+(untreated.plot | lambda.plot | alpha.plot)
 
 
 
