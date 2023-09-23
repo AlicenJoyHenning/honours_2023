@@ -70,53 +70,54 @@ vertical <- ggplot(
 ##### Stacked Bar graph DEGs #####
 
 # Y values : 
-DEGs <- c(1029, 11, # monocytes
-          703, 10, # neutrophils
+DEGs <- c(1028, 10, 1, # monocytes
+          699, 4, 6, # neutrophils
           # 1209, 13, # myeloid 
-          3, 0,   # DCs
-          80, 0, # myeloid dericed dendritic cells
-          0,0, # pDCs
+          3, 0, 0,   # DCs
+          80, 0, 0, # myeloid dericed dendritic cells
+          0, 0, 0, # pDCs
 
           # 297, 51, # dendritic cells 
 
-          12, 0, # platelets 
+          12, 0, 0, # platelets 
 
-          819, 23, # T cells
-          727, 26, # CD4h
-          682, 11, # naive cd8
-          315, 8, # NKT
-          187, 2, # cyto CD8
-          153, 6, # T regs 
-          62, 0, # CD4
-          151, 1, # NK
+          807, 12, 11, # T cells
+          714, 13, 13, # CD4h
+          678, 5, 6, # naive cd8
+          310, 5, 3, # NKT
+          186, 1, 1, # cyto CD8
+          148, 5, 1, # T regs 
+          62, 0, 0, # CD4
+          150, 1, 1, # NK
           # 935, 33, # overall T 
 
-          352, 36 # B
+          350, 2, 34 # B
 )
 
 # x groups : 
-CellTypes <- c(rep("mono", 2), 
-               rep("neu", 2),
+CellTypes <- c(rep("mono", 3), 
+               rep("neu", 3),
                # rep("myeloid", 2),
-               rep("DCs", 2),
-               rep("mDCs", 2),
-               rep("pDCs", 2),
+               rep("DCs", 3),
+               rep("mDCs", 3),
+               rep("pDCs", 3),
 
-               rep("platelets", 2),
+               rep("platelets", 3),
 
-               rep("T", 2),
-               rep("CD4h", 2),
-               rep("nCD8", 2),
-               rep("NKT", 2),
-               rep("cCD8", 2),
-               rep("Tregs", 2),
-               rep("CD4", 2),
-               rep("NK", 2),
+               rep("T", 3),
+               rep("CD4h", 3),
+               rep("nCD8", 3),
+               rep("NKT", 3),
+               rep("cCD8", 3),
+               rep("Tregs", 3),
+               rep("CD4", 3),
+               rep("NK", 3),
                # rep("all_T", 2),
 
-               rep("B", 2))
+               rep("B", 3))
 # stacks : 
-Treatment <- rep(c("alpha", "lambda"), 15)
+Treatment <- rep(c("alpha", "common", "lambda"), 15)
+
 # create data frame :  
 grouped <- data.frame(Treatment, CellTypes, DEGs)
 
@@ -125,46 +126,114 @@ grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
   "mono", "neu", "DCs","mDCs","pDCs","platelets","T","CD4h","nCD8","NKT","cCD8","Tregs","CD4","NK","B"))
 
 
-colours <- c("lightgrey", "#6ab5ba")
-
+colours <- c("lightgrey", "darkgrey", "#6ab5ba")
 
 
 # Plot : 
-horizontal <- ggplot(
+verticalDEGs <- ggplot(
   grouped,
-  aes(fill = Treatment, y =DEGs, x = CellTypes)) +
+  aes(fill = rev(Treatment), y = CellTypes, x = -DEGs)) +  # Reverse x-axis and fill order
   geom_bar(color = NA, position = "stack", stat = "identity") +
   theme_minimal() +
-  scale_fill_manual(values = colours) +
-  labs(title = "", x = "PBMC cell types", y = "Number of DEGs") +
+  scale_fill_manual(values = rev(colours)) +  # Reverse fill colors
+  labs(title = "", x = "Number of DEGs", y = "") +
   theme(
     axis.text.x = element_text(size = 18, colour = "black"),
-    axis.text.y = element_text(size = 16, colour = "black"),
-    axis.title = element_text(size = 18, face = "bold", colour = "black", margin = margin(t = 10)),
-    legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
-    legend.text = element_text(size = 16, colour= "black", hjust = 1), # legend left align text
+    axis.text.y = element_blank(),  # Remove y-axis labels
+    axis.title = element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    legend.title = element_blank(),
+    legend.text = element_blank(),
     panel.grid.major = element_blank(), # Remove major grid lines
-    panel.grid.minor = element_blank(), # Remove minor grid lines
-  )
-  
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  ) + 
+  guides(fill = "none")  # Remove the legend
+
+##### Stacked Bar graph for GO terms #####
+
+# Y values : 
+Goterms <- c(766, 0, 7, # monocytes
+          598, 2, 67, # neutrophils
+          # 1209, 13, # myeloid 
+          53, 0, 0,   # DCs
+          125, 0, 0, # myeloid dericed dendritic cells
+          0, 0, 0, # pDCs
+          
+          # 297, 51, # dendritic cells 
+          
+          11, 0, 0, # platelets 
+          
+          493, 1, 2, # T cells
+          406, 3, 6, # CD4h
+          416, 4, 0, # naive cd8
+          282, 1, 0, # NKT
+          190, 1, 0, # cyto CD8
+          203, 0, 13, # T regs 
+          129, 0, 0, # CD4
+          207, 0, 1, # NK
+          # 935, 33, # overall T 
+          
+          339, 70, 10 # B
+)
+
+# x groups : 
+CellTypes <- c(rep("mono", 3), 
+               rep("neu", 3),
+               # rep("myeloid", 2),
+               rep("DCs", 3),
+               rep("mDCs", 3),
+               rep("pDCs", 3),
+               
+               rep("platelets", 3),
+               
+               rep("T", 3),
+               rep("CD4h", 3),
+               rep("nCD8", 3),
+               rep("NKT", 3),
+               rep("cCD8", 3),
+               rep("Tregs", 3),
+               rep("CD4", 3),
+               rep("NK", 3),
+               # rep("all_T", 2),
+               
+               rep("B", 3))
+# stacks : 
+Treatment <- rep(c("alpha", "common", "lambda"), 15)
+
+# create data frame :  
+grouped <- data.frame(Treatment, CellTypes, Goterms)
+
+# Reorder the data frame based on DEGs within each CellTypes group
+grouped <- grouped %>% arrange(CellTypes, Treatment, -Goterms)
+
+
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+  "mono", "neu", "DCs","mDCs","pDCs","platelets","T","CD4h","nCD8","NKT","cCD8","Tregs","CD4","NK","B"))
+
+
+colours <- c("lightgrey", "darkgrey", "#6ab5ba")
+
 
 # Plot : 
-vertical <- ggplot(
+verticalGO <- ggplot(
   grouped,
-  aes(fill = Treatment, y = CellTypes, x = DEGs)) +
+  aes(fill = rev(Treatment), y = CellTypes, x = Goterms)) +
   geom_bar(color = NA, position = "stack", stat = "identity") +
   theme_minimal() +
-  scale_fill_manual(values = colours) +
-  labs(title = "", x = "Number of DEGs", y = "PBMC cell types") +
+  scale_fill_manual(values = rev(colours)) +
+  labs(title = "", x = "Number of enriched GO terms", y = "") +
   theme(
     axis.text.x = element_text(size = 18, colour = "black"),
-    axis.text.y = element_text(size = 16, colour = "black"),
+    axis.text.y = element_text(size = 16, colour = "black", hjust = 0.5),  # Center-align y-axis text
     axis.title = element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
     legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
     legend.text = element_text(size = 16, colour= "black"),
     panel.grid.major = element_blank(), # Remove major grid lines
     panel.grid.minor = element_blank()  # Remove minor grid lines
   )
+
+##### Stacked bar graph together #####
+verticalDEGs | verticalGO 
 
 ##### DGEA #####
 

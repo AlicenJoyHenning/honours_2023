@@ -103,7 +103,18 @@ pheatmap(
   cluster_rows = FALSE,    # Disable row clustering
   cluster_cols = TRUE,     # Enable column clustering
   color = colorRampPalette(c("grey", "white", "#6ab5ba"))(50),  # Color palette
-  main = "Average Gene Expression Heatmap")
+  annotation_col = NULL,   # Remove dendrogram lines at the top
+  annotation_row = NULL,   # Remove dendrogram lines on the left
+  main = "Average Gene Expression Heatmap",
+  annotation_names_col = FALSE,  # Remove column annotation labels
+  annotation_names_row = FALSE   # Remove row annotation labels
+)
+
+
+
+
+
+
 
 ##### Seurat Default heatmap #####
 genes <- c(
