@@ -10,7 +10,7 @@ BiocManager::install("gageData")
 library(clusterProfiler)
 library(pathview)
 library(DOSE)
-library(biomaRt) # for entrezgenes 
+library(biomaRt) # for entrezgenes (not 'mart')
 library(Seurat)
 library(SeuratObject)
 library(pheatmap)
@@ -18,10 +18,12 @@ library(tidyverse)
 library(dplyr)
 library(patchwork)
 library(openxlsx)
-library(mart)
+
 
 TreatmentAnnotated <- readRDS("honours/results/FinalIndex/TreatmentAnnotated.rds")
 Idents(TreatmentAnnotated)
+DefaultAssay(TreatmentAnnotated)
+DefaultAssay(TreatmentAnnotated) <- "RNA"
 
 ##### [1.2] View the annotated clusters #####
 # View the current annotations for confirmation : 
@@ -406,7 +408,7 @@ library(organism, character.only = TRUE)
 
 # 2 : have to convert DE gene list to contain entrezgene_ID BIOMART
 mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl") # Create a Mart object for the human genome
-listDatasets(mart) # List available datasets for the Mart (214!)
+# listDatasets(mart) # List available datasets for the Mart (214!)
 
 # 3:  Retrieve gene information for human genes :
 gene_ID <- getBM(attributes = c("ensembl_gene_id", "external_gene_name", "entrezgene_id"), 
@@ -521,6 +523,8 @@ BLambdaDE <- na.omit(BLambdaResponse$entrezgene_id)
 
 # 6 : perform GO analysis 
 ?enrichGO
+
+
 
 # Myeloid  
 M1AlphaEGO <- enrichGO(gene = M1AlphaDE, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH", pvalueCutoff = 0.05)
