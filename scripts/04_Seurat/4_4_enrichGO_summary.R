@@ -39,7 +39,7 @@ alphaplot2 <- ggplot(df2,
                      aes(y = counts2, x = terms)) +
   geom_bar(fill = "lightgrey", position = "stack", stat = "identity") + 
   theme_minimal() +
-  labs(title = "2. Inteferon\n signaling", x = "", y = "GO term counts") +
+  labs(title = "2. Interferon\n signaling", x = "", y = "GO term counts") +
   theme(
     axis.text.x = element_text(size = 14, colour = "black", angle = 45, hjust = 1),
     axis.text.y = element_text(size = 14, colour = "black", hjust = 0.5),  # Center-align y-axis text
@@ -103,7 +103,7 @@ terms <- c("mono", "neu", "T", "B")
 counts1 <- c(0, 0, 0, 25) # IFN
 counts2 <- c(0, 0, 0, 22) # virus
 counts3 <- c(0, 9, 0, 0) # vit d
-counts4 <- c(6, 3, 0, 0) # bone 
+counts4 <- c(6, 3, 0, 1) # bone 
 counts5 <- c(0, 0, 4, 0) # RNA
 
 df1 <- data.frame(terms, counts1)
@@ -116,7 +116,7 @@ lambdaplot1 <- ggplot(df1,
                      aes(y = counts1, x = terms)) +
   geom_bar(fill = "#6ab5ab", position = "stack", stat = "identity") + 
   theme_minimal() +
-  labs(title = "1. Inteferon\n signaling", x = "", y = "GO term counts") +
+  labs(title = "1. Interferon\n signaling", x = "", y = "GO term counts") +
   theme(
     axis.text.x = element_text(size = 14, colour = "black", angle = 45, hjust = 1),
     axis.text.y = element_text(size = 14, colour = "black", hjust = 0.5),  # Center-align y-axis text

@@ -131,7 +131,7 @@ ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
 
 
 
-##### [2] Treatment-specific UMAP plots #####
+##### [2.1] Treatment-specific UMAP plots following integration #####
 
 clusters.new <- TreatmentAnnotated$treatment
 TreatmentAnnotated.umap.coords <- as.data.frame(TreatmentAnnotated@reductions$umap@cell.embeddings)
@@ -143,7 +143,7 @@ treatment.df.new <- data.frame(
   clusters = factor(clusters.new)
 )
 
-colours <- c("#6ab5ba","#9dcfd3", "#d3d3d3")
+colours <- c("#6ab5ba","#44a8e0", "#d3d3d3")
 
 # Define custom colors based on the 'stim' column : 
 alpha_cluster_color <- ifelse(treatment.df.new$clusters == "alpha", colours[1], "grey")
@@ -232,9 +232,122 @@ untreated.plot <-
 print(untreated.plot)
 
 
-(untreated.plot | lambda.plot | alpha.plot)
+after <- (untreated.plot | lambda.plot | alpha.plot)
 
 
+
+##### [2.2] Treatment-specific UMAP plots without integration #####
+# Load Seurat Objects : 
+Amatrix <- "honours/work/1109/alpha/matrix.mtx.gz"
+Abarcodes <- "honours/work/1109/alpha/barcodes.tsv.gz"
+Afeatures <- "honours/work/1109/alpha/features.tsv.gz"
+AlphaMatrix <- ReadMtx(Amatrix, Abarcodes, Afeatures)
+alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=0)
+
+Lmatrix <- "honours/work/1109/lambda/matrix.mtx.gz"
+Lbarcodes <- "honours/work/1109/lambda/barcodes.tsv.gz"
+Lfeatures <- "honours/work/1109/lambda/features.tsv.gz"
+LambdaMatrix <- ReadMtx(Lmatrix, Lbarcodes, Lfeatures)
+lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features = 0)
+
+Umatrix <- "honours/work/1109/untreated/matrix.mtx.gz"
+Ubarcodes <- "honours/work/1109/untreated/barcodes.tsv.gz"
+Ufeatures <- "honours/work/1109/untreated/features.tsv.gz"
+UntreatedMatrix <- ReadMtx(Umatrix, Ubarcodes, Ufeatures)
+untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features = 0)
+
+# Perform filtering, normalization, and scaling on indiviudal datasets : 
+alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
+lambda[["percent.mt"]] <- PercentageFeatureSet(lambda, pattern = "^MT-")
+untreated[["percent.mt"]] <- PercentageFeatureSet(untreated, pattern = "^MT-")
+
+alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
+
+alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.factor = 10000)
+lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
+untreated <- NormalizeData(untreated, normalization.method = "LogNormalize", scale.factor = 10000)
+
+all.alpha.genes <- rownames(alpha)
+alpha <- ScaleData(alpha, features = all.alpha.genes)
+all.lambda.genes <- rownames(lambda)
+lambda <- ScaleData(lambda, features = all.lambda.genes)
+all.untreated.genes <- rownames(untreated)
+untreated <- ScaleData(untreated, features = all.untreated.genes)
+
+alpha <- FindVariableFeatures(alpha, selection.method = "vst", nfeatures = 2000)
+lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 2000)
+untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
+
+alpha <- RunPCA(alpha, npcs = 30, verbose = TRUE)
+alpha <- RunUMAP(alpha, reduction = "pca", dims = 1:30) 
+
+lambda <- RunPCA(lambda, npcs = 30, verbose = TRUE)
+lambda <- RunUMAP(lambda, reduction = "pca", dims = 1:30) 
+
+untreated <- RunPCA(untreated, npcs = 30, verbose = TRUE)
+untreated <- RunUMAP(untreated, reduction = "pca", dims = 1:30) 
+
+
+p1 <- DimPlot(alpha, reduction = "umap",pt.size = 1) + 
+  scale_color_manual(values = "#44a8e0") +
+  labs(x = "UMAP 1",
+       y = "") + 
+  theme_classic() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
+    #panel.border = element_rect(color = "black", fill = NA),
+    legend.position = "none", 
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))
+  )
+
+p2 <- DimPlot(lambda, reduction = "umap",pt.size = 1) + 
+  scale_color_manual(values = "#6ab5ba") +
+  labs(x = "UMAP 1",
+       y = "") + 
+  theme_classic() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
+    #panel.border = element_rect(color = "black", fill = NA),
+    legend.position = "none", 
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))
+  )
+
+p3 <- DimPlot(untreated, reduction = "umap",pt.size = 1) + 
+  scale_color_manual(values = "darkgrey") +
+  labs(x = "UMAP 1",
+       y = "UMAP 2") + 
+  theme_classic() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_blank(),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.margin = margin(1.5, 0.5, 0.5, 0.5, "cm"),
+    #panel.border = element_rect(color = "black", fill = NA),
+    legend.position = "none", 
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5, margin = margin(1, 0, 0, 0))
+  )
+
+
+before <- p3 | p2 | p1
+
+before / after 
 
 ##### [3.1] NK cell type   #####
 NKCluster <- 10
