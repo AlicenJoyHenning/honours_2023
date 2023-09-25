@@ -116,7 +116,7 @@ CellTypes <- c(rep("mono", 3),
 
                rep("B", 3))
 # stacks : 
-Treatment <- rep(c("alpha", "common", "lambda"), 15)
+Treatment <- rep(c("alpha","common","lambda"), 15)
 
 # create data frame :  
 grouped <- data.frame(Treatment, CellTypes, DEGs)
@@ -124,9 +124,9 @@ grouped <- data.frame(Treatment, CellTypes, DEGs)
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
 grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
   "mono", "neu", "DCs","mDCs","pDCs","platelets","T","CD4h","nCD8","NKT","cCD8","Tregs","CD4","NK","B"))
+grouped$Treatment <- factor(grouped$Treatment, levels = c("alpha", "common", "lambda"))
 
-
-colours <- c("lightgrey", "darkgrey", "#6ab5ba")
+colours <- c("lightgrey","#6ab5ba","darkgrey")
 
 
 # Plot : 
@@ -140,9 +140,11 @@ verticalDEGs <- ggplot(
   theme(
     axis.text.x = element_text(size = 18, colour = "black"),
     axis.text.y = element_blank(),  # Remove y-axis labels
-    axis.title = element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),
     legend.title = element_blank(),
     legend.text = element_blank(),
+    #legend.text = element_text(size = 18, colour = "black"),
     panel.grid.major = element_blank(), # Remove major grid lines
     panel.grid.minor = element_blank()  # Remove minor grid lines
   ) + 
@@ -222,12 +224,12 @@ verticalGO <- ggplot(
   theme_minimal() +
   scale_fill_manual(values = rev(colours)) +
   # number of enriched GO terms 
-  labs(title = "", x = "Percent \n Expressed", y = "PBMC \n populations") +
+  labs(title = "", x = "Number of enriched GO terms", y = "") +
   theme(
     axis.text.x = element_text(size = 18, colour = "black"),
     axis.text.y = element_text(size = 16, colour = "black", hjust = 0.5),  # Center-align y-axis text
-    axis.title = element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
-    legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
     legend.text = element_text(size = 16, colour= "black"),
     panel.grid.major = element_blank(), # Remove major grid lines
     panel.grid.minor = element_blank()  # Remove minor grid lines
@@ -235,6 +237,243 @@ verticalGO <- ggplot(
 
 ##### Stacked bar graph together #####
 verticalDEGs | verticalGO 
+
+##### UP & DOWN regulated myeloid #####
+ALPHA
+# Y values : 
+alphaDEGs <- c(414, 615, # monocytes
+             317, 386, # neutrophils
+             2, 1,   # DCs
+             59, 21, # myeloid dericed dendritic cells
+             0, 0) # pDCs)
+
+# x groups : 
+CellTypes <- c(rep("mono", 2), 
+               rep("neu", 2),
+               rep("DCs", 2),
+               rep("mDCs", 2),
+               rep("pDCs", 2))
+
+# stacks : 
+Treatment <- rep(c("up regulated", "down regulated"), 5)
+
+# create data frame :  
+grouped <- data.frame(Treatment, CellTypes, alphaDEGs)
+
+# Reorder the data frame based on DEGs within each CellTypes group
+grouped <- grouped %>% arrange(CellTypes, Treatment, alphaDEGs)
+
+
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+  "mono", "neu", "DCs","mDCs","pDCs"))
+
+
+colours <- c("lightgrey", "#6ab5ba")
+
+
+# Plot : 
+myeloidalpha <- ggplot(
+  grouped,
+  aes(fill = rev(Treatment), y = CellTypes, x = -alphaDEGs)) +  # Reverse x-axis and fill order
+  geom_bar(color = NA, position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = rev(colours)) +  # Reverse fill colors
+  labs(title = "", x = "Number of DEGs (α)", y = "") +
+  theme(
+    axis.text.x = element_text(size = 18, colour = "black"),
+    axis.text.y = element_blank(),  # Remove y-axis labels
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),
+    legend.title = element_blank(),
+    legend.text = element_blank(),
+    #legend.text = element_text(size = 18, colour = "black"),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  ) + 
+  guides(fill = "none")
+
+# LAMBDA 
+# Y values : 
+lambdaDEGs <- c(10, 1, # monocytes
+               9, 1, # neutrophils
+               0, 0,   # DCs
+               0, 0, # myeloid dericed dendritic cells
+               0, 0) # pDCs)
+
+# x groups : 
+CellTypes <- c(rep("mono", 2), 
+               rep("neu", 2),
+               rep("DCs", 2),
+               rep("mDCs", 2),
+               rep("pDCs", 2))
+
+# stacks : 
+Treatment <- rep(c("up regulated", "down regulated"), 5)
+
+# create data frame :  
+grouped <- data.frame(Treatment, CellTypes, lambdaDEGs)
+
+# Reorder the data frame based on DEGs within each CellTypes group
+grouped <- grouped %>% arrange(CellTypes, Treatment, -lambdaDEGs)
+
+
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+  "mono", "neu", "DCs","mDCs","pDCs"))
+
+
+colours <- c("lightgrey","#6ab5ba")
+
+
+# Plot : 
+myeloidlambda <- ggplot(
+  grouped,
+  aes(fill = rev(Treatment), y = CellTypes, x = lambdaDEGs)) +
+  geom_bar(color = NA, position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = rev(colours)) +
+  # number of enriched GO terms 
+  labs(title = "", x = "Number of DEGs (λ)", y = "") +
+  theme(
+    axis.text.x = element_text(size = 18, colour = "black"),
+    axis.text.y = element_text(size = 16, colour = "black", hjust = 0.5),  # Center-align y-axis text
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),
+    legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
+    legend.text = element_text(size = 16, colour= "black"),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  )
+
+
+myeloidalpha | myeloidlambda
+
+##### UP & DOWN regulated lymphoid #####
+ALPHA
+# Y values : 
+alphaDEGs <- c(504, 315, # T cells
+          422, 305, # CD4h
+          433, 305, # naive cd8
+          204, 111, # NKT
+          136, 51, # cyto CD8
+          144, 9, # T regs 
+          58, 4, # CD4
+          131, 20, # NK
+          
+          567, 368 ) # B
+
+# x groups : 
+CellTypes <- c(rep("T", 2), 
+               rep("CD4h", 2),
+               rep("nCD8", 2),
+               rep("NKT", 2),
+               rep("cCD8", 2),
+               rep("Tregs", 2),
+               rep("CD4", 2), 
+               rep("NK", 2),
+               rep("B", 2))
+# stacks : 
+Treatment <- rep(c("up regulated", "down regulated"), 9)
+
+# create data frame :  
+grouped <- data.frame(Treatment, CellTypes, alphaDEGs)
+
+# Reorder the data frame based on DEGs within each CellTypes group
+grouped <- grouped %>% arrange(CellTypes, Treatment, alphaDEGs)
+
+
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+  "T","CD4h","nCD8","NKT", "cCD8","Tregs","CD4","NK","B"))
+
+
+colours <- c("lightgrey", "#6ab5ba")
+
+
+# Plot : 
+lymphoidalpha <- ggplot(
+  grouped,
+  aes(fill = rev(Treatment), y = CellTypes, x = -alphaDEGs)) +  # Reverse x-axis and fill order
+  geom_bar(color = NA, position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = rev(colours)) +  # Reverse fill colors
+  labs(title = "", x = "Number of DEGs (α)", y = "") +
+  theme(
+    axis.text.x = element_text(size = 18, colour = "black"),
+    axis.text.y = element_blank(),  # Remove y-axis labels
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),
+    legend.title = element_blank(),
+    legend.text = element_blank(),
+    #legend.text = element_text(size = 18, colour = "black"),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  ) + 
+  guides(fill = "none")
+
+# LAMBDA 
+# Y values : 
+lambdaDEGs <- c(22, 1, # T cells
+               22, 4, # CD4h
+               10, 1, # naive cd8
+               6, 2, # NKT
+               2, 0, # cyto CD8
+               4, 2, # T regs 
+               0, 0, # CD4
+               1, 0, # NK
+               
+               30, 3 ) # B
+
+# x groups : 
+CellTypes <- c(rep("T", 2), 
+               rep("CD4h", 2),
+               rep("nCD8", 2),
+               rep("NKT", 2),
+               rep("cCD8", 2),
+               rep("Tregs", 2),
+               rep("CD4", 2), 
+               rep("NK", 2),
+               rep("B", 2))
+# stacks : 
+Treatment <- rep(c("up regulated", "down regulated"), 9)
+
+# create data frame :  
+grouped <- data.frame(Treatment, CellTypes, lambdaDEGs)
+
+# Reorder the data frame based on DEGs within each CellTypes group
+grouped <- grouped %>% arrange(CellTypes, Treatment, lambdaDEGs)
+
+
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+  "T","CD4h","nCD8","NKT", "cCD8","Tregs","CD4","NK","B"))
+
+colours <- c("lightgrey","#6ab5ba")
+
+
+# Plot : 
+lymphoilambda <- ggplot(
+  grouped,
+  aes(fill = rev(Treatment), y = CellTypes, x = lambdaDEGs)) +
+  geom_bar(color = NA, position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = rev(colours)) +
+  # number of enriched GO terms 
+  labs(title = "", x = "Number of DEGs (λ)", y = "") +
+  theme(
+    axis.text.x = element_text(size = 18, colour = "black"),
+    axis.text.y = element_text(size = 16, colour = "black", hjust = 0.5),  # Center-align y-axis text
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),
+    legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
+    legend.text = element_text(size = 16, colour= "black"),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  )
+
+
+lymphoidalpha | lymphoilambda
 
 ##### DGEA #####
 
