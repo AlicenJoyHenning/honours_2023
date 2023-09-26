@@ -17,6 +17,12 @@ cell_types <- c(
   "NK", "platelets", "unknown", "DCs", "CD4+_T", "pDCs"
 )
 
+pDCs <- subset(TreatmentAnnotated, subset = celltype == "pDCs")
+A_pDCs <- subset(TreatmentAnnotated, subset = celltype == "pDCs" & treatment == "alpha")
+L_pDCs <- subset(TreatmentAnnotated, subset = celltype == "pDCs" & treatment == "lambda")
+U_pDCs <- subset(TreatmentAnnotated, subset = celltype == "pDCs" & treatment == "untreated")
+
+
 # Initialize an empty list to store the results
 results <- list()
 
@@ -35,10 +41,11 @@ for (cell_type in cell_types) {
   num_cells_U <- dim(U_subset)[2]
   
   # Store the results in a list
-  cat("\n Cell Type | ", cell_type, "\n", "Total:", num_cells_A)
+  cat("\n Cell Type | ", cell_type, "\n", "Total:", num_cells_T)
   cat("\n Alpha :", num_cells_A)
   cat("\n Lambda :", num_cells_L)
   cat("\n Untreated :", num_cells_U, "\n")
+
 }
 
 
