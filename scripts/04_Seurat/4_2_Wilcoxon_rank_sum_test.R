@@ -4,6 +4,10 @@
 treatment <- readRDS("honours/work/1109/treatment.rds")
 DefaultAssay(treatment) <- "RNA"
 
+TreatmentAnnotated <- readRDS("honours/results/FinalIndex/TreatmentAnnotated.rds")
+TreatmentAnnotated$celltype <- Idents(TreatmentAnnotated)
+colnames(TreatmentAnnotated@meta.data)[1] <- "sample"
+
 # For each cluster, we create 2 groups: 1 containing cells belonging to the
 # cluster of interest, and the other containing cells that do not belong to the
 # cluster of interest (aka all the other clusters)
@@ -46,15 +50,15 @@ print(FOXP3result)
 
 ##### [2] Function #####
   
-DIYWilcoxon <- function(condition, cluster, gene) {
-  print(paste("Performing Wilcoxon Rank Sum test for gene", gene, "in Cluster", cluster, "for condition", condition, ":\n"))
+DIYWilcoxon <- function(condition, CellType, gene) {
+  print(paste("Performing Wilcoxon Rank Sum test for gene", gene, "in ", CellType))
   
   # Create subset for the specified condition
-  conditionSubset <- subset(treatment, subset = sample == condition)
+  conditionSubset <- subset(TreatmentAnnotated, subset = sample == condition)
   
   # Create subsets for the specified cluster and its complement
-  clusterSubset <- subset(conditionSubset, subset = seurat_clusters == cluster)
-  notClusterSubset <- subset(conditionSubset, subset = seurat_clusters != cluster)
+  clusterSubset <- subset(conditionSubset, subset = celltype == CellType)
+  notClusterSubset <- subset(conditionSubset, subset = celltype != CellType)
   
   # Extract the expression values for the specified gene in the two groups
   geneCluster <- t(clusterSubset@assays$RNA@data[gene, ])
@@ -76,17 +80,30 @@ DIYWilcoxon <- function(condition, cluster, gene) {
   dim <- dim(notClusterSubset@assays$integrated@data)[1]  # find # comparisons 
   adjResult <- wilcoxResult$p.value * dim
   
-  print(paste("Adjusted P value for", gene, ":", adjResult, "\n"))
+  print(paste("Adj P value", "|", condition, "|", adjResult))
   return(adjResult)
 }
 
-DIYWilcoxon("alpha", 10, "BANK1")  
+conditions <- c("alpha", "lambda", "untreated")
+genes0 <- c("CD14", "FCGR3A", "CSF3R", "CXCL8", "ITGAX") # cluster 0 and 4
+genes1 <- c("CD4", "LTB", "IL6ST", "KLF2") # cluster 1
+genes2 <- c("CD14", "VASP", "SOD2", "SPI1", "JAML") # cluster 2 
+genes3 <- c("IL7R", "CD2","IL32", "GPR183") # T cells
+genes5 <- c("CD8A", "CD8B", "IL7R", "GAS5","PASK") # naive
+genes6 <- c("CD37", "CD24", "BCL11A", "BLNK") # B 
+genes7 <- c("CD8A", "CD8B", "CD3G", "GZMA", "GZMB") # NKT
+genes8 <- c("S100A12", "LMNA","CD14", "MS4A7", "ITGAX", "FUT4") # mDCs
+genes9 <- c("CD8A", "CD8B","GZMA", "CD3G") # cytotoxic T cells 
+genes10 <- c("FOXP3", "CCR4","FANK1") # T regs 
+genes11 <- c("GNLY", "GZMB","NKG7", "CD3G") # NK
+genes12 <- c("CLEC1B", "GP9","PF4", "PPBP") # platelets
+genes14 <- c("ITGAX", "CCRL2", "CTSD", "GP9") # DCs
+genes15 <- c("CD3G", "NRGN", "CCR7") # CD4 T 
+genes17 <- c("CLEC4C", "GZMB","GAPT", "IRF7", "PLD4") # pDCs
 
-
-  
-
-
-
+for (gene in genes6) {
+  DIYWilcoxon("alpha", "B", gene)
+}
 
 
 
