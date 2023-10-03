@@ -951,9 +951,10 @@ combined_layout <- (
 )
 
 ##### [6] Labelled Clusters #####
-# Extract UMAP coordinatesb and cluster information
+# Extract UMAP coordinates and cluster information
 TreatmentAnnotated.umap.coords <- as.data.frame(TreatmentAnnotated@reductions$umap@cell.embeddings)
 clusters <- TreatmentAnnotated$seurat_clusters
+levels(TreatmentAnnotated)
 
 # Create a dataframe for ggplot
 TreatmentAnnotated.df <- data.frame(

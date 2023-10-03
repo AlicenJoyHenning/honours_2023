@@ -341,26 +341,26 @@ DotPlot(object = treatment,
 
 TreatmentAnnotated <- RenameIdents(treatment, 
                                    '0' = 'monocytes',
-                                   '1' = 'CD4+ helper',
+                                   '1' = 'naive CD4 T',
                                    '2' = 'neutrophils',
-                                   '3' = 'T',
+                                   '3' = 'T helper',
                                    '4' = 'monocytes',
-                                   '5' = 'naive CD8+ T',
+                                   '5' = 'naive CD8 T',
                                    '6' = 'B',
-                                   '7' = 'NKT',
+                                   '7' = 'cytotoxic T',
                                    '8' = 'mDCs',
-                                   '9' = 'cytotoxic CD8+ T',
+                                   '9' = 'NKT',
                                    '10' = 'Tregs',
                                    '11' = 'NK',
                                    '12' = 'platelets',
                                    '13' = 'unknown',
                                    '14' = 'DCs', 
-                                   '15' = 'CD4+ T',
-                                   '16' = 'CD4+ T',
+                                   '15' = 'Tcm',
+                                   '16' = 'Tcm',
                                    '17' = 'pDCs')
-
-TreatmentAnnotated <- RenameIdents(TreatmentAnnotated, 
-                                   'CD4+_helper' = 'CD4+ helper')
+# 
+# TreatmentAnnotated <- RenameIdents(TreatmentAnnotated, 
+#                                    'CD4+_helper' = 'CD4+ helper')
 
 saveRDS(treatment, "honours/results/FinalIndex/adjtreatment.rds")
 saveRDS(TreatmentAnnotated, "honours/results/FinalIndex/TreatmentAnnotated.rds")
@@ -379,79 +379,111 @@ TreatmentAnnotated@meta.data$cell_type <- TreatmentAnnotated@active.ident
 TreatmentAnnotated <- subset(TreatmentAnnotated, subset = seurat_clusters != 13) 
 
 palette.b <- c("#15c284", #0 mono
-             "#d72554", #1 CD4_helper
-             "#7ac745", #2 neutrophils
-             "#9b78c2", #3 T
-            # "#9b78c2", #4 mono
-            "#e18f75", #5 naive CD8_T
-             "#a0d9e9", #6 B 
-             "#7e549f", #7 NKT
-             "#6ab5ba", #8 mDCs
-             "#93aff5", #9 cytotoxic CD8 
-             "#c674bc", #10 Tregs
-             "#81cfff", #11 NK
-             "#74d6c3", #12 platelets
-             "#69a923", #13 unknown
-              "#00a68e", #14 DCs
-             "#dd5839", #15 CD4+
-           # "white", #16 CD4 +  
-             "#55bbaa") #17 pDC
+               "#d72554", #1 naive CD4
+               "#7ac745", #2 neutrophils
+               "#9b78c2", #3 T helper
+               # "#9b78c2", #4 mono
+               "#dd5839", #5 naive CD8 T
+               "#50b9d7", #6 B 
+               "#936bb1", #7 cytotoxic T cells
+               "#6ab5ba", #8 mDCs
+               "#7e549f", #9 NKT
+               "#c674bc", #10 Tregs
+               "#709bfc", #11 NK
+               "#47c9b0", #12 platelets
+               "#92b832", #13 unknown
+               "#00a68e", #14 DCs
+               "#f46897", #15 & 16 memory T
+               # "white", 
+               "#55bbaa") #17 pDC
 
 
 p2 <- DimPlot(TreatmentAnnotated, 
               reduction = "umap", 
               pt.size = 1.5,
-             # label = TRUE, 
-            #  label.color = "white",
-            #  label.box = TRUE,
-             # label.size = 5, 
-            #  repel = TRUE,
+              label = TRUE, 
+              label.color = "white",
+              label.box = TRUE,
+              label.size = 7, 
+              repel = TRUE,
               group.by = "cell_type") +  # Map to the cluster variable
   scale_color_manual(values = palette.b) +
   scale_fill_manual(values = palette.b) +
   theme(legend.position = "right") +
-  labs(x = "UMAP 1", y = "UMAP 2", color = "", title = "") 
+  labs(x = "UMAP 1", y = "UMAP 2", color = "", title = "PBMC populations") 
 
-?DimPlot()
 
-features <- c("MNDA", # 0 & 4 : monocytes
-              "CD3G", # 1 CD4 helper (CCR7)
-              "CSF3R", # 2 neutrophils
-              "MAF", # 3 T cells
-              "CD8B", # 5 naive CD8 T cells
+features <- { c("CCL4L2",  # 0 & 4 : monocytes CCL4L2 IL1RN MNDA HCK
+              "LEF1",  # 1 CD4 naive
+              "CXCR2", # 2 neutrophils CXCR2
+              "CCR4", # 3 T helper cells
+              "CD8B",  # 5 naive CD8 T cells
               "MS4A1", # 6 B cells 
-              "CCL5", # 7 NKT
-              "S100A12", # 8 mDCs
-              "CXCR6", # 9 cytotoxic CD8 
+              "EOMES",  # 7 cytotoxic T  CCL5 EOMES
+              "MAFB",  # 8 mDCs
+              "KLRB1", # 9 NKT 
               "FOXP3", # 10 Treg
               "KLRF1", # 11 NK
-              "GP9", # 12 platelets (NRGN)
+              "GP9",   # 12 platelets (NRGN)
+              "RFLNB", # 13 unknown 
               "VEGFA", # 14 DCs
-              "NRGN", # 15 CD4 T 
-              "IRF8") # 17 pDcs ) 
+              "KLF2",  # 15 & 16 memory T CCR7 KLF2 NRGN
+              "MZB1")  # 17 pDcs 
+}
 
-DefaultAssay(TreatmentAnnotated) <- "RNA"
-
-DotPlot(object = TreatmentAnnotated, 
+overall <- DotPlot(object = TreatmentAnnotated, 
         features = features,
-        cols = c("#d3d3d3", "grey")) + 
+        cols = c("white", "darkgrey")) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.7)) +
+  scale_y_discrete(position = "left") +
+ geom_abline(intercept = 0, slope = 1, color = "black",linetype = "dashed", size = 0.25)
+
+
+# T Cells 
+TGroups <- c("NK", "NKT", "cytotoxic T", "naive CD8 T", "naive CD4 T", "T helper", "Tcm", "Tregs")
+Tcells <- subset(TreatmentAnnotated, subset = cell_type %in% TGroups)
+levels(Tcells)<- c("NK", "NKT", "cytotoxic T", "naive CD8 T", "Tregs", "naive CD4 T", "T helper", "Tcm")
+
+
+TPlot <- DotPlot(object = Tcells, 
+            features = c("CD3G","NKG7", "CD8A", "CD8B","FOXP3", "CD4","CD28", "LEF1"),
+            cols = c("grey", "#a9a9a9")) + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1),
+            panel.border = element_rect(color = "black", fill = NA, size = 0.7)) +
+      scale_y_discrete(position = "left") +
+      geom_hline(yintercept = as.numeric(4.5),  color = "black",linetype = "dashed", size = 0.25)
+
+print(TPlot)
+
+# myeloid cells 
+MGroups <- c("monocytes", "neutrophils", "mDCs")
+Mcells <- subset(TreatmentAnnotated, subset = cell_type %in% MGroups)
+levels(Mcells)<- MGroups
+
+MPlot <- DotPlot(object = Mcells, 
+                 features = c("TREM1", "ITGAX", "ASCC2", "FPR1","CCL3"),
+                 cols = c("grey", "#a9a9a9")) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.7)) +
+  scale_y_discrete(position = "left") +
+  geom_hline(yintercept = as.numeric(4.5),  color = "black",linetype = "dashed", size = 0.25)
+
+print(MPlot)
+
+
+
+  
+  
+
+# mDC
+DotPlot(object = TreatmentAnnotated, 
+        features = c("ITGAX", "MAFB", "FCGR3A"),
+        cols = c("#d3d3d3", "lightgreen")) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_y_discrete(position = "right")
-
-
-
+  scale_y_discrete(position = "left")
 
 ##### [7] I can't remember what any of this is #####
-# view conserved cell markers across conditions : 
-# Visualize gene expression changes using a variation of feature plots ; 
-
-FeaturePlot(treatment, 
-            features = c("FCGR3A"), 
-            split.by = "stim", 
-            max.cutoff = 3, 
-            cols = c("grey","#7ac745"))
-
-
 # See what genes change in different conditions for cells of the same type : 
 # The code is specifically looking for genes that change in expression consistently across all cell types of the same type (need to specify to look at particular cell type)
 
