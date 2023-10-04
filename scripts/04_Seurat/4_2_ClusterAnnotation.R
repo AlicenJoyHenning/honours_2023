@@ -457,13 +457,21 @@ TPlot <- DotPlot(object = Tcells,
 print(TPlot)
 
 # myeloid cells 
-MGroups <- c("monocytes", "neutrophils", "mDCs")
-Mcells <- subset(TreatmentAnnotated, subset = cell_type %in% MGroups)
+TreatmentM <- RenameIdents(treatment, 
+                                   '0' = 'monocytes1',
+                                   '2' = 'neutrophils',
+                                   '4' = 'monocytes2',
+                                   '8' = 'mDCs'
+                                   )
+TreatmentM@meta.data$cell_type <- TreatmentM@active.ident
+MGroups <- c('monocytes1','monocytes2', 'neutrophils','mDCs')
+Mcells <- subset(TreatmentM, subset = cell_type %in% MGroups)
 levels(Mcells)<- MGroups
 
+
 MPlot <- DotPlot(object = Mcells, 
-                 features = c("TREM1", "ITGAX", "ASCC2", "FPR1","CCL3"),
-                 cols = c("grey", "#a9a9a9")) + 
+                 features = c( "TLR6",  "CXCR1", "CXCR2", "FCGR3B", "ITGAX","TREM1","CD14", "FCGR3A"),
+                 cols = c("white", "#a9a9a9")) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_rect(color = "black", fill = NA, size = 0.7)) +
   scale_y_discrete(position = "left") +
@@ -473,15 +481,6 @@ print(MPlot)
 
 
 
-  
-  
-
-# mDC
-DotPlot(object = TreatmentAnnotated, 
-        features = c("ITGAX", "MAFB", "FCGR3A"),
-        cols = c("#d3d3d3", "lightgreen")) + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_y_discrete(position = "left")
 
 ##### [7] I can't remember what any of this is #####
 # See what genes change in different conditions for cells of the same type : 

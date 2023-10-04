@@ -39,6 +39,29 @@ library(metap)
 # packageVersion("Matrix")
 # remove.packages("SeuratObject")
 
+
+# Load datasets: alpha, lambda, and untreated using ReadMtx function : 
+Amatrix <- "honours/work/1109/alpha/matrix.mtx.gz"
+Abarcodes <- "honours/work/1109/alpha/barcodes.tsv.gz"
+Afeatures <- "honours/work/1109/alpha/features.tsv.gz"
+AlphaMatrix <- ReadMtx(Amatrix, Abarcodes, Afeatures)
+alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=0)
+saveRDS(alpha, "honours/work/1109/alpha/alphaCountMatrix.rds")
+
+Lmatrix <- "honours/work/1109/lambda/matrix.mtx.gz"
+Lbarcodes <- "honours/work/1109/lambda/barcodes.tsv.gz"
+Lfeatures <- "honours/work/1109/lambda/features.tsv.gz"
+LambdaMatrix <- ReadMtx(Lmatrix, Lbarcodes, Lfeatures)
+lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features = 0)
+saveRDS(lambda, "honours/work/1109/lambda/lambdaCountMatrix.rds")
+
+Umatrix <- "honours/work/1109/untreated/matrix.mtx.gz"
+Ubarcodes <- "honours/work/1109/untreated/barcodes.tsv.gz"
+Ufeatures <- "honours/work/1109/untreated/features.tsv.gz"
+UntreatedMatrix <- ReadMtx(Umatrix, Ubarcodes, Ufeatures)
+untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features = 0)
+saveRDS(untreated, "honours/work/1109/untreated/untreatedCountMatrix.rds")
+
 ##### [2] Perform cell and gene level quality control independently on the datasets #####
 
 # Removing unwanted cells based on # genes expressed and mitochondrial gene expression
@@ -323,27 +346,7 @@ for (project in projects) {
 
 
 ##### 
-# Load datasets: alpha, lambda, and untreated using ReadMtx function : 
-Amatrix <- "honours/work/1109/alpha/matrix.mtx.gz"
-Abarcodes <- "honours/work/1109/alpha/barcodes.tsv.gz"
-Afeatures <- "honours/work/1109/alpha/features.tsv.gz"
-AlphaMatrix <- ReadMtx(Amatrix, Abarcodes, Afeatures)
-alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=0)
-saveRDS(alpha, "honours/work/1109/alpha/alphaCountMatrix.rds")
 
-Lmatrix <- "honours/work/1109/lambda/matrix.mtx.gz"
-Lbarcodes <- "honours/work/1109/lambda/barcodes.tsv.gz"
-Lfeatures <- "honours/work/1109/lambda/features.tsv.gz"
-LambdaMatrix <- ReadMtx(Lmatrix, Lbarcodes, Lfeatures)
-lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features = 0)
-saveRDS(lambda, "honours/work/1109/lambda/lambdaCountMatrix.rds")
-
-Umatrix <- "honours/work/1109/untreated/matrix.mtx.gz"
-Ubarcodes <- "honours/work/1109/untreated/barcodes.tsv.gz"
-Ufeatures <- "honours/work/1109/untreated/features.tsv.gz"
-UntreatedMatrix <- ReadMtx(Umatrix, Ubarcodes, Ufeatures)
-untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features = 0)
-saveRDS(untreated, "honours/work/1109/untreated/untreatedCountMatrix.rds")
 
 # noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
 # fixes new sizes : 193,  219, 198 MB
