@@ -5,6 +5,7 @@
 library(ggplot2)
 library(scales)
 
+
 ##### Quality control stacked bar graph : data prep ######
 
 UntreatedMatrix <- ReadMtx("honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/matrix.mtx.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/barcodes.tsv.gz", "honours/work/DarisiaIndex/untreatedDarisiaIndex/seurat_matrix/features.tsv.gz")
@@ -106,6 +107,13 @@ palette.d <- c("#7c8c94", # high
                "#696969", # low m 
                "#9dcfd3") # m
 
+palette.e <- c("#6ab5ba", # high
+               "#696969", # high m
+               "#c9cacd", # kept
+               #"#a1a1a1", # low 
+               "#9dcfd3", # low m 
+               "#7c8c94") # m
+
 # ALPHA : 
 # Create data frame 
 alphapie <- data.frame(
@@ -133,9 +141,9 @@ alpha <- ggplot(alphapie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Metric)
     geom_rect() + 
 # geom_rect(color = "black", size = 0.65) +
 # geom_label( x=3.5, aes(y=labelPosition, label=label), size=8) +
-  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 6) +  # Add labels with percentages
-  scale_fill_manual(values = palette.d)+ 
-  coord_polar(theta="y") +
+  geom_text(aes(x = 3.75, y = labelPosition, color = "white", label = label,  fontface = "bold"), size = 6) +  # Add labels with percentages
+  scale_fill_manual(values = palette.e)+ 
+  coord_polar(theta="y") + # makes it a circle 
   xlim(c(2.7, 4)) +
   theme_void() +
   theme(legend.position = "right",
@@ -169,8 +177,8 @@ lambda <- ggplot(lambdapie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=categ
   geom_rect() + 
   # geom_rect(color = "black", size = 0.65) +
   # geom_label( x=3.5, aes(y=labelPosition, label=label), size=8) +
-  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 6) +
-  scale_fill_manual(values = palette.d)+ 
+  geom_text(aes(x = 3.75, y = labelPosition, color = "white", label = label,  fontface = "bold"), size = 6) +
+  scale_fill_manual(values = palette.e)+ 
   coord_polar(theta="y") +
   xlim(c(2.7, 4)) +
   theme_void() +
@@ -204,8 +212,8 @@ untreated <- ggplot(untreatedpie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill
   geom_rect() + 
   # geom_rect(color = "black", size = 0.65) +
   # geom_label( x=3.5, aes(y=labelPosition, label=label), size=8) +
-  geom_text(aes(x = 3.75, y = labelPosition, label = label,  fontface = "bold"), size = 6) +
-  scale_fill_manual(values = palette.d)+ 
+ geom_text(aes(x = 3.75, color = "white", y = labelPosition, label = label,  fontface = "bold"), size = 6) +
+  scale_fill_manual(values = palette.e)+ 
   coord_polar(theta="y") +
   xlim(c(2.7, 4)) +
   theme_void() +
