@@ -6,7 +6,6 @@ DefaultAssay(treatment) <- "RNA"
 colnames(treatment@meta.data)[1] <- "sample"
 
 
-
 # For each cluster, we create 2 groups: 1 containing cells belonging to the
 # cluster of interest, and the other containing cells that do not belong to the
 # cluster of interest (aka all the other clusters)

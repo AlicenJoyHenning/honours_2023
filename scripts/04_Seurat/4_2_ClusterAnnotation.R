@@ -368,7 +368,7 @@ saveRDS(TreatmentAnnotated, "honours/results/FinalIndex/TreatmentAnnotated.rds")
 
 ##### [6] Visualisation with annotations #####
 
-TreatmentAnnotated <- read_rds("honours/results/FinalIndex/TreatmentAnnotatedforLabels.rds")
+TreatmentAnnotated <- read_rds("honours/results/FinalIndex/TreatmentAnnotated.rds")
 
 # UMAP plot with labels 
 Idents(TreatmentAnnotated)

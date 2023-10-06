@@ -51,7 +51,7 @@ combinedalt <- subset(combined, nCount_RNA <= 15000)
 combined2 <- subset(combined, nCount_RNA >= 15000)
 combined <- subset(combined, nCount_RNA <= 50000)
 
-# Labelling outliers 
+# Labeling outliers in metadata column 
 combined$outlier <- with(combined, ifelse(nCount_RNA >= 15000 & nCount_RNA <= 50000, TRUE, FALSE))
 
 
