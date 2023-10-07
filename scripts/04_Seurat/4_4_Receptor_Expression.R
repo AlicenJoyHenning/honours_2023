@@ -1,21 +1,53 @@
 # Receptor expression across cell types 
 
 # [1] Load integrated data set :
-TreatmentAnnotated <- read_rds("honours/results/FinalIndex/TreatmentAnnotated.rds")
+TreatmentAnnotated <- read_rds("honours/results/FinalIndex/")
+TreatmentAnnotated@meta.data$cell_type <- TreatmentAnnotated@active.ident
 Idents(TreatmentAnnotated)
-DefaultAssay(TreatmentAnnotated)
+DefaultAssay(TreatmentAnnotated) <- "RNA"
+
+TreatmentAnnotated 
 
 # [2] View receptor expression across cell types : 
 
-receptorFP <- FeaturePlot(TreatmentAnnotated,
-                          features = c("IFNAR1"),
-                          cols = c("#e2e2e2", "black"))
+levels(TreatmentAnnotated)
 
-receptorDP <- DotPlot(TreatmentAnnotated,
-                          features = c("IFNAR1",  "IFNLR1"),
-                          cols = c("black", "black")) +
-  coord_flip()
-  
+TreatmentAnnotated <- subset(TreatmentAnnotated, seurat_clusters != 13)
+
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+TreatmentAnnotated$cell_type <- factor(TreatmentAnnotated$cell_type, levels = c(
+  "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
+  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
+  "B", "unknown")) 
+
+levels(TreatmentAnnotated) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13)
+  c("monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
+   "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
+   "B", "unknown")
+
+AreceptorDP <- DotPlot(TreatmentAnnotated,
+                      features = c("IFNAR1"), # ,  "IFNLR1"
+                      cols = c("#a9aaa9", "#a9aaa9")) +
+  labs(x = "", y = "", fill = "Gene expression (%)") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, face = "bold"),
+    panel.border = element_rect(color = "black", fill = NA, size = 0.7),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  geom_hline(yintercept = c(4.65, 5.35, 14.65, 15.35), color = "black", linetype = "dashed", size = 0.25)# +
+
+LreceptorDP <- DotPlot(TreatmentAnnotated,
+                       features = c("IFNLR1"), # ,  "IFNLR1"
+                       cols = c("#6ab5ab", "#6ab5ab")) +
+  labs(x = "", y = "", fill = "Gene Expression (%)") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, face = "bold"),
+    legend.title = element_text(size = 14, colour= "black", face = "bold"),
+    panel.border = element_rect(color = "black", fill = NA, size = 0.7),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()) +
+  geom_hline(yintercept = c(4.65, 5.35, 14.65, 15.35), color = "black", linetype = "dashed", size = 0.25)# +
+
                           
 #blend to view alpha and lambda receptors!
 ?FeaturePlot()
@@ -34,8 +66,37 @@ ReceptorTreatment <- RenameIdents(TreatmentAnnotated,
                                   'Tcm'= "T cells",
                                   "B" = 'B cells')
 
+ReceptorTreatment <- subset(ReceptorTreatment, seurat_clusters != 13)
 
 receptorDP <- DotPlot(ReceptorTreatment,
                       features = c("IFNAR1",  "IFNLR1"),
-                      cols = c("black", "black")) +
+                      cols = c("#a9aaa9", "#a9aaa9")) +
+  labs(x = "", y = "") +
+  theme(
+    axis.text.y = element_text(face = "bold"),
+    panel.border = element_rect(color = "black", fill = NA, size = 0.7),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  geom_hline(yintercept = c(1.75, 2.25, 7.75, 8.25), color = "black", linetype = "dashed", size = 0.25) +
   coord_flip()
+
+print(receptorDP)
+# Plot : 
+
+receptorexpression <- ggplot(
+  grouped,
+  aes(fill = rev(Treatment), y = CellTypes, x = Goterms)) +
+  geom_bar(color = NA, position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = rev(colours)) +
+  labs(title = "", x = "Number of cells", y = "", fill = "IFN treatment") +
+  theme(
+    axis.text.x = element_text(size = 16, colour = "black"),
+    axis.text.y = element_text(size = 14, colour = "black", hjust = 0.5),  # Center-align y-axis text
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),legend.title = element_text(size = 14, face = "bold", colour= "black", margin = margin(t = -50)),
+    legend.text = element_text(size = 14, colour= "black"),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  )
+  

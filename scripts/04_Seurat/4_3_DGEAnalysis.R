@@ -64,15 +64,15 @@ M1AlphaResponse$gene <- rownames(M1AlphaResponse) # puts gene names into a colum
 M1AlphaResponse <- filter(M1AlphaResponse, p_val_adj < 0.05)
 down <- filter(M1AlphaResponse, avg_log2FC < 0)
 up <- filter(M1AlphaResponse, avg_log2FC >= 0)
-saveRDS(M1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesAlphaResponse.rds")
-readRDS("honours/results/FinalIndex/DEAnalysis/monocytesAlphaResponse.rds")
+write.table(M1AlphaResponse$gene, file = file_path, col.names = FALSE, row.names = FALSE)
+# saveRDS(M1AlphaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesAlphaResponse.rds")
 
 M1LambdaResponse <- FindMarkers(TreatmentAnnotated, ident.1 = "monocytes_lambda", ident.2 = "monocytes_untreated", sep = "_") 
 M1LambdaResponse$gene <- rownames(M1LambdaResponse) 
 M1LambdaResponse <- filter(M1LambdaResponse, p_val_adj < 0.05)
 down <- filter(M1LambdaResponse, avg_log2FC < 0)
 up <- filter(M1LambdaResponse, avg_log2FC >= 0)
-saveRDS(M1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesLambdaResponse.rds")
+# saveRDS(M1LambdaResponse, "honours/results/FinalIndex/DEAnalysis/monocytesLambdaResponse.rds")
 
 
 # 2. Neutrophils 

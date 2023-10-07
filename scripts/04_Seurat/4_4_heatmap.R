@@ -60,7 +60,7 @@ pheatmap(
   labels_row = row_names,  # Row labels
   cluster_rows = FALSE,    # Disable row clustering
   cluster_cols = TRUE,     # Enable column clustering
-  color = colorRampPalette(c("grey", "white", "#6ab5ba"))(5000),  # Color palette
+  color = colorRampPalette(c("white", "#6ab5ba"))(5000),  # Color palette
   main = "Neutrophil Gene expression \n (log2(n + 1)) \n following IFN treatment"
 )
 

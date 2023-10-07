@@ -81,8 +81,8 @@ DEGs <- c(1028, 10, 1, # monocytes
 
           12, 0, 0, # platelets 
 
-          807, 12, 11, # T cells
-          714, 13, 13, # CD4h
+          807, 12, 11, # T helper
+          714, 13, 13, # naive CD4
           678, 5, 6, # naive cd8
           310, 5, 3, # NKT
           186, 1, 1, # cyto CD8
@@ -95,8 +95,8 @@ DEGs <- c(1028, 10, 1, # monocytes
 )
 
 # x groups : 
-CellTypes <- c(rep("mono", 3), 
-               rep("neu", 3),
+CellTypes <- c(rep("monocytes", 3), 
+               rep("neutrophils", 3),
                # rep("myeloid", 2),
                rep("DCs", 3),
                rep("mDCs", 3),
@@ -104,14 +104,14 @@ CellTypes <- c(rep("mono", 3),
 
                rep("platelets", 3),
 
-               rep("T", 3),
-               rep("CD4h", 3),
-               rep("nCD8", 3),
-               rep("NKT", 3),
-               rep("cCD8", 3),
-               rep("Tregs", 3),
-               rep("CD4", 3),
-               rep("NK", 3),
+               rep("T helper", 3),
+               rep("naive CD4 T", 3),
+               rep("naive CD8 T", 3),
+               rep("cytotoxic T", 3),
+               rep("natural killer T", 3),
+               rep("T regulatory", 3),
+               rep("T central memory", 3),
+               rep("natural killer", 3),
                # rep("all_T", 2),
 
                rep("B", 3))
@@ -123,7 +123,9 @@ grouped <- data.frame(Treatment, CellTypes, DEGs)
 
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
 grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
-  "mono", "neu", "DCs","mDCs","pDCs","platelets","T","CD4h","nCD8","NKT","cCD8","Tregs","CD4","NK","B"))
+  "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
+  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","natural killer T","T regulatory","T central memory","natural killer",
+  "B"))
 grouped$Treatment <- factor(grouped$Treatment, levels = c("alpha", "common", "lambda"))
 
 colours <- c("lightgrey","#6ab5ba","darkgrey")
@@ -138,7 +140,7 @@ verticalDEGs <- ggplot(
   scale_fill_manual(values = rev(colours)) +  # Reverse fill colors
   labs(title = "", x = "Number of DEGs", y = "") +
   theme(
-    axis.text.x = element_text(size = 18, colour = "black"),
+    axis.text.x = element_text(size = 16, colour = "black"),
     axis.text.y = element_blank(),  # Remove y-axis labels
     axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
     axis.title.y =  element_blank(),
@@ -178,8 +180,9 @@ Goterms <- c(766, 0, 7, # monocytes
 )
 
 # x groups : 
-CellTypes <- c(rep("mono", 3), 
-               rep("neu", 3),
+# x groups : 
+CellTypes <- c(rep("monocytes", 3), 
+               rep("neutrophils", 3),
                # rep("myeloid", 2),
                rep("DCs", 3),
                rep("mDCs", 3),
@@ -187,14 +190,14 @@ CellTypes <- c(rep("mono", 3),
                
                rep("platelets", 3),
                
-               rep("T", 3),
-               rep("CD4h", 3),
-               rep("nCD8", 3),
-               rep("NKT", 3),
-               rep("cCD8", 3),
-               rep("Tregs", 3),
-               rep("CD4", 3),
-               rep("NK", 3),
+               rep("T helper", 3),
+               rep("naive/nCD4 T", 3),
+               rep("naive/nCD8 T", 3),
+               rep("cytotoxic/nT", 3),
+               rep("natural/killer T", 3),
+               rep("T regulatory", 3),
+               rep("T/ncentral memory", 3),
+               rep("natural/nkiller", 3),
                # rep("all_T", 2),
                
                rep("B", 3))
@@ -210,8 +213,9 @@ grouped <- grouped %>% arrange(CellTypes, Treatment, -Goterms)
 
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
 grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
-  "mono", "neu", "DCs","mDCs","pDCs","platelets","T","CD4h","nCD8","NKT","cCD8","Tregs","CD4","NK","B"))
-
+  "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
+  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","natural killer T","T regulatory","T central memory","natural killer",
+  "B"))
 
 colours <- c("lightgrey", "darkgrey", "#6ab5ba")
 
@@ -224,13 +228,13 @@ verticalGO <- ggplot(
   theme_minimal() +
   scale_fill_manual(values = rev(colours)) +
   # number of enriched GO terms 
-  labs(title = "", x = "Number of enriched GO terms", y = "") +
+  labs(title = "", x = "Number of enriched GO terms", y = "", fill = "IFN treatment") +
   theme(
-    axis.text.x = element_text(size = 18, colour = "black"),
-    axis.text.y = element_text(size = 16, colour = "black", hjust = 0.5),  # Center-align y-axis text
+    axis.text.x = element_text(size = 16, colour = "black"),
+    axis.text.y = element_text(size = 14, colour = "black", hjust = 0.5),  # Center-align y-axis text
     axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
-    axis.title.y =  element_blank(),legend.title = element_text(size = 16, face = "bold", colour= "black", margin = margin(t = -50)),
-    legend.text = element_text(size = 16, colour= "black"),
+    axis.title.y =  element_blank(),legend.title = element_text(size = 14, face = "bold", colour= "black", margin = margin(t = -50)),
+    legend.text = element_text(size = 14, colour= "black"),
     panel.grid.major = element_blank(), # Remove major grid lines
     panel.grid.minor = element_blank()  # Remove minor grid lines
   )
@@ -673,3 +677,174 @@ L3_bar <- ggplot(
     panel.border = element_rect(color = "black", fill = NA, size = 1),
     plot.title.position = "plot")
 
+
+##### Up and Down together #####
+# Y values : 
+aDEGs <- c(414, 615, # monocytes
+          317, 386, # neutrophils
+          # 1209, 13, # myeloid 
+          2, 1,   # DCs
+          59, 21, # myeloid dericed dendritic cells
+          0, 0, # pDCs
+          
+          # 297, 51, # dendritic cells 
+          
+          3, 9, # platelets 
+          
+          504, 315, # T helper
+          422, 305, # naive CD4
+          433, 250, # naive cd8
+          204, 111, # NKT
+          136, 51, # cyto CD8
+          144, 9, # T regs 
+          58, 4, # CD4
+          131, 20, # NK
+          # 935, 33, # overall T 
+          
+          567, 368 # B
+)
+
+# x groups : 
+CellTypes <- c(rep("monocytes", 2), 
+               rep("neutrophils", 2),
+               # rep("myeloid", 2),
+               rep("DCs", 2),
+               rep("mDCs", 2),
+               rep("pDCs", 2),
+               
+               rep("platelets", 2),
+               
+               rep("T helper", 2),
+               rep("naive CD4 T", 2),
+               rep("naive CD8 T", 2),
+               rep("cytotoxic T", 2),
+               rep("natural killer T", 2),
+               rep("T regulatory", 2),
+               rep("T central memory", 2),
+               rep("natural killer", 2),
+               # rep("all_T", 2),
+               
+               rep("B", 2))
+# stacks : 
+Treatment <- rep(c("up regulated", "down regulated"), 15)
+
+# create data frame :  
+grouped <- data.frame(Treatment, CellTypes, aDEGs)
+
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+  "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
+  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","natural killer T","T regulatory","T central memory","natural killer",
+  "B"))
+
+grouped$Treatment <- factor(grouped$Treatment, levels = c("up regulated", "down regulated"))
+
+colourss <- c("#6ab5ba","darkgrey")
+
+
+# Plot : 
+aDEGsplot <- ggplot(
+  grouped,
+  aes(fill = rev(Treatment), y = CellTypes, x = -aDEGs)) +  # Reverse x-axis and fill order
+  geom_bar(color = NA, position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = colourss) +  # Reverse fill colors
+  labs(title = "IFN-α", x = "Number of DEGs", y = "") +
+  theme(
+    plot.title = element_text(size = 16, colour = "black", face = "bold", hjust = 0.5),  # Center the title
+    axis.text.x = element_text(size = 16, colour = "black"),
+    axis.text.y = element_blank(),  # Remove y-axis labels
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),
+    legend.title = element_blank(),
+    legend.text = element_blank(),
+    #legend.text = element_text(size = 18, colour = "black"),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  ) + 
+  guides(fill = "none")  # Remove the legend
+aDEGsplot
+##### Stacked Bar graph for GO terms #####
+lDEGs <- c(10, 1, # monocytes
+           9, 1, # neutrophils
+           # 1209, 13, # myeloid 
+           0, 0,   # DCs
+           0, 0, # myeloid dericed dendritic cells
+           0, 0, # pDCs
+           
+           # 297, 51, # dendritic cells 
+           
+           0, 0, # platelets 
+           
+           22, 1, # T helper
+           22, 4, # naive CD4
+           10, 1, # naive cd8
+           6, 2, # NKT
+           2, 0, # cyto CD8
+           4, 2, # T regs 
+           0, 0, # CD4
+           1, 0, # NK
+           # 935, 33, # overall T 
+           
+           30 , 3 # B
+)
+
+# x groups : 
+CellTypes <- c(rep("monocytes", 2), 
+               rep("neutrophils", 2),
+               # rep("myeloid", 2),
+               rep("DCs", 2),
+               rep("mDCs", 2),
+               rep("pDCs", 2),
+               
+               rep("platelets", 2),
+               
+               rep("T helper", 2),
+               rep("naive CD4 T", 2),
+               rep("naive CD8 T", 2),
+               rep("cytotoxic T", 2),
+               rep("natural killer T", 2),
+               rep("T regulatory", 2),
+               rep("T central memory", 2),
+               rep("natural killer", 2),
+               # rep("all_T", 2),
+               
+               rep("B", 2))
+# stacks : 
+Treatment <- rep(c("up regulated", "down regulated"), 15)
+
+# create data frame :  
+grouped <- data.frame(Treatment, CellTypes, lDEGs)
+
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+  "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
+  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","natural killer T","T regulatory","T central memory","natural killer",
+  "B"))
+
+grouped$Treatment <- factor(grouped$Treatment, levels = c("up regulated", "down regulated"))
+
+colourss <- c("#6ab5ba","darkgrey")
+
+# Plot : 
+lDEGsplot <- ggplot(
+  grouped,
+  aes(fill = Treatment, y = CellTypes, x = lDEGs)) +
+  geom_bar(color = NA, position = "stack", stat = "identity") +
+  theme_minimal() +
+  scale_fill_manual(values = colours) +
+  # number of enriched GO terms 
+  labs(title = "IFN-λ", x = "Number of DEGs", y = "", fill = "IFN treatment") +
+  theme(
+    plot.title = element_text(size = 16, colour = "black", face = "bold", hjust = 0.5), 
+    axis.text.x = element_text(size = 16, colour = "black"),
+    axis.text.y = element_text(size = 18, colour = "black", hjust = 0.5),  # Center-align y-axis text
+    axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
+    axis.title.y =  element_blank(),legend.title = element_text(size = 14, face = "bold", colour= "black", margin = margin(t = -50)),
+    legend.text = element_text(size = 14, colour= "black"),
+    panel.grid.major = element_blank(), # Remove major grid lines
+    panel.grid.minor = element_blank()  # Remove minor grid lines
+  )
+lDEGsplot
+##### Stacked bar graph together #####
+aDEGsplot | lDEGsplot
