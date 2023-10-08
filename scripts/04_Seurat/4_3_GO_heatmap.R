@@ -11,7 +11,7 @@ library(Seurat)
 library(SeuratObject)
 library(pheatmap)
 library(tidyverse)
-library(dplyr)
+library(dplyr) # data frame work 
 library(patchwork)
 library(openxlsx)
 install.packages("dbplyr")
@@ -42,6 +42,7 @@ SubTreatment$celltype <- Idents(SubTreatment) # restores the cell type column
 Idents(SubTreatment) <- "celltype.stim"
 
 setwd("honours/mydreamheatmap/")
+getwd()
 
 # [2] DEG on categories above for alpha and lambda treatment  ####
 
@@ -139,10 +140,23 @@ EvenMoreEnrichedGO <- function(CellType, Treatment, Regulation) {
   EGO <- enrichGO(gene = DEGs, OrgDb = org.Hs.eg.db, keyType = "ENTREZID",ont = "BP",pAdjustMethod = "BH", pvalueCutoff = 0.05)
   EGO <- filter(EGO, EGO@result$p.adjust < 0.05)
   cat("enrich GO performed", "\n")
+
+  # Create R object suitable for analysis : (for merging)
+  EGOdf <- data.frame(
+    Type = rep(paste0(CellType), nrow(EGO)),
+    Treatment = rep(paste0(Treatment), nrow(EGO)),
+    Regulation = rep(paste0(Regulation), nrow(EGO)),
+    GODescription = EGO@result$Description,
+    GeneRatio = EGO@result$GeneRatio
+  ) 
+  saveRDS(EGOdf, file = paste0("GO_", CellType, "_", Treatment, "_", Regulation, ".rds")) 
+  cat("Downstream Dataframe created", "\n")
+  
   # save as R object and create text file with GO term list : 
   output <- paste(EGO$Description, EGO$GeneRatio, sep = "\t") # concatenate values from 2 columns 
   write.table(output, file = paste0("GO_", CellType, "_", Treatment, "_", Regulation, ".txt"), row.names = FALSE, col.names = FALSE)
   cat("Output saved")
+  
   } 
 
 # neutrophils
@@ -169,30 +183,129 @@ EvenMoreEnrichedGO("lymphoid", "alpha", "downregulated")
 EvenMoreEnrichedGO("lymphoid", "lambda", "upregulated")
 EvenMoreEnrichedGO("lymphoid", "lambda", "downregulated")
 
+# [4] Identify and quantify GO terms ####
+
+n.a.u <- readRDS("GO_neutrophils_alpha_upregulated.rds") 
+n.a.d <- readRDS("GO_neutrophils_alpha_downregulated.rds")
+n.l.u <- readRDS("GO_neutrophils_lambda_upregulated.rds")
+n.l.d <- readRDS("GO_neutrophils_lambda_downregulated.rds")
+
+m.a.u <- readRDS("GO_myeloid_alpha_upregulated.rds") 
+m.a.d <- readRDS("GO_myeloid_alpha_downregulated.rds")
+m.l.u <- readRDS("GO_myeloid_lambda_upregulated.rds")
+m.l.d <- readRDS("GO_myeloid_lambda_downregulated.rds")
+
+b.a.u <- readRDS("GO_B_alpha_upregulated.rds") 
+b.a.d <- readRDS("GO_B_alpha_downregulated.rds")
+b.l.u <- readRDS("GO_B_lambda_upregulated.rds")
+b.l.d <- readRDS("GO_B_lambda_downregulated.rds")
+
+l.a.u <- readRDS("GO_lymphoid_alpha_upregulated.rds") 
+l.a.d <- readRDS("GO_lymphoid_alpha_downregulated.rds")
+l.l.u <- readRDS("GO_lymphoid_lambda_upregulated.rds")
+l.l.d <- readRDS("GO_lymphoid_lambda_downregulated.rds")
+
+GOanalysis <-  bind_rows(n.a.u, n.a.d, n.l.u, n.l.d, 
+                         m.a.u, m.a.d, m.l.u, m.l.d, 
+                         b.a.u, b.a.d, b.l.u, b.l.d, 
+                         l.a.u, l.a.d, l.l.u, l.l.d)                  
+
+
 # [4] heatmap itself ####
 
-heat <- data.frame(sample = c( 
-                         "B cells α", "B cells λ", 
-                         "lymphoid α", "lymphoid λ",
-                         "neutrophils α", "neutrophils λ",
-                         "myeloid α", "myeloid λ"),
-                   GO1 = c(30, 20, 17, 4 ,23, 0, 13, 1), 
-                   GO2 = c(20, 10, 13, 2, 11, 0, 5, 0), 
-                   GO3 = c(16, 10, 12, 0, 15, 0, 10, 0), 
-                   GO4 = c(19, 10, 12, 0, 18, 0, 10, 0),
-                   GO5 = c(14, 11, 14, 0, 31, 1, 18, 1)) 
+# UPREGULATED
+# Transpose the Data Frame
+heatT <- data.frame(
+  GO = c("GO1", "GO2", "GO3", "GO4", "GO5"),
+  neutrophils_α = c(40, 36, 44, 19, 30),
+  neutrophils_λ = c(0,  0,  0,  0,  0),
+  myeloid_α =     c(46, 35, 48, 47, 38),
+  myeloid_λ =     c(0,  0,  0,  0,  0),
+  Bcells_α =      c(38, 37, 40, 13, 28),
+  Bcells_λ =      c(20, 18, 14,  0, 12),
+  lymphoid_α =    c(42, 34, 46, 26, 35),
+  lymphoid_λ =    c(5,  3,  0,  0,  0)
+)
+
+# Reorder the GO column 
+heatT$GO <- factor(heatT$GO, levels = c("GO6", "GO5", "GO4", "GO3", "GO2", "GO1"))
 
 
-heat_long <- melt(heat, id.vars = "sample")
+heatT_long <- melt(heatT, id.vars = "GO", variable.name = "CellType", value.name = "Count")
 
-ggplot(heat_long, aes(x = variable, y = sample, fill = value)) +
+
+ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
   geom_tile(color = "white") +
   scale_fill_gradient(low = "lightgrey", high = "#6ab5ba") +
   theme_minimal() +
-  labs(x = "GO Terms", y = "Sample", fill = "Count")
+  theme(axis.text.x = element_text(angle = 50, hjust = 1, size = 14, face = "bold"),
+        axis.text.y = element_text(size = 14),
+        axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),
+        legend.key.size = unit(2, "lines"),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 14, face = "bold") 
+        ) +  # Rotate x-axis labels and set font size and style
+  labs(x = "", y = "Top enriched GO Terms", fill = "Count") +
+  theme(legend.position = "left") +  
+  scale_x_discrete(labels = c("Bcells_α" = "B Cells α", 
+                              "Bcells_λ" = "B Cells λ", 
+                              "lymphoid_α" = "Lymphoid α", 
+                              "lymphoid_λ" = "Lymphoid λ",
+                              "neutrophils_α" = "Neutrophils α",
+                              "neutrophils_λ" = "Neutrophils λ",
+                              "myeloid_α" = "Myeloid α",
+                              "myeloid_λ" = "Myeloid λ")) +  
+  scale_y_discrete(labels = c("GO1" = "1", 
+                              "GO2" = "2", 
+                              "GO3" = "3", 
+                              "GO4" = "4",
+                              "GO5" = "5"))
+
+# DOWN REGULATED
+# Transpose the Data Frame
+heatT <- data.frame(
+  GO = c("GO1", "GO2", "GO3", "GO4", "GO5"),
+  neutrophils_α = c(40, 36, 44, 19, 30),
+  neutrophils_λ = c(0,  0,  0,  0,  0),
+  myeloid_α =     c(46, 35, 48, 47, 38),
+  myeloid_λ =     c(0,  0,  0,  0,  0),
+  Bcells_α =      c(38, 37, 40, 13, 28),
+  Bcells_λ =      c(20, 18, 14,  0, 12),
+  lymphoid_α =    c(42, 34, 46, 26, 35),
+  lymphoid_λ =    c(5,  3,  0,  0,  0)
+)
+
+# Reorder the GO column 
+heatT$GO <- factor(heatT$GO, levels = c("GO6", "GO5", "GO4", "GO3", "GO2", "GO1"))
 
 
+heatT_long <- melt(heatT, id.vars = "GO", variable.name = "CellType", value.name = "Count")
 
 
+ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightgrey", high = "#868686") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 50, hjust = 1, size = 14, face = "bold"),
+        axis.text.y = element_text(size = 14),
+        axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),
+        legend.key.size = unit(2, "lines"),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 14, face = "bold") 
+  ) +  # Rotate x-axis labels and set font size and style
+  labs(x = "", y = "Top enriched GO Terms", fill = "Count") +
+  theme(legend.position = "left") +  
+  scale_x_discrete(labels = c("Bcells_α" = "B Cells α", 
+                              "Bcells_λ" = "B Cells λ", 
+                              "lymphoid_α" = "Lymphoid α", 
+                              "lymphoid_λ" = "Lymphoid λ",
+                              "neutrophils_α" = "Neutrophils α",
+                              "neutrophils_λ" = "Neutrophils λ",
+                              "myeloid_α" = "Myeloid α",
+                              "myeloid_λ" = "Myeloid λ")) +  
+  scale_y_discrete(labels = c("GO1" = "1", 
+                              "GO2" = "2", 
+                              "GO3" = "3", 
+                              "GO4" = "4",
+                              "GO5" = "5"))
 
-# "#8f8e92"
