@@ -208,7 +208,12 @@ l.l.d <- readRDS("GO_lymphoid_lambda_downregulated.rds")
 GOanalysis <-  bind_rows(n.a.u, n.a.d, n.l.u, n.l.d, 
                          m.a.u, m.a.d, m.l.u, m.l.d, 
                          b.a.u, b.a.d, b.l.u, b.l.d, 
-                         l.a.u, l.a.d, l.l.u, l.l.d)                  
+                         l.a.u, l.a.d, l.l.u, l.l.d)   
+
+GODownAnalysis <- bind_rows(n.a.d, n.l.d, 
+                            m.a.d, m.l.d, 
+                            b.a.d, b.l.d, 
+                            l.a.d, l.l.d)
 
 
 # [4] heatmap itself ####
@@ -308,4 +313,60 @@ ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
                               "GO3" = "3", 
                               "GO4" = "4",
                               "GO5" = "5"))
+
+Defaul
+FeaturePlot(TreatmentAnnotated, 
+            features = "IFIT1",
+            split.by = "sample",
+            cols = c("grey", "black"))
+
+Bcells <- subset(TreatmentAnnotated, celltype == "B")
+
+
+ISG20 <- FeaturePlot(Bcells, 
+            features = "ISG20",
+            split.by = "sample",
+            cols = c("grey", "black"),
+            pt.size = 5)
+
+IFIT3 <- FeaturePlot(Bcells, 
+                     features = "IFIT3",
+                     split.by = "sample",
+                     cols = c("grey", "black"),
+                     pt.size = 5)
+
+STAT1 <- FeaturePlot(Bcells, 
+                     features = "STAT1",
+                     split.by = "sample",
+                     cols = c("grey", "black"),
+                     pt.size = 5) #+ 
+ # theme_classic()
+
+ISG20 / IFIT3 / STAT1
+
+
+CD38 <- FeaturePlot(Bcells, 
+                     features = "CD38",
+                     split.by = "sample",
+                     cols = c("grey", "black"),
+                     pt.size = 5)
+
+JCHAIN <- FeaturePlot(Bcells, 
+                     features = "JCHAIN",
+                     split.by = "sample",
+                     cols = c("grey", "black"),
+                     pt.size = 5)
+
+XBP1 <- FeaturePlot(Bcells, 
+                     features = "XBP1",
+                     split.by = "sample",
+                     cols = c("grey", "black"),
+                     pt.size = 5) #+ 
+# theme_classic()
+
+CD38 / JCHAIN / XBP1
+
+
+
+?FeaturePlot
 
