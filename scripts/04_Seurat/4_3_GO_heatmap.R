@@ -239,11 +239,11 @@ heatT$GO <- factor(heatT$GO, levels = c("GO6", "GO5", "GO4", "GO3", "GO2", "GO1"
 heatT_long <- melt(heatT, id.vars = "GO", variable.name = "CellType", value.name = "Count")
 
 
-ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
+up <- ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
   geom_tile(color = "white") +
   scale_fill_gradient(low = "lightgrey", high = "#6ab5ba") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 50, hjust = 1, size = 14, face = "bold"),
+  theme(axis.text.x = element_blank(),
         axis.text.y = element_text(size = 14),
         axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),
         legend.key.size = unit(2, "lines"),
@@ -252,14 +252,14 @@ ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
         ) +  # Rotate x-axis labels and set font size and style
   labs(x = "", y = "Top enriched GO Terms", fill = "Count") +
   theme(legend.position = "left") +  
-  scale_x_discrete(labels = c("Bcells_α" = "B Cells α", 
-                              "Bcells_λ" = "B Cells λ", 
-                              "lymphoid_α" = "Lymphoid α", 
-                              "lymphoid_λ" = "Lymphoid λ",
-                              "neutrophils_α" = "Neutrophils α",
-                              "neutrophils_λ" = "Neutrophils λ",
-                              "myeloid_α" = "Myeloid α",
-                              "myeloid_λ" = "Myeloid λ")) +  
+  # scale_x_discrete(labels = c("Bcells_α" = "B Cells α", 
+  #                             "Bcells_λ" = "B Cells λ", 
+  #                             "lymphoid_α" = "Lymphoid α", 
+  #                             "lymphoid_λ" = "Lymphoid λ",
+  #                             "neutrophils_α" = "Neutrophils α",
+  #                             "neutrophils_λ" = "Neutrophils λ",
+  #                             "myeloid_α" = "Myeloid α",
+  #                             "myeloid_λ" = "Myeloid λ")) +  
   scale_y_discrete(labels = c("GO1" = "1", 
                               "GO2" = "2", 
                               "GO3" = "3", 
@@ -269,36 +269,36 @@ ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
 # DOWN REGULATED
 # Transpose the Data Frame
 heatT <- data.frame(
-  GO = c("GO1", "GO2", "GO3", "GO4", "GO5"),
-  neutrophils_α = c(40, 36, 44, 19, 30),
-  neutrophils_λ = c(0,  0,  0,  0,  0),
-  myeloid_α =     c(46, 35, 48, 47, 38),
-  myeloid_λ =     c(0,  0,  0,  0,  0),
-  Bcells_α =      c(38, 37, 40, 13, 28),
-  Bcells_λ =      c(20, 18, 14,  0, 12),
-  lymphoid_α =    c(42, 34, 46, 26, 35),
-  lymphoid_λ =    c(5,  3,  0,  0,  0)
+  GO = c("1", "2", "3", "4", "5"),
+  neutrophils_α = c(0, 25, 20, 12, 14),
+  neutrophils_λ = c(1,  0,  0,  0,  0),
+  myeloid_α =     c(0, 31, 18,16, 10),
+  myeloid_λ =     c(1, 0,  0,  0,  0),
+  Bcells_α =      c(18, 10, 0, 0, 0),
+  Bcells_λ =      c(1, 0, 0, 0,  0),
+  lymphoid_α =    c(43, 12, 0, 0, 0),
+  lymphoid_λ =    c(1, 0,  0,  0,  0)
 )
 
 # Reorder the GO column 
-heatT$GO <- factor(heatT$GO, levels = c("GO6", "GO5", "GO4", "GO3", "GO2", "GO1"))
+heatT$GO <- factor(heatT$GO, levels = c("5", "4", "3", "2", "1"))
 
 
 heatT_long <- melt(heatT, id.vars = "GO", variable.name = "CellType", value.name = "Count")
 
 
-ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
+down <- ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
   geom_tile(color = "white") +
   scale_fill_gradient(low = "lightgrey", high = "#868686") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 50, hjust = 1, size = 14, face = "bold"),
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 14, face = "bold"),
         axis.text.y = element_text(size = 14),
         axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),
         legend.key.size = unit(2, "lines"),
         legend.text = element_text(size = 14),
-        legend.title = element_text(size = 14, face = "bold") 
+        legend.title = element_text(size = 14)  #, face = "bold") 
   ) +  # Rotate x-axis labels and set font size and style
-  labs(x = "", y = "Top enriched GO Terms", fill = "Count") +
+  labs(x = "", y = "Top enriched GO Terms", fill = "Counts") +
   theme(legend.position = "left") +  
   scale_x_discrete(labels = c("Bcells_α" = "B Cells α", 
                               "Bcells_λ" = "B Cells λ", 
@@ -313,7 +313,10 @@ ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
                               "GO3" = "3", 
                               "GO4" = "4",
                               "GO5" = "5"))
+down
+up / down
 
+# Feature Plots of individual gene expression ####
 Defaul
 FeaturePlot(TreatmentAnnotated, 
             features = "IFIT1",

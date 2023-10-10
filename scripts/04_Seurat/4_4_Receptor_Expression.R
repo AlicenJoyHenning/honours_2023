@@ -1,7 +1,8 @@
 # Receptor expression across cell types 
-
+setwd("..")
+getwd()
 # [1] Load integrated data set :
-TreatmentAnnotated <- read_rds("honours/results/FinalIndex/")
+TreatmentAnnotated <- read_rds("alice/honours/results/FinalIndex/TreatmentAnnotated.rds")
 TreatmentAnnotated@meta.data$cell_type <- TreatmentAnnotated@active.ident
 Idents(TreatmentAnnotated)
 DefaultAssay(TreatmentAnnotated) <- "RNA"
@@ -11,18 +12,25 @@ TreatmentAnnotated
 # [2] View receptor expression across cell types : 
 
 levels(TreatmentAnnotated)
+TreatmentAnnotatedPlot <- RenameIdents(TreatmentAnnotated,
+                                   'monocytes' = 'mono',
+                                   'naive CD4 T' = 'nCD4 T',
+                                   'neutrophils'= 'neu',
+                                   'T helper' = 'Th',
+                                   'naive CD8 T'= 'nCD8 T',
+                                   'cytotoxic T'='cCD8 T')
 
 TreatmentAnnotated <- subset(TreatmentAnnotated, seurat_clusters != 13)
 
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
-TreatmentAnnotated$cell_type <- factor(TreatmentAnnotated$cell_type, levels = c(
-  "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
-  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
-  "B", "unknown")) 
+TreatmentAnnotatedPlot$cell_type <- factor(TreatmentAnnotatedPlot$cell_type, levels = c(
+  "monos", "neu", "DCs","mDCs","pDCs","platelets",
+  "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
+  "B")) 
 
-levels(TreatmentAnnotated) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13)
-  c("monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
-   "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
+levels(TreatmentAnnotatedPlot) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13)
+  c("mono", "neu", "DCs","mDCs","pDCs","platelets",
+   "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
    "B", "unknown")
 
 AreceptorDP <- DotPlot(TreatmentAnnotated,
@@ -48,7 +56,7 @@ LreceptorDP <- DotPlot(TreatmentAnnotated,
     panel.grid.minor = element_blank()) +
   geom_hline(yintercept = c(4.65, 5.35, 14.65, 15.35), color = "black", linetype = "dashed", size = 0.25)# +
 
-                          
+AreceptorDP /   LreceptorDP                        
 #blend to view alpha and lambda receptors!
 ?FeaturePlot()
 
@@ -68,16 +76,18 @@ ReceptorTreatment <- RenameIdents(TreatmentAnnotated,
 
 ReceptorTreatment <- subset(ReceptorTreatment, seurat_clusters != 13)
 
-receptorDP <- DotPlot(ReceptorTreatment,
-                      features = c("IFNAR1",  "IFNLR1"),
-                      cols = c("#a9aaa9", "#a9aaa9")) +
+receptorDP <- DotPlot(TreatmentAnnotatedPlot,
+                      features = c("IFNAR1","IFNAR2", "IFNLR1", "IFNLR2"),
+                      cols = c("black", "black")) + ##a9aaa9
   labs(x = "", y = "") +
   theme(
     axis.text.y = element_text(face = "bold"),
+    legend.title = element_text(face = "bold"),
     panel.border = element_rect(color = "black", fill = NA, size = 0.7),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank()) +
-  geom_hline(yintercept = c(1.75, 2.25, 7.75, 8.25), color = "black", linetype = "dashed", size = 0.25) +
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom") +
+  geom_hline(yintercept = c(4.75, 5.25, 14.75, 15.25), color = "black", linetype = "dashed", size = 0.25) +
   coord_flip()
 
 print(receptorDP)
