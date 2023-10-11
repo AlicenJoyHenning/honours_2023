@@ -232,14 +232,27 @@ heatT <- data.frame(
   lymphoid_λ =    c(5,  3,  0,  0,  0)
 )
 
+heatTalt <- data.frame(
+  GO = c("GO1", "GO2", "GO3", "GO4", "GO5"),
+  neutrophils_α = c(40, 36, 44, 19, 30),
+  myeloid_α =     c(46, 35, 48, 47, 38),
+  Bcells_α =      c(38, 37, 40, 13, 28),
+  lymphoid_α =    c(42, 34, 46, 26, 35),
+  neutrophils_λ = c(0,  0,  0,  0,  0),
+  myeloid_λ =     c(0,  0,  0,  0,  0),
+  Bcells_λ =      c(20, 18, 14,  0, 12),
+  lymphoid_λ =    c(5,  3,  0,  0,  0)
+)
+
+
 # Reorder the GO column 
-heatT$GO <- factor(heatT$GO, levels = c("GO6", "GO5", "GO4", "GO3", "GO2", "GO1"))
+heatTalt$GO <- factor(heatTalt$GO, levels = c("GO6", "GO5", "GO4", "GO3", "GO2", "GO1"))
 
 
-heatT_long <- melt(heatT, id.vars = "GO", variable.name = "CellType", value.name = "Count")
+heatTalt_long <- melt(heatTalt, id.vars = "GO", variable.name = "CellType", value.name = "Count")
 
 
-up <- ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
+up <- ggplot(heatTalt_long, aes(x = CellType, y = GO, fill = Count)) +
   geom_tile(color = "white") +
   scale_fill_gradient(low = "lightgrey", high = "#6ab5ba") +
   theme_minimal() +
@@ -280,14 +293,28 @@ heatT <- data.frame(
   lymphoid_λ =    c(1, 0,  0,  0,  0)
 )
 
+heatTaltt <- data.frame(
+  GO = c("1", "2", "3", "4", "5"),
+  neutrophils_α = c(0, 25, 20, 12, 14),
+  myeloid_α =     c(0, 31, 18,16, 10),
+  Bcells_α =      c(18, 10, 0, 0, 0),
+  lymphoid_α =    c(43, 12, 0, 0, 0),
+  
+  
+  neutrophils_λ = c(1,  0,  0,  0,  0),
+  myeloid_λ =     c(1, 0,  0,  0,  0),
+  Bcells_λ =      c(1, 0, 0, 0,  0),
+  lymphoid_λ =    c(1, 0,  0,  0,  0)
+)
+
 # Reorder the GO column 
-heatT$GO <- factor(heatT$GO, levels = c("5", "4", "3", "2", "1"))
+heatTaltt$GO <- factor(heatTaltt$GO, levels = c("5", "4", "3", "2", "1"))
 
 
-heatT_long <- melt(heatT, id.vars = "GO", variable.name = "CellType", value.name = "Count")
+heatTaltt_long <- melt(heatTaltt, id.vars = "GO", variable.name = "CellType", value.name = "Count")
 
 
-down <- ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
+down <- ggplot(heatTaltt_long, aes(x = CellType, y = GO, fill = Count)) +
   geom_tile(color = "white") +
   scale_fill_gradient(low = "lightgrey", high = "#868686") +
   theme_minimal() +
@@ -308,6 +335,34 @@ down <- ggplot(heatT_long, aes(x = CellType, y = GO, fill = Count)) +
                               "neutrophils_λ" = "Neutrophils λ",
                               "myeloid_α" = "Myeloid α",
                               "myeloid_λ" = "Myeloid λ")) +  
+  scale_y_discrete(labels = c("GO1" = "1", 
+                              "GO2" = "2", 
+                              "GO3" = "3", 
+                              "GO4" = "4",
+                              "GO5" = "5"))
+
+# down with altered positioning (aesthetic)
+down <- ggplot(heatTaltt_long, aes(x = CellType, y = GO, fill = Count)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightgrey", high = "#868686") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 14, face = "bold"),
+        axis.text.y = element_text(size = 14),
+        axis.title.y = element_text(size = 14, face = "bold", margin = margin(r = 10)),
+        legend.key.size = unit(2, "lines"),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 14)  #, face = "bold") 
+  ) +  # Rotate x-axis labels and set font size and style
+  labs(x = "", y = "Top enriched GO Terms", fill = "Counts") +
+  theme(legend.position = "left") +  
+  scale_x_discrete(labels = c("Bcells_α" = "B Cells", 
+                              "Bcells_λ" = "B Cells", 
+                              "lymphoid_α" = "Lymphoid", 
+                              "lymphoid_λ" = "Lymphoid",
+                              "neutrophils_α" = "Neutrophils",
+                              "neutrophils_λ" = "Neutrophils",
+                              "myeloid_α" = "Myeloid",
+                              "myeloid_λ" = "Myeloid")) +  
   scale_y_discrete(labels = c("GO1" = "1", 
                               "GO2" = "2", 
                               "GO3" = "3", 
@@ -373,3 +428,35 @@ CD38 / JCHAIN / XBP1
 
 ?FeaturePlot
 
+Showme <- FeaturePlot(Bcells, 
+                     features = c("CD79A", "CD79B"), # , "CD79B", "IFNAR1", "IFN"
+                     split.by = "sample",
+                     cols = c("grey", "black"),
+            pt.size = 5) 
+
+DotPlot(Bcells, 
+        features = c("mTORC1"), # CD79A", "CD79B "IFNLR1", "IL10RB", "TYK2""
+        split.by = "sample",
+        cols = c("black", "black", "black")) + theme(axis.text.x = element_text(angle = 90, hjust = 1, face = "bold")) + 
+  coord_flip()
+            
+
+receptorDP <- DotPlot(Bcells,
+                      features = c("CD40", "CXCR5"), #"CD79A", "CD79B", "IFNAR1", 
+                      split.by = "sample",
+                      cols = c("black", "black", "black")) + ##a9aaa9
+  labs(x = "", y = "") +
+  theme(
+    axis.text.x = element_text(face = "bold"), # angle = 90, hjust = 1, size = 14, 
+    axis.text.y = element_text(face = "bold"),
+    legend.title = element_text(face = "bold"),
+    panel.border = element_rect(color = "black", fill = NA, size = 0.7),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom") +
+  geom_hline(yintercept = c(4.75, 5.25, 14.75, 15.25), color = "black", linetype = "dashed", size = 0.25) +
+  coord_flip() +
+  scale_y_discrete(labels = c("α", "λ", "u"))
+
+receptorAllCells / receptorDP 
+#| Showme

@@ -34,7 +34,7 @@ levels(TreatmentAnnotatedPlot) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13
    "B", "unknown")
 
 AreceptorDP <- DotPlot(TreatmentAnnotated,
-                      features = c("IFNAR1"), # ,  "IFNLR1"
+                      features = c("IFNAR1", "IFNAR2", "IFNLR1", "IL10RB"), # ,  "IFNLR1"
                       cols = c("#a9aaa9", "#a9aaa9")) +
   labs(x = "", y = "", fill = "Gene expression (%)") +
   theme(
@@ -76,9 +76,9 @@ ReceptorTreatment <- RenameIdents(TreatmentAnnotated,
 
 ReceptorTreatment <- subset(ReceptorTreatment, seurat_clusters != 13)
 
-receptorDP <- DotPlot(TreatmentAnnotatedPlot,
-                      features = c("IFNAR1","IFNAR2", "IFNLR1", "IFNLR2"),
-                      cols = c("black", "black")) + ##a9aaa9
+receptorAllCells <- DotPlot(TreatmentAnnotatedPlot,
+                      features = c("CD79A", "CD79B"), # "IFNAR1",IFNAR2", "IFNLR1", "IL10RB"
+                      cols = c("white", "black")) + ##a9aaa9
   labs(x = "", y = "") +
   theme(
     axis.text.y = element_text(face = "bold"),
@@ -87,8 +87,8 @@ receptorDP <- DotPlot(TreatmentAnnotatedPlot,
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "bottom") +
-  geom_hline(yintercept = c(4.75, 5.25, 14.75, 15.25), color = "black", linetype = "dashed", size = 0.25) +
-  coord_flip()
+  geom_hline(yintercept = c(14.75, 15.25), color = "black", linetype = "dashed", size = 0.25) +
+  coord_flip() # 4.75, 5.25, 
 
 print(receptorDP)
 # Plot : 
