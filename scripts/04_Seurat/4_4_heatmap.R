@@ -3,6 +3,7 @@
 library(ggplot2)
 library(pheatmap)
 library(tibble)
+library(Seurat)
 
 install.packages("psych") # finding geometric mean 
 library(psych)
@@ -15,7 +16,7 @@ TreatmentAnnotated$celltype <- Idents(TreatmentAnnotated)
 Neutrophils <- subset(TreatmentAnnotated, subset = celltype == "neutrophils") 
 
 # Create count matrices for each treatment type : 
-NAlpha <- subset(Neutrophils, subset = treatment == "alpha") 
+NAlpha <- subset(Neutrophils, subset = sample == "alpha") 
 NMAlpha <- as.matrix(NAlpha@assays$RNA@counts)
 NMAlpha <- log2(NMAlpha + 1) 
 # Alpha <- apply(NMAlpha, 1, median)
@@ -23,7 +24,7 @@ Alpha <- apply(NMAlpha, 1, max) # Find the minimum value for each row
 Alpha <- as.matrix(Alpha)
 dim(Alpha)
 
-NLambda <- subset(Neutrophils, subset = treatment == "lambda") 
+NLambda <- subset(Neutrophils, subset = sample == "lambda") 
 NMLambda <- as.matrix(NLambda@assays$RNA@counts)
 NMLambda <- log2(NMLambda + 1)
 # Lambda <- apply(NMLambda, 1, mean)
@@ -32,7 +33,7 @@ Lambda <- as.matrix(Lambda)
 dim(Lambda)
 
 
-NUntreated <- subset(Neutrophils, subset = treatment == "untreated") 
+NUntreated <- subset(Neutrophils, subset = sample == "untreated") 
 NMUntreated <- as.matrix(NUntreated@assays$RNA@counts)
 NMUntreated <- log2(NMUntreated + 1)
 Untreated <- apply(NMUntreated, 1, max)
@@ -85,7 +86,7 @@ pheatmap(
 
 genes <- c("CAMP", "CD14", "CXCL10", "CD93", "LILRB4", "SEMA6B", "THBD", "IL10", "CCL2", "DEFA1")
 
-avgexp <- AverageExpression(Neutrophils, assay = "RNA", group.by = 'treatment', colnames = TRUE)
+avgexp <- AverageExpression(Neutrophils, assay = "RNA", group.by = 'sample', colnames = TRUE)
 # logexp <- LogNormalize(Neutrophils)
 # avgexp <- AverageExpression(logexp, assay = "RNA", return.seurat = T, group.by = 'treatment', colnames = TRUE)
 
@@ -108,7 +109,35 @@ pheatmap(
   main = "Average Gene Expression Heatmap",
   annotation_names_col = FALSE,  # Remove column annotation labels
   annotation_names_row = FALSE   # Remove row annotation labels
+) 
+
+
+# Create the regular heatmap
+heatmap <- pheatmap(
+  mat = matrix_data,
+  labels_row = row_names,
+  cluster_rows = FALSE,
+  cluster_cols = TRUE,
+  color = colorRampPalette(c("grey", "white", "#6ab5ba"))(50),
+  annotation_col = NULL,
+  annotation_row = NULL,
+  main = "Average Gene Expression Heatmap",
+  annotation_names_col = FALSE,
+  annotation_names_row = FALSE,
+  silent = TRUE  # Prevent pheatmap from plotting immediately
 )
+
+# Get heatmap data from pheatmap object
+heatmap_data <- as.data.frame(heatmap$mat)
+
+# Create a ggplot object for the circular heatmap
+gg_heatmap <- ggplot(heatmap_data, aes(x = 1, y = rownames(heatmap_data), fill = as.numeric(heatmap_data))) +
+  geom_tile() +
+  theme_void() +
+  coord_polar(theta = "y")
+
+# Print the circular heatmap
+print(gg_heatmap)
 
 
 

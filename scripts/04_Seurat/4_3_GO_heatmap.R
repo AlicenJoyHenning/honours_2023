@@ -339,7 +339,13 @@ down <- ggplot(heatTaltt_long, aes(x = CellType, y = GO, fill = Count)) +
                               "GO2" = "2", 
                               "GO3" = "3", 
                               "GO4" = "4",
-                              "GO5" = "5"))
+                              "GO5" = "5")) 
+
+
+
+
+
+
 
 # down with altered positioning (aesthetic)
 down <- ggplot(heatTaltt_long, aes(x = CellType, y = GO, fill = Count)) +
@@ -393,8 +399,8 @@ IFIT3 <- FeaturePlot(Bcells,
                      cols = c("grey", "black"),
                      pt.size = 5)
 
-STAT1 <- FeaturePlot(Bcells, 
-                     features = "STAT1",
+ FeaturePlot(Bcells, 
+                     features = c("CD79A", "CD79B","CD40"),
                      split.by = "sample",
                      cols = c("grey", "black"),
                      pt.size = 5) #+ 

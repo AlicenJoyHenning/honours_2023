@@ -431,13 +431,26 @@ features <- { c("CCL4L2",  # 0 & 4 : monocytes CCL4L2 IL1RN MNDA HCK
               "MZB1")  # 17 pDcs 
 }
 
+
+
 overall <- DotPlot(object = TreatmentAnnotated, 
-        features = features,
+        features = "MS4A1",
         cols = c("white", "darkgrey")) + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         panel.border = element_rect(color = "black", fill = NA, size = 0.7)) +
   scale_y_discrete(position = "left") +
  geom_abline(intercept = 0, slope = 1, color = "black",linetype = "dashed", size = 0.25)
+
+
+BPlot <- DotPlot(object = TreatmentAnnotated, 
+                 features = c("MS4A1", "MAFB", "MZB1", "GP9"),
+                 cols = c("white", "#a9a9a9")) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.7)) +
+  scale_y_discrete(position = "left") +
+  geom_vline(xintercept = as.numeric(1.5, 3.5),  color = "black",linetype = "dashed", size = 0.25)
+
+print(BPlot)
 
 
 # T Cells 
