@@ -1,4 +1,9 @@
 # Receptor expression across cell types 
+library(readr)
+library(Seurat)
+library(ggplot2)
+
+
 setwd("..")
 getwd()
 # [1] Load integrated data set :
@@ -31,9 +36,9 @@ TreatmentAnnotatedPlot$cell_type <- factor(TreatmentAnnotatedPlot$cell_type, lev
 levels(TreatmentAnnotatedPlot) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13)
   c("mono", "neu", "DCs","mDCs","pDCs","platelets",
    "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
-   "B", "unknown")
+   "B")
 
-AreceptorDP <- DotPlot(TreatmentAnnotated,
+AreceptorDP <- DotPlot(TreatmentAnnotatedPlot,
                       features = c("IFNAR1", "IFNAR2", "IFNLR1", "IL10RB"), # ,  "IFNLR1"
                       cols = c("#a9aaa9", "#a9aaa9")) +
   labs(x = "", y = "", fill = "Gene expression (%)") +
@@ -76,9 +81,9 @@ ReceptorTreatment <- RenameIdents(TreatmentAnnotated,
 
 ReceptorTreatment <- subset(ReceptorTreatment, seurat_clusters != 13)
 
-receptorAllCells <- DotPlot(TreatmentAnnotatedPlot,
+Breceptors <- DotPlot(TreatmentAnnotatedPlot,
                       features = c("CD79A", "CD79B"), # "IFNAR1",IFNAR2", "IFNLR1", "IL10RB"
-                      cols = c("white", "black")) + ##a9aaa9
+                      cols = c("white", "grey")) + ##a9aaa9
   labs(x = "", y = "") +
   theme(
     axis.text.y = element_text(face = "bold"),
@@ -90,7 +95,29 @@ receptorAllCells <- DotPlot(TreatmentAnnotatedPlot,
   geom_hline(yintercept = c(14.75, 15.25), color = "black", linetype = "dashed", size = 0.25) +
   coord_flip() # 4.75, 5.25, 
 
-print(receptorDP)
+Breceptors <- DotPlot(Bcells,
+                      features = c("ISGF3"),
+                      split.by = "treatment",
+                      cols = c("grey", "grey", "black")) + ##a9aaa9
+  labs(x = "", y = "") +
+  theme(
+    axis.text.x = element_text(face = "bold"),
+    axis.text.y = element_text(face = "bold"),
+    legend.title = element_text(face = "bold"),
+    panel.border = element_rect(color = "black", fill = NA, size = 0.7),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom") +
+  geom_hline(yintercept = c(4.75, 5.25, 14.75, 15.25), color = "black", linetype = "dashed", size = 0.25)+
+coord_flip() +
+  scale_y_discrete(labels = c("u", "λ", "α"))
+
+IFNreceptors / Breceptors
+
+
+
+
+
 # Plot : 
 
 receptorexpression <- ggplot(
