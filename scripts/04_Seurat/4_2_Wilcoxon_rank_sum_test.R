@@ -1,6 +1,9 @@
 # MANUAL WILCOXON RANK SUM TEST FOR GENES NOT IDENTIFIED BY FINDCONSERVEDMARKERS
 
+
+
 ##### [1] Load dataset and create testing subsets for each cluster ####
+library(Seurat)
 treatment <- readRDS("honours/work/1109/treatment.rds")
 DefaultAssay(treatment) <- "RNA"
 colnames(treatment@meta.data)[1] <- "sample"
@@ -69,6 +72,46 @@ for (gene in genes1) {
   DIYWilcoxon("alpha", "", gene)
 }
 
+##### [3] Alternative test for single population #####
+
+Wilcoxon.2.0 <- function(condition, gene) {
+  print(paste("Wilcoxon Rank Sum test for", gene, "in", condition,"-treated B cellS"))
+  
+  # Create subset for the specified condition and untreated condition
+  conditionSubset <- subset(Bcells, treatment == condition)
+  untreatedSubset <- subset(Bcells, treatment == "untreated")
+  # print(paste("Subsetting complete"))
+  
+  # Extract the expression values for the specified gene in the two groups
+  treated <- t(conditionSubset@assays$RNA@data[gene, ])
+  treated <- data.frame(
+    Cell = colnames(treated),
+    Expression = treated[,])
+ # print(paste("Gene expression calculation in treated cells")) 
+  
+  untreated <- t(untreatedSubset@assays$RNA@data[gene, ])
+  untreated <- data.frame(
+    Cell = colnames(untreated),
+    Expression = untreated[,]
+  )
+#  print(paste("Gene expression calculation in untreated cells"))
+  
+  # Perform the Wilcoxon Rank Sum test
+  wilcoxResult <- wilcox.test(treated$Expression, untreated$Expression)
+  
+  # Bonferroni correction
+  dim <- dim(conditionSubset@assays$integrated@data)[1]  # find # comparisons 
+  adjResult <- wilcoxResult$p.value * dim
+  
+  print(paste("Adj P value", "|", condition, "|", adjResult))
+  return(adjResult)
+} 
+
+gene.list <- c("CD79A", "CD79B", "CD40", "OAS1", "OAS2", "OAS3", "IFIT1", "IFIT2", "IFIT3", "STAT1", "STAT2","MX1", "ISG15", "ISG20", "CD38", "JCHAIN", "XBP1")
+
+for (gene in gene.list) {
+  Wilcoxon.2.0("alpha", gene)
+}
 
 
 

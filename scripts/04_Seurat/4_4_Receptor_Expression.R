@@ -27,6 +27,7 @@ TreatmentAnnotatedPlot <- RenameIdents(TreatmentAnnotated,
 
 TreatmentAnnotated <- subset(TreatmentAnnotated, seurat_clusters != 13)
 
+# ABBREVIATED 
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
 TreatmentAnnotatedPlot$cell_type <- factor(TreatmentAnnotatedPlot$cell_type, levels = c(
   "monos", "neu", "DCs","mDCs","pDCs","platelets",
@@ -38,9 +39,22 @@ levels(TreatmentAnnotatedPlot) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13
    "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
    "B")
 
-AreceptorDP <- DotPlot(TreatmentAnnotatedPlot,
-                      features = c("IFNAR1", "IFNAR2", "IFNLR1", "IL10RB"), # ,  "IFNLR1"
-                      cols = c("#a9aaa9", "#a9aaa9")) +
+# FULL NAMES
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+
+TreatmentAnnotated$cell_type <- factor(TreatmentAnnotatedPlot$cell_type, levels = c(
+  "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
+  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
+  "B")) 
+
+levels(TreatmentAnnotated) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13)
+  c( "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
+     "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
+     "B")
+
+AreceptorDP <- DotPlot(TreatmentAnnotated,
+                      features = c("IFNAR1", "IFNLR1"), # ,  "IFNLR1"
+                      cols = c("darkgrey", "darkgrey")) +
   labs(x = "", y = "", fill = "Gene expression (%)") +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1, face = "bold"),

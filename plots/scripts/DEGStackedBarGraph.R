@@ -79,7 +79,7 @@ DEGs <- c(1028, 10, 1, # monocytes
 
           # 297, 51, # dendritic cells 
 
-          12, 0, 0, # platelets 
+         # 12, 0, 0, # platelets 
 
           807, 12, 11, # T helper
           714, 13, 13, # naive CD4
@@ -102,7 +102,7 @@ CellTypes <- c(rep("monocytes", 3),
                rep("mDCs", 3),
                rep("pDCs", 3),
 
-               rep("platelets", 3),
+              # rep("platelets", 3),
 
                rep("T helper", 3),
                rep("naive CD4 T", 3),
@@ -116,7 +116,7 @@ CellTypes <- c(rep("monocytes", 3),
 
                rep("B", 3))
 # stacks : 
-Treatment <- rep(c("alpha","common","lambda"), 15)
+Treatment <- rep(c("alpha","common","lambda"), 14)
 
 # create data frame :  
 grouped <- data.frame(Treatment, CellTypes, DEGs)
@@ -164,7 +164,7 @@ Goterms <- c(766, 0, 7, # monocytes
           
           # 297, 51, # dendritic cells 
           
-          11, 0, 0, # platelets 
+          #11, 0, 0, # platelets 
           
           493, 1, 2, # T cells
           406, 3, 6, # CD4h
@@ -181,28 +181,28 @@ Goterms <- c(766, 0, 7, # monocytes
 
 # x groups : 
 # x groups : 
-CellTypes <- c(rep("monocytes", 3), 
-               rep("neutrophils", 3),
+CellTypes <- c(rep("mono", 3), 
+               rep("neu", 3),
                # rep("myeloid", 2),
                rep("DCs", 3),
                rep("mDCs", 3),
                rep("pDCs", 3),
                
-               rep("platelets", 3),
+              # rep("platelets", 3),
                
-               rep("T helper", 3),
-               rep("naive/nCD4 T", 3),
-               rep("naive/nCD8 T", 3),
-               rep("cytotoxic/nT", 3),
-               rep("natural/killer T", 3),
-               rep("T regulatory", 3),
-               rep("T/ncentral memory", 3),
-               rep("natural/nkiller", 3),
+               rep("Th", 3),
+               rep("nCD4 T", 3),
+               rep("nCD8 T", 3),
+               rep("cCD8 T", 3),
+               rep("NKT", 3),
+               rep("Tregs", 3),
+               rep("Tcm", 3),
+               rep("NK", 3),
                # rep("all_T", 2),
                
                rep("B", 3))
 # stacks : 
-Treatment <- rep(c("alpha", "common", "lambda"), 15)
+Treatment <- rep(c("alpha", "common", "lambda"), 14)
 
 # create data frame :  
 grouped <- data.frame(Treatment, CellTypes, Goterms)
@@ -213,8 +213,8 @@ grouped <- grouped %>% arrange(CellTypes, Treatment, -Goterms)
 
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
 grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
-  "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
-  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","natural killer T","T regulatory","T central memory","natural killer",
+  "mono", "neu", "DCs","mDCs","pDCs", #"platelets",
+  "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
   "B"))
 
 colours <- c("lightgrey", "darkgrey", "#6ab5ba")

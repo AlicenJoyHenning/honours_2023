@@ -4,9 +4,12 @@
 ##### [1] install plotly package : ####
 BiocManager::install('plotly')
 library(plotly)
+library(Seurat)
 
 ##### [2] Load & Prepare your Seurat Object : ####
-TreatmentAnnotated <- readRDS("honours/results/FinalIndex/TreatmentAnnotatedforLabels.rds")
+TreatmentAnnotated <- read_rds("alice/honours/results/FinalIndex/TreatmentAnnotated.rds")
+TreatmentAnnotated@meta.data$cell_type <- TreatmentAnnotated@active.ident
+
 
 # Rerun UMAP to get three UMAP axes : 
 TreatmentAnnotated <- RunUMAP(TreatmentAnnotated,
