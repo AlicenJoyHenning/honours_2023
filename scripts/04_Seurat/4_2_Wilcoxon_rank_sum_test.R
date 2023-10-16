@@ -108,9 +108,10 @@ Wilcoxon.2.0 <- function(condition, gene) {
 } 
 
 gene.list <- c("CD79A", "CD79B", "CD40", "OAS1", "OAS2", "OAS3", "IFIT1", "IFIT2", "IFIT3", "STAT1", "STAT2","MX1", "ISG15", "ISG20", "CD38", "JCHAIN", "XBP1")
+gene.list <- c("IFNAR1", "IFNLR1")
 
 for (gene in gene.list) {
-  Wilcoxon.2.0("alpha", gene)
+  Wilcoxon.2.0("lambda", gene)
 }
 
 

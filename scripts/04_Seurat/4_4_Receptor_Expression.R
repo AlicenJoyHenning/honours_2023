@@ -128,10 +128,6 @@ coord_flip() +
 
 IFNreceptors / Breceptors
 
-
-
-
-
 # Plot : 
 
 receptorexpression <- ggplot(

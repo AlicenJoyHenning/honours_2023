@@ -123,12 +123,14 @@ CD38 / JCHAIN / XBP1
 
 
 ?FeaturePlot
-
+DefaultAssay(Bcells) <- "RNA"
 Showme <- FeaturePlot(Bcells, 
-                      features = c("CD79A", "CD79B"), # , "CD79B", "IFNAR1", "IFN"
-                      split.by = "sample",
+                      features = c("CD79A", "CD79B", "CD40"), # , "CD79B", "IFNAR1", "IFN"
+                      split.by = "treatment",
                       cols = c("grey", "black"),
                       pt.size = 5) 
+Showme
+
 
 DotPlot(Bcells, 
         features = c("mTORC1"), # CD79A", "CD79B "IFNLR1", "IL10RB", "TYK2""
