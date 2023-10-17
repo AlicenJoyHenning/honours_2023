@@ -1,2 +1,3 @@
 # ClusterProfiler for enriched GO analysis 
 
+The clusterProfiler package provides the enrichGO and gseGO functions for ORA and GSEA using GO. GO terms are organized as a directed acyclic graph, in which a directed edge denotes a parent-child semantic relationship. A parent term might be significantly enriched only because it contains all the genes of a significantly over-represented child term. Consequently, the list of enriched GO terms is often too long and contains redundant terms, which hinders effective interpretation. Therefore, clusterProfiler integrates a simplify function to eliminate such redundant GO terms. 
