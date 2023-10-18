@@ -27,6 +27,16 @@ result <- AverageExpression(Bcells,
                   slot = "data",
                   verbose = TRUE)
 
+receptorinfo <- AverageExpression(TreatmentAnnotated, 
+                            assay = "RNA",
+                            features = c("IFNAR1", "IFNAR2", "IL10RB", "IFNLR1"),
+                            group.by = "celltype",
+                            slot = "data",
+                            verbose = TRUE)
+receptorinfo <- as.data.frame(receptorinfo)
+
+
+
 result <- as.data.frame(result)
 #result$gene <- rownames(result)
 colnames(result)[1] <- "a"
