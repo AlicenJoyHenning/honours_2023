@@ -13,7 +13,7 @@ colnames(treatment@meta.data)[1] <- "sample"
 # cluster of interest, and the other containing cells that do not belong to the
 # cluster of interest (aka all the other clusters)
 
-##### [2] Function #####
+##### [2] Function for conserved markers #####
 
   
 conditions <- {c("alpha", "lambda", "untreated")
@@ -69,7 +69,7 @@ DIYWilcoxon <- function(condition, CellType, gene) {
 }
 
 for (gene in genes1) {
-  DIYWilcoxon("alpha", "", gene)
+  DIYWilcoxon("alpha", "B", gene)
 }
 
 ##### [3] Alternative test for single population #####
@@ -156,5 +156,48 @@ dim <- dim[1]
 # bonferroni correction : 
 FOXP3result <- FOXP3wilcox_result$p.value * dim
 print(FOXP3result)
+
+
+
+##### [4] Wilcoxon test for gene across treatment conditions and cell types ####
+
+Wilcoxon.3.0 <- function(CellType, gene) {
+  print(paste("Performing Wilcoxon Rank Sum test for", gene, "in", CellType))
+  
+  # Create subset for the specified cell type and untreated cells
+  CelltypeSubset <- subset(TreatmentAnnotated, celltype == CellType)
+  Complement <- subset(TreatmentAnnotated, celltype != CellType)
+  
+  # Extract the expression values for the specified gene in the two groups
+  geneCluster <- t(CelltypeSubset@assays$RNA@data[gene, ])
+  geneCluster <- data.frame(
+    Cell = colnames(geneCluster),
+    Expression = geneCluster[,]
+  )
+  
+  geneNotCluster <- t(Complement@assays$RNA@data[gene, ])
+  geneNotCluster <- data.frame(
+    Cell = colnames(geneNotCluster),
+    Expression = geneNotCluster[,]
+  )
+  
+  # Perform the Wilcoxon Rank Sum test
+  wilcoxResult <- wilcox.test(geneCluster$Expression, geneNotCluster$Expression)
+  
+  # Bonferroni correction
+  dim <- dim(Complement@assays$integrated@data)[1]  # find # comparisons 
+  adjResult <- wilcoxResult$p.value * dim
+  
+  print(paste("Adj P value", "|", CellType, "|", adjResult))
+  return(adjResult)
+}
+
+# "IFNAR1", "IFNAR2", "IFNLR1", "IL10RB")
+levels(TreatmentAnnotated)
+cell.types <- c("monocytes", "naive CD4 T", "neutrophils","T helper", "naive CD8 T", "B", "cytotoxic T",
+                "mDCs", "NKT","Tregs", "NK", "platelets", "unknown", "DCs", "Tcm", "pDCs")
+for (pop in cell.types) {
+   Wilcoxon.3.0(pop, "IFNAR2")
+  }
 
 
