@@ -39,10 +39,14 @@ ggplot(receptorinfo, aes(x = celltype, y = IFNAR1, fill = "IFNAR1")) +
 IFNAR1 <- ggplot(receptorinfo, aes(x = celltype, y = IFNAR1, fill = "IFNAR1", color = "IFNAR1")) +
   geom_bar(position = "dodge", stat = "identity", width = 0.7) +
   labs(x = "", y = "Average Expression", fill = "Receptor complex", color = "Receptor complex") +
-  scale_fill_manual(values = c("IFNAR1" = "#ebebeb")) +
-  scale_color_manual(values = c("IFNAR1" = "black")) +
+  scale_fill_manual(values = c("IFNAR1" = "#efefef")) +
+  scale_color_manual(values = c("IFNAR2" = "black")) +
   theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "bold", size = 14),
+        axis.text.y = element_text( size = 14),
+        axis.title.y = element_text(face = "bold", size = 14, margin = margin(r = 12)),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(face = "bold",  size = 14),
         panel.grid.major = element_blank(), # Remove major grid lines
         panel.grid.minor = element_blank()  # Remove minor grid lines
   )
@@ -54,27 +58,34 @@ IFNAR2 <- ggplot(receptorinfo, aes(x = celltype, y = IFNAR2, fill = "IFNAR2", co
   scale_fill_manual(values = c("IFNAR2" = "darkgrey")) +
   scale_color_manual(values = c("IFNAR2" = "black")) +
   theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "bold", size = 14),
+        axis.text.y = element_text( size = 14),
+        axis.title.y = element_text(face = "bold", size = 12, margin = margin(r = 14)),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(face = "bold",  size = 14),
         panel.grid.major = element_blank(), # Remove major grid lines
         panel.grid.minor = element_blank()  # Remove minor grid lines
   )
 
 
-
 # IFNLR1
 significant_bars <- c(6, 16)  # Indices of bars that are significant
+
 IFNLR1 <- ggplot(receptorinfo, aes(x = celltype, y = IFNLR1, fill = "IFNLR1", color = "IFNLR1")) +
   geom_bar(position = "dodge", stat = "identity", width = 0.7) +
   labs(x = "", y = "Average Expression", fill = "Receptor complex", color = "Receptor complex") +
   scale_fill_manual(values = c("IFNLR1" = "#6ab5ba")) +
   scale_color_manual(values = c("IFNLR1" = "black")) +
   theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "bold", size = 14),
+        axis.text.y = element_text( size = 14),
+        axis.title.y = element_text(face = "bold", size = 12, margin = margin(r = 12)),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(face = "bold",  size = 14),
         panel.grid.major = element_blank(), # Remove major grid lines
         panel.grid.minor = element_blank()  # Remove minor grid lines
-  ) + 
-  annotate("text", x = significant_bars, y = c(0.265, 0.09), label = "*", vjust = -0.5, size = 6)  # Adjust YOUR_Y_VALUE as needed
-
+  )+ 
+  annotate("text", x = significant_bars, y = c(0.24, 0.08), label = "*", vjust = -0.5, size = 8) # significant star 
 
 
 
@@ -85,7 +96,11 @@ IL10RB <- ggplot(receptorinfo, aes(x = celltype, y = IL10RB, fill = "IL10RB", co
   scale_fill_manual(values = c("IL10RB" = "#b0dfee")) +
   scale_color_manual(values = c("IL10RB" = "black")) +
   theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, face = "bold", size = 14),
+        axis.text.y = element_text( size = 14),
+        axis.title.y = element_text(face = "bold", size = 14, margin = margin(r = 12)),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(face = "bold",  size = 14),
         panel.grid.major = element_blank(), # Remove major grid lines
         panel.grid.minor = element_blank()  # Remove minor grid lines
   )
