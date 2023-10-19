@@ -4,6 +4,7 @@ BiocManager::install("ComplexHeatmap")
 
 library(reshape2)
 library(ggplot2)
+library(tidyverse)
 library(Seurat)
 library(pheatmap)
 library(circlize)
@@ -12,7 +13,7 @@ library(ComplexHeatmap)
 TreatmentAnnotated <- readRDS("honours/results/FinalIndex/TreatmentAnnotated.rds")
 TreatmentAnnotated$celltype <- Idents(TreatmentAnnotated)
 
-# Find the average expression for a gene across treatment type:
+# [1] Find the average expression for a gene across treatment type: #####
 
 Bcells <- subset(TreatmentAnnotated, celltype == "B")
 result <- AverageExpression(Bcells, 
@@ -26,14 +27,6 @@ result <- AverageExpression(Bcells,
                   group.by = "treatment",
                   slot = "data",
                   verbose = TRUE)
-
-receptorinfo <- AverageExpression(TreatmentAnnotated, 
-                            assay = "RNA",
-                            features = c("IFNAR1", "IFNAR2", "IL10RB", "IFNLR1"),
-                            group.by = "celltype",
-                            slot = "data",
-                            verbose = TRUE)
-receptorinfo <- as.data.frame(receptorinfo)
 
 
 
@@ -50,7 +43,7 @@ col_names <- colnames(result)
 row_names <- rownames(result)
 
 
-# Heatmap #####
+# [2]  Heatmap #####
 
 # COLOURS : "#95d16d", #2fa390, #5ac0d9, #719afb, #9a79c0
 
@@ -168,3 +161,8 @@ receptorDP <- DotPlot(Bcells,
 
 receptorAllCells / receptorDP 
 #| Showme
+
+
+
+
+

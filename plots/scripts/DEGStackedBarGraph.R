@@ -212,7 +212,7 @@ grouped <- grouped %>% arrange(CellTypes, Treatment, -Goterms)
 
 
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
-grouped$CellTypes <- factor(grouped$CellTypes, levels = c(
+grouped$rownames <- factor(grouped$CellTypes, levels = c(
   "mono", "neu", "DCs","mDCs","pDCs", #"platelets",
   "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
   "B"))
