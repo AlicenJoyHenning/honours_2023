@@ -836,7 +836,7 @@ lDEGsplot <- ggplot(
   # number of enriched GO terms 
   labs(title = "IFN-λ", x = "IFN receptor expression", y = "", fill = "IFN treatment") +
   theme(
-    plot.title = element_text(size = 16, colour = "black") + face = "bold", hjust = 0.5), 
+    plot.title = element_text(size = 16, colour = "black", face = "bold", hjust = 0.5),  
     axis.text.x = element_text(size = 16, colour = "black"),
     axis.text.y = element_text(size = 18, colour = "black", hjust = 0.5),  # Center-align y-axis text
     axis.title.x =  element_text(size = 16, face = "bold", colour = "black", margin = margin(t = 10)),
