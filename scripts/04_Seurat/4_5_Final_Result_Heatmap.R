@@ -78,7 +78,7 @@ FeaturePlot(TreatmentAnnotated,
             cols = c("grey", "black"))
 
 Bcells <- subset(TreatmentAnnotated, celltype == "B")
-
+DefaultAssay(Bcells) <- "RNA"
 
 ISG20 <- FeaturePlot(Bcells, 
                      features = "ISG20",
@@ -87,10 +87,10 @@ ISG20 <- FeaturePlot(Bcells,
                      pt.size = 5)
 
 IFIT3 <- FeaturePlot(Bcells, 
-                     features = "IFIT3",
-                     split.by = "sample",
-                     cols = c("grey", "black"),
-                     pt.size = 5)
+                     features = "CD79B",
+                     split.by = "treatment",
+                     cols = c("lightgrey", "black"),
+                     pt.size = 5) 
 
 FeaturePlot(Bcells, 
             features = c("CD79A", "CD79B","CD40"),
@@ -104,7 +104,7 @@ ISG20 / IFIT3 / STAT1
 
 CD38 <- FeaturePlot(Bcells, 
                     features = "CD38",
-                    split.by = "sample",
+                    split.by = "",
                     cols = c("grey", "black"),
                     pt.size = 5)
 
