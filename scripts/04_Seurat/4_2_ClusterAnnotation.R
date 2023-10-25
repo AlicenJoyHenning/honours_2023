@@ -492,6 +492,54 @@ MPlot <- DotPlot(object = Mcells,
 
 print(MPlot)
 
+# Final total 
+TreatmentAnnotated <- RenameIdents(treatment, 
+                                   '0' = 'monocytes(1)',
+                                   '1' = 'naive CD4+ T',
+                                   '2' = 'neutrophils',
+                                   '3' = 'T helper',
+                                   '4' = 'monocytes(2)',
+                                   '5' = 'naive CD8+ T',
+                                   '6' = 'B',
+                                   '7' = 'cytotoxic T',
+                                   '8' = 'mDCs',
+                                   '9' = 'NKT',
+                                   '10' = 'Tregs',
+                                   '11' = 'NK',
+                                   '12' = 'platelets',
+                                   '13' = 'unknown',
+                                   '14' = 'DCs', 
+                                   '15' = 'Tcm',
+                                   '16' = 'Tcm',
+                                   '17' = 'pDCs')                        
+
+groups <- c('unknown', 'platelets', 'monocytes(1)', 'monocytes(2)', 'neutrophils', 
+            'DCs', 'mDCs', 'pDCs', 
+            'Tcm', 'T helper', 'Tregs', 'naive CD4+ T', 'naive CD8+ T', 'cytotoxic T', 'NKT', 'NK', 
+            'B')
+levels(TreatmentAnnotated) <- groups
+
+DefaultAssay(TreatmentAnnotated) <- 'RNA'
+
+Plot <- DotPlot(object = TreatmentAnnotated, 
+                features = c("MS4A1", # B cells 
+                             "CD3G","FOXP3","NKG7", "GNLY", "GZMB","KLRB1", "CD8A", "CD8B",  "LEF1", "CCR4", "GATA3", "CD4","SELL",  # T cells 
+                  "TREM1","CD14","FCGR3B", "TLR6", "CXCR2", "SPI1",  # monocytes, neutrophils, 
+                  "ITGAX","MAFB", "MZB1", # dendritic cells
+                  "GP9" # platelets
+                  ),
+                cols = c("white", "darkgrey")) + 
+  geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.7)) +
+  scale_y_discrete(position = "right") +
+  geom_hline(yintercept = as.numeric(c(1.5, 2.5, 4.5, 5.5, 8.5, 16.5)),  color = "black", size = 0.2) +
+  geom_vline(xintercept = as.numeric(c(1.5, 14.5, 20.5, 23.5)),  color = "black",linetype = "dashed", size = 0.2) +
+  guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white")))
+
+print(Plot)
+
+
 
 
 

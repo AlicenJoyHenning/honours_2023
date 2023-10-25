@@ -22,6 +22,7 @@ library(ggplot2)
 library(reshape2)
 
 # [1] Alter Seurat object ####
+TreatmentAnnotated <- read_rds("honours/results/FinalIndex/TreatmentAnnotated.rds")
 SubTreatment <- subset(TreatmentAnnotated, seurat_clusters != 13 & seurat_clusters != 17 & seurat_clusters != 12)
 
 SubTreatment <- RenameIdents(SubTreatment, 
@@ -216,9 +217,10 @@ GODownAnalysis <- bind_rows(n.a.d, n.l.d,
                             l.a.d, l.l.d)
 
 
-# [4] heatmap itself ####
+# [4] Heat Map itself ####
 
 # UPREGULATED
+
 # Transpose the Data Frame
 heatT <- data.frame(
   GO = c("GO1", "GO2", "GO3", "GO4", "GO5"),

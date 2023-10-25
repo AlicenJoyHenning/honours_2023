@@ -4,7 +4,7 @@ library(Seurat)
 library(ggplot2)
 library(reshape2)
 
-# [1] Unintentional stacked bar graph ####
+# [1] Groundwork and Unintentional stacked bar graph ####
 
 receptorinfo <- AverageExpression(TreatmentAnnotated, 
                                   assay = "RNA",
