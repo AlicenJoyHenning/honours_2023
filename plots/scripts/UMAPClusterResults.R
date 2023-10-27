@@ -12,7 +12,7 @@ library(SeuratObject)
 # Load the data : 
 getwd()
 setwd("C:/Users/alice")
-treatment <- readRDS("honours/work/1109/treatment.rds")
+treatment <- readRDS("honours/results/FinalIndex/TreatmentAnnotated.rds")
 DefaultAssay(treatment) <- "RNA"
 
 # Extract UMAP coordinates and cluster information : 
@@ -28,24 +28,24 @@ treatment.df <- data.frame(
 )
 
 # Define color palette : 
-palette <- c("#15c284", #0
-               "#d72554", #1
-               "#7ac745", #2
-               "#7e549f", #3
-               "#37a777", #4
-               "#fb836f", #5 
-               "#a0d9e9", #6
-               "#9b78c2", #7
-               "#6ab5ba", #8
-               "#93aff5", #9
-               "#c674bc", #10
-               "#81cfff", #11
-               "#8edecf", #12
-               "#69a923", #13 
-               "#00a68e", #14 
-               "#d73f3f", #15
-               "white", #16
-               "#a0d9e9") #17) 
+palette <- c("grey", #0
+               "grey", #1
+               "grey", #2
+               "grey", #3
+               "grey", #4
+               "grey", #5 
+               "grey", #6
+               "grey", #7
+               "grey", #8
+               "grey", #9
+               "grey", #10
+               "grey", #11
+               "grey", #12
+               "grey", #13 
+               "grey", #14 
+               "grey", #15
+               "grey",
+             "#a0d77b") #16) #17) 
 
 
 
@@ -127,8 +127,6 @@ ggplot(treatment.df, aes(x, y, colour = seurat_clusters)) +
     label.position = "right",
     label.hjust = 1
   ))
-
-
 
 
 ##### [2.1] Treatment-specific UMAP plots following integration #####
@@ -630,7 +628,7 @@ HelpT <- (HelpTLook / HelpTFP) | HelpTDP
 HelpT
 
 ##### [3.6] Mono & Neutrophils #####
-MonoCluster <- c(1,2, 5)
+NeuCl <- c(2)
 # Create a vector to define colors for each cluster
 cluster_colors <- rep("grey", length(unique(treatment.df$seurat_clusters)))
 cluster_colors[MonoCluster] <- palette.b[MonoCluster]

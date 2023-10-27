@@ -3,66 +3,74 @@ library(readr)
 library(Seurat)
 library(ggplot2)
 
+BiocManager::install("dynverse")
+
 
 setwd("..")
 getwd()
 # [1] Load integrated data set :
-TreatmentAnnotated <- read_rds("results/FinalIndex/TreatmentAnnotated.rds")
-TreatmentAnnotated@meta.data$celltype <- TreatmentAnnotated@active.ident
-Idents(TreatmentAnnotated)
-DefaultAssay(TreatmentAnnotated) <- "RNA"
+treatment <- readRDS("honours/results/FinalIndex/adjtreatment.rds")
+Idents(treatment)
+DefaultAssay(treatment) <- "RNA"
+plot <- RenameIdents(treatment,
+                     '0' = 'monocytes',
+                                   '1' = 'naive CD4 T',
+                                   '2' = 'neutrophils',
+                                   '3' = 'T helper',
+                                   '4' = 'monocytes',
+                                   '5' = 'naive CD8 T',
+                                   '6' = 'B',
+                                   '7' = 'cytotoxic T',
+                                   '8' = 'mDCs',
+                                   '9' = 'NKT',
+                                   '10' = 'Tregs',
+                                   '11' = 'NK',
+                                   '12' = 'platelets',
+                                   '13' = 'unknown',
+                                   '14' = 'DCs', 
+                                   '15' = 'Tcm',
+                                   '16' = 'Tcm',
+                                   '17' = 'pDCs')
+plot@meta.data$celltype <- plot@active.ident
+plot <- subset(plot, celltype != "platelets" & celltype != "unknown")
 
-TreatmentAnnotated 
 
 # [2] View receptor expression across cell types : 
 
-levels(TreatmentAnnotated)
-TreatmentAnnotated <- RenameIdents(TreatmentAnnotated,
-                                   'monocytes' = 'mono',
-                                   'naive CD4 T' = 'nCD4 T',
-                                   'neutrophils'= 'neu',
-                                   'T helper' = 'Th',
-                                   'naive CD8 T'= 'nCD8 T',
-                                   'cytotoxic T'='cCD8 T')
-
-TreatmentAnnotated <- subset(TreatmentAnnotated, seurat_clusters != 13)
-TreatmentAnnotated <- subset(TreatmentAnnotated, seurat_clusters != 12)
-View(TreatmentAnnotated)
-
 # ABBREVIATED 
 # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
-TreatmentAnnotated$celltype <- factor(TreatmentAnnotated$celltype, levels = c(
-  "monos", "neu", "DCs","mDCs","pDCs",
-  "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
-  "B")) 
-
-levels(TreatmentAnnotated) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13)
-  c("mono", "neu", "DCs","mDCs","pDCs",
-   "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
-   "B")
-
-# # FULL NAMES
-# # Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
-# TreatmentAnnotated$cell_type <- factor(TreatmentAnnotatedPlot$cell_type, levels = c(
-#   "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
-#   "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
+# TreatmentAnnotated$celltype <- factor(TreatmentAnnotated$celltype, levels = c(
+#   "monos", "neu", "DCs","mDCs","pDCs",
+#   "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
 #   "B")) 
+# 
 # levels(TreatmentAnnotated) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13)
-#   c( "monocytes", "neutrophils", "DCs","mDCs","pDCs","platelets",
-#      "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
-     # "B")
+#   c("mono", "neu", "DCs","mDCs","pDCs",
+#    "Th","nCD4 T","nCD8 T","cCD8 T","NKT","Tregs","Tcm","NK",
+#    "B")
+
+# FULL NAMES
+# Modify the order of CellTypes as a factor: (prevents alphabetically losing NB information)
+plot$celltype <- factor(plot$celltype, levels = c(
+  "monocytes", "neutrophils", "DCs", "mDCs","pDCs", # "platelets",
+  "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
+  "B"))
+levels(plot) <- #c(0,4,2,14,8,17,12,3,1,5,7,9,10,15,16,11,6,13)
+  c( "monocytes", "neutrophils", "DCs", "mDCs","pDCs",# "platelets",
+     "T helper","naive CD4 T","naive CD8 T","cytotoxic T","NKT","Tregs","Tcm","NK",
+"B")
 
 # PLOT
-AreceptorDP <- DotPlot(TreatmentAnnotated,
-                      features = c("IFNAR1", "IFNLR1"), # ,  "IFNLR1"
-                      cols = c("darkgrey", "darkgrey")) +
+DotPlot(plot,
+        features = c("IFNAR1", "IFNAR2", "IFNGR1", "IFNGR2", "IFNLR1", "IL10RB"), # ,  
+        cols = c("darkgrey", "darkgrey")) +
   labs(x = "", y = "", fill = "Gene expression (%)") +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+    axis.text.x = element_text( hjust = 0.5, face = "bold"),
     panel.border = element_rect(color = "black", fill = NA, size = 0.7),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) +
-  geom_hline(yintercept = c(4.65, 5.35, 13.65, 14.35), color = "black", linetype = "dashed", size = 0.25)# +
+  geom_hline(yintercept = c(4.65, 5.35), color = "black", linetype = "dashed", size = 0.25)# +
 
 LreceptorDP <- DotPlot(TreatmentAnnotated,
                        features = c("IFNLR1"), # ,  "IFNLR1"
@@ -147,4 +155,5 @@ receptorexpression <- ggplot(
     panel.grid.major = element_blank(), # Remove major grid lines
     panel.grid.minor = element_blank()  # Remove minor grid lines
   )
-  
+
+citation(package = "Seurat")

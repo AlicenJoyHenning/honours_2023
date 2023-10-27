@@ -20,7 +20,7 @@ DEGs <- c(1028, 11, # monocytes
           310, 8, # NKT
           186, 2, # cyto CD8
           148, 6, # T regs 
-          62, 0, # CD4
+          62, 0, # Tcm
           150, 2, # NK
           # 935, 33, # overall T 
           
