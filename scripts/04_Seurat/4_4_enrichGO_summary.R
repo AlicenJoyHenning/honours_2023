@@ -114,7 +114,7 @@ df5 <- data.frame(terms, counts5)
 
 lambdaplot1 <- ggplot(df1,
                      aes(y = counts1, x = terms)) +
-  geom_bar(fill = "#6ab5ab", position = "stack", stat = "identity") + 
+  geom_bar(fill = "#6ab5ba", position = "stack", stat = "identity") + 
   theme_minimal() +
   labs(title = "1. Interferon\n signaling", x = "", y = "GO term counts") +
   theme(
@@ -128,7 +128,7 @@ lambdaplot1 <- ggplot(df1,
 
 lambdaplot2 <- ggplot(df2,
                      aes(y = counts2, x = terms)) +
-  geom_bar(fill = "#6ab5ab", position = "stack", stat = "identity") + 
+  geom_bar(fill = "#6ab5ba", position = "stack", stat = "identity") + 
   theme_minimal() +
   labs(title = "2. Viral\n responses", x = "", y = "GO term counts") +
   theme(
@@ -142,7 +142,7 @@ lambdaplot2 <- ggplot(df2,
 
 lambdaplot3 <- ggplot(df3,
                      aes(y = counts3, x = terms)) +
-  geom_bar(fill = "#6ab5ab", position = "stack", stat = "identity") + 
+  geom_bar(fill = "#6ab5ba", position = "stack", stat = "identity") + 
   theme_minimal() +
   labs(title = "3. Vitamin D\n responses", x = "", y = "GO term counts") +
   theme(
@@ -156,7 +156,7 @@ lambdaplot3 <- ggplot(df3,
 
 lambdaplot4 <- ggplot(df4,
                      aes(y = counts4, x = terms)) +
-  geom_bar(fill = "#6ab5ab", position = "stack", stat = "identity") + 
+  geom_bar(fill = "#6ab5ba", position = "stack", stat = "identity") + 
   theme_minimal() +
   labs(title = "4. Bone\n mineralization", x = "", y = "GO term counts") +
   theme(
@@ -170,7 +170,7 @@ lambdaplot4 <- ggplot(df4,
 
 lambdaplot5 <- ggplot(df5,
                      aes(y = counts5, x = terms)) +
-  geom_bar(fill = "#6ab5ab", position = "stack", stat = "identity") + 
+  geom_bar(fill = "#6ab5ba", position = "stack", stat = "identity") + 
   theme_minimal() +
   labs(title = "5. RNA\n processing ", x = "", y = "GO term counts") +
   theme(

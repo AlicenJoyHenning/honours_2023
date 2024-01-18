@@ -11,7 +11,7 @@ Bcells <- subset(TreatmentAnnotated, celltype == "B")
 markerinfo <- AverageExpression(Bcells, 
                                   assay = "RNA",
                                   features = c("OAS2", "IFIT3", "STAT1", "CD38", "JCHAIN", "XBP1"),
-                                  group.by = "sample",
+                                  group.by = "treatment",
                                   slot = "data",
                                   verbose = TRUE)
 
@@ -42,6 +42,9 @@ OAS2 <- ggplot(markerinfo, aes(x = sample, y = OAS2, fill = "OAS2", color = "OAS
   )+
   ggtitle("OAS2") +
   theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
+
+
+
 
 IFIT3 <- ggplot(markerinfo, aes(x = sample, y = IFIT3, fill = "IFIT3", color = "IFIT3")) +
   geom_bar(stat = "identity", width = 0.7) +
