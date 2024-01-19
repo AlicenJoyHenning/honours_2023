@@ -16,6 +16,7 @@ _1. Preprocessing<br>
 4. Investigate gene expression of cell populations<br>_
 
 [**1. Preprocessing**](#section-1)<br>
+scRNAseq FASTQ files hold the raw sequencing data (reads) that on their own hold no biological insight. The reads must be aligned to the reference genome to _piece together_ the picture of the transcritpome they represent. Alignment is approximated by two techniques that differ in both accuracy and computational resources. The more computationally intensive genome alignment technique aligns reads across the full length of the reference genome. Alternatively, psuedoalignment deconstructs the reference genome and aligns reads to smaller segments in an optimized order making the process more _compuatationally digestable_ albeit at a decrease in the accuracy of alignment. In scRNAseq, this decrease is not detrimental to downstream analysis and, considering the overwhelming computational resources of scRNAseq data when compared to bulk RNAseq data, makes scRNAseq analyses more accessible to the scientific community at large. 
 
 1.1 Build alignment index<br>
 
