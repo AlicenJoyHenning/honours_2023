@@ -1,17 +1,43 @@
 ## Overview of scRNAseq analysis 
-*Contents:* <br>
-[1. Preprocessing](#section-1)<br>
-&nbsp;&nbsp;&nbsp;[1.1 Build alignment index](##section-2)<br> 
-&nbsp;&nbsp;&nbsp;[1.2 Psueoalign](##section-3)<br>
-&nbsp;&nbsp;&nbsp;[1.3 Quantification](##section-4)
-<br>&nbsp;&nbsp;&nbsp;[1.4 Remove low quality cells](##section-5) 
-<br>&nbsp;&nbsp;&nbsp;[1.5 Normalise](##section-6)
-<br>&nbsp;&nbsp;&nbsp;[1.6 Scale data](##section-7)<br>
-[2. Identify and visualise cell populations](#section-2)<br>
-&nbsp;&nbsp;&nbsp;[2.1 Linear dimensionality reduction (PCA)](##section-2)
-<br>&nbsp;&nbsp;&nbsp;[2.2 Clustering (KNN)](##section-2)
-<br>&nbsp;&nbsp;&nbsp;[2.3 Uniform Manifold Approximation and Projection (UMAP)](##section-2)<br>
-[3. Annotate cell populations](#section-3)<br>
-[4. Investigate gene expression of cell populations](#section-4)<br>
+[**Contents:**](#section-1) <br>
+_1. Preprocessing<br>
+&nbsp;&nbsp;&nbsp;1.1 Build alignment index<br> 
+&nbsp;&nbsp;&nbsp;1.2 Psueoalign<br>
+&nbsp;&nbsp;&nbsp;1.3 Quantification
+<br>&nbsp;&nbsp;&nbsp;1.4 Remove low quality cells
+<br>&nbsp;&nbsp;&nbsp;1.5 Normalise
+<br>&nbsp;&nbsp;&nbsp;1.6 Scale data
+<br>&nbsp;&nbsp;&nbsp;1.7 Integrate<br>
+2. Identify and visualise cell populations<br>
+&nbsp;&nbsp;&nbsp;2.1 Linear dimensionality reduction (PCA)
+<br>&nbsp;&nbsp;&nbsp;2.2 Clustering (KNN)
+<br>&nbsp;&nbsp;&nbsp;2.3 Uniform Manifold Approximation and Projection (UMAP)<br>
+3. Annotate cell populations<br>
+4. Investigate gene expression of cell populations<br>_
 
-[1. Preprocessing](#section-1)<br>
+[**1. Preprocessing**](#section-1)<br>
+
+1.1 Build alignment index<br>
+
+1.2 Psuedoalign<br>
+
+1.3 Quantification<br>
+
+1.4 Remove low quality cells<br>
+
+1.5 Normalise<br>
+
+1.6 Scale data<br>
+
+1.7 Integrate<br>
+
+[**2. Identify and visualise cell populations**](#section-1)<br>
+2.1 Linear dimensionality reduction (PCA)<br>
+
+2.2 Clustering (KNN)<br>
+
+2.3 Uniform Manifold Approximation and Projection (UMAP)<br>
+
+[**3. Annotate cell populations**](#section-1)<br>
+
+[**4. Investigate gene expression of cell populations**](#section-1)<br>
