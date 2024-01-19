@@ -3,7 +3,6 @@
 
 ##### [1] Load dependencies #####
 getwd()
-
 library(BiocManager)
 BiocManager::install("Seurat", version = "4.1")
 BiocManager::install('Matrix')
@@ -14,22 +13,22 @@ BiocManager::install('openxlsx')
 BiocManager::install('readxl')
 BiocManager::install('dplyr')
 
-# data manipulation 
+# data manipulation ####
 library(tidyverse)
 library(dplyr)
-# storing data outputs in excel sheet
+# storing data outputs in excel sheet ####
 library(writexl) 
 library(openxlsx)
 library(XLConnect)
 library(readxl)
-# Seurat package (we love her)
+# Seurat package (we love her) ####
 library(SeuratObject) 
 library(Seurat)
-# plotting help
+# plotting help ####
 library(ggplot2) 
 library(grid)
 library(patchwork)
-# support 
+# support ####
 library(readr)
 library(Matrix)
 library(metap)
@@ -40,27 +39,19 @@ library(metap)
 # remove.packages("SeuratObject")
 
 
-# Load datasets: alpha, lambda, and untreated using ReadMtx function : 
-Amatrix <- "honours/work/1109/alpha/matrix.mtx.gz"
-Abarcodes <- "honours/work/1109/alpha/barcodes.tsv.gz"
-Afeatures <- "honours/work/1109/alpha/features.tsv.gz"
-AlphaMatrix <- ReadMtx(Amatrix, Abarcodes, Afeatures)
-alpha <- CreateSeuratObject(AlphaMatrix, project="alpha", min.cells=3, min.features=0)
-saveRDS(alpha, "honours/work/1109/alpha/alphaCountMatrix.rds")
+# Load datasets: alpha, lambda, and untreated using Read10X function : ####
+alpha <- Read10X("honours/work/1109/alpha/")
+alpha <- CreateSeuratObject(alpha, project="alpha",  min.cells=3, min.features=0)
 
-Lmatrix <- "honours/work/1109/lambda/matrix.mtx.gz"
-Lbarcodes <- "honours/work/1109/lambda/barcodes.tsv.gz"
-Lfeatures <- "honours/work/1109/lambda/features.tsv.gz"
-LambdaMatrix <- ReadMtx(Lmatrix, Lbarcodes, Lfeatures)
-lambda <- CreateSeuratObject(LambdaMatrix, project="lambda", min.cells=3, min.features = 0)
-saveRDS(lambda, "honours/work/1109/lambda/lambdaCountMatrix.rds")
+lambda <- Read10X("honours/work/1109/lambda/")
+lambda <- CreateSeuratObject(lambda, project="lambda", min.cells=3, min.features = 0)
 
-Umatrix <- "honours/work/1109/untreated/matrix.mtx.gz"
-Ubarcodes <- "honours/work/1109/untreated/barcodes.tsv.gz"
-Ufeatures <- "honours/work/1109/untreated/features.tsv.gz"
-UntreatedMatrix <- ReadMtx(Umatrix, Ubarcodes, Ufeatures)
-untreated <- CreateSeuratObject(UntreatedMatrix, project="untreated", min.cells=3, min.features = 0)
-saveRDS(untreated, "honours/work/1109/untreated/untreatedCountMatrix.rds")
+untreated <- Read10X("honours/work/1109/untreated/")
+untreated <- CreateSeuratObject(untreated, project="untreated", min.cells=3, min.features = 0)
+
+
+
+
 
 ##### [2] Perform cell and gene level quality control independently on the datasets #####
 
@@ -70,17 +61,18 @@ alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
 lambda[["percent.mt"]] <- PercentageFeatureSet(lambda, pattern = "^MT-")
 untreated[["percent.mt"]] <- PercentageFeatureSet(untreated, pattern = "^MT-")
 
-alpha[["percent.xist"]] <- PercentageFeatureSet(alpha, pattern = "XIST")
-lambda[["percent.xist"]] <- PercentageFeatureSet(lambda, pattern = "XIST")
-untreated[["percent.xist"]] <- PercentageFeatureSet(untreated, pattern = "XIST")
-
-
 # Subset the seurat objects based on mitochondrial percentage and the number of features : 
 alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 
-# Normalise according to LOG scale (good for integration) : 
+# WORKING EDIT: change subsetting to be based on outliers not arbitrary boundaries ####
+# (1) extract vector of all Feature values 
+x <- alpha("nFeature_RNA"]]
+
+
+
+# Normalise according to LOG scale (good for integration) : ####
 # 1 : actual normalization 
 alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.factor = 10000)
 lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
@@ -108,22 +100,8 @@ saveRDS(untreated, "honours/work/1109/lambda/untreatedCountMatrixFiltered.rds")
 
 # Create a list of Seurat objects : 
 TreatmentList <- list(alpha, lambda, untreated) 
-
 # Select features that are repeatedly variable across datasets for integration : 
 TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList)
-
-# Selecting features (genes) that are consistently variable across multiple
-# datasets for the purpose of integrating those datasets into a single analysis
-# function does not directly modify the Seurat objects instead, 
-# processes the gene expression data within the Seurat objects to identify a set
-# of integration features, which are then used for subsequent integration steps.
-# The Seurat objects remain unchanged, but the integration features selected
-# based on these objects play a crucial role in guiding the integration
-# process.it goes as separate input into the integration function
-
-?SelectIntegrationFeatures()
-?FindIntegrationAnchors()
-?IntegrateData()
 
 ##### [4] Perform integration #####
 
@@ -135,10 +113,6 @@ anchors <- FindIntegrationAnchors(
   anchor.features = TreatmentFeatures,
   normalization.method = "LogNormalize"
 )
-# Darisia Index : Found 13669 anchors, retained 
-# Index with problems; Found 12273 anchors, retained 5914
-# Final Index : Found anchors 8220, retained 4846
-
 
 # Integrate data sets using the anchors : 
 treatment <- IntegrateData(anchorset = anchors)
