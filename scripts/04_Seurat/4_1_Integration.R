@@ -1,6 +1,14 @@
 # INTEGRATION AND DIMENSIONALITY REDUCTION 
 # Seurat workflow after preprocessing
 
+# Quick access to save the worked on Seurat objects : ####
+alpha <- saveRDS(alpha, "honours/work/RObjects/")
+lambda <- saveRDS(lambda, "honours/work/RObjects/")
+untreated <- saveRDS(untreated, "honours/work/RObjects/")
+treatment <- saveRDS(treatment, "honours/work/1109/treatment.rds")
+
+# To read in the saved Seurat objects : 
+treatment <- readRDS("honours/work/1109/treatment.rds")
 ##### [1] Load dependencies #####
 getwd()
 library(BiocManager)
@@ -13,22 +21,22 @@ BiocManager::install('openxlsx')
 BiocManager::install('readxl')
 BiocManager::install('dplyr')
 
-# data manipulation ####
+# data manipulation 
 library(tidyverse)
 library(dplyr)
-# storing data outputs in excel sheet ####
+# storing data outputs in excel sheet 
 library(writexl) 
 library(openxlsx)
 library(XLConnect)
 library(readxl)
-# Seurat package (we love her) ####
+# Seurat package (we love her) 
 library(SeuratObject) 
 library(Seurat)
-# plotting help ####
+# plotting help 
 library(ggplot2) 
 library(grid)
 library(patchwork)
-# support ####
+# support 
 library(readr)
 library(Matrix)
 library(metap)
@@ -39,7 +47,7 @@ library(metap)
 # remove.packages("SeuratObject")
 
 
-# Load datasets: alpha, lambda, and untreated using Read10X function : ####
+# Load datasets: alpha, lambda, and untreated using Read10X function : 
 alpha <- Read10X("honours/work/1109/alpha/")
 alpha <- CreateSeuratObject(alpha, project="alpha",  min.cells=3, min.features=0)
 
@@ -66,13 +74,9 @@ alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & perce
 lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 
-# WORKING EDIT: change subsetting to be based on outliers not arbitrary boundaries ####
-# (1) extract vector of all Feature values 
-x <- alpha("nFeature_RNA"]]
 
 
-
-# Normalise according to LOG scale (good for integration) : ####
+# Normalise according to LOG scale (good for integration) : 
 # 1 : actual normalization 
 alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.factor = 10000)
 lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
@@ -129,13 +133,19 @@ treatment <- RunUMAP(treatment, reduction = "pca", dims = 1:30) # 30
 treatment <- FindNeighbors(treatment, reduction = "pca", dims = 1:30) # 30 
 treatment <- FindClusters(treatment, resolution = 0.5)
 
+class(treatment)
+SpatialPlot(
+  treatment,
+  features = "MS4A1"
+)
+
 ##### [5] Preliminary visualization of clusters #####
 # Change name of metadata column header to stim : 
 colnames(treatment@meta.data)[1] <- "treatment"
 
 # View whether the treatment datasets cluster together : 
 colours <- c("#c35cad","#6ab5ba","#d3d3d3")
-p1 <- DimPlot(treatment, reduction = "umap",pt.size = 1, group.by = "treatment") + scale_color_manual(values = colours) + ggtitle("")
+p1 <- DimPlot(treatment, reduction = "umap",pt.size = 1,group.by = "treatment") + scale_color_manual(values = colours) + ggtitle("") 
 
 # View the total number of clusters :
 # Define color palette : 
@@ -160,113 +170,35 @@ palette <- c("#15c284", #0
 )
 p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.color = "black",label.box = FALSE, label.size = 6, repel = TRUE) + scale_color_manual(values = palette)
 
-##### Working on Loop to preprocess individual datasets #####
-# Define the project names and data directories :
-projects <- c("alpha", "lambda", "untreated")
-data_dirs <- c("honours/work/1109/alpha", "honours/work/1109/lambda", "honours/work/1109/untreated")
-
-# Loop through each dataset :
-for (i in 1:length(projects)) {
-  
-  project_name <- projects[i]
-  data_dir <- data_dirs[i]
-  cat("Loading dataset for project:", project_name, "\n")
-  
-  # Read in the data using Read10X Seurat function & create Seurat object 
-  project <- Read10X(data.dir = data_dir)
-  seurat_obj <- CreateSeuratObject(counts = project, project = project_name, min.cells = 0, min.features = 0)
-  cat(project_name,"Seurat object created","\n")
-  
-  # Create meta data column for mitochondrial genes
-  percent.mt <- paste("percent.mt", project_name, sep = ".")
-  seurat_obj <- PercentageFeatureSet(seurat_obj, pattern = "^MT-") 
-  
-  # Subset based on mitochondrial percentage and the number of features
-  nFeature_RNA <- seurat_obj@meta.data$nFeature_RNA
-  seurat_obj <- subset(seurat_obj, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
-  cat("Filtering of", project_name,"complete.", "\n")
-  
-  # Log normalize the dataset
-  seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE)
-  cat("Data normalized for project:", project_name, "\n")
-  
-  # Scale the data
-  all_genes <- rownames(seurat_obj)
-  seurat_obj <- ScaleData(seurat_obj, features = all_genes)
-  cat("Data scaled for project:", project_name, "\n")
-  
-  # Find variable features
-  seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = 2000)
-  cat("Variable features identified for project:", project_name, "\n")
-  
-  # Save the filtered Seurat object
-  saveRDS(seurat_obj, paste("honours/work/1109/", project_name, "/", project_name, "CountMatrixFiltered.rds", sep = ""))
-  
-  cat("", project_name, "\n\n")
-}
 
 
-# Define the file paths for each dataset
-dataset_paths <- list(
-  list(
-    matrix = "honours/work/1109/alpha/matrix.mtx.gz",
-    barcodes = "honours/work/1109/alpha/barcodes.tsv.gz",
-    features = "honours/work/1109/alpha/features.tsv.gz",
-    project = "alpha"
-  ),
-  list(
-    matrix = "honours/work/1109/lambda/matrix.mtx.gz",
-    barcodes = "honours/work/1109/lambda/barcodes.tsv.gz",
-    features = "honours/work/1109/lambda/features.tsv.gz",
-    project = "lambda"
-  ),
-  list(
-    matrix = "honours/work/1109/untreated/matrix.mtx.gz",
-    barcodes = "honours/work/1109/untreated/barcodes.tsv.gz",
-    features = "honours/work/1109/untreated/features.tsv.gz",
-    project = "untreated"
-  )
-)
+# WORKING EDIT: change subseting to be based on outliers not arbitrary boundaries ####
+# (1) extract vector of all Feature values 
+x <- alpha[["nFeature_RNA"]]
 
-# Loop through each dataset
-for (dataset_info in dataset_paths) {
-  cat("Loading dataset for project:", dataset_info$project, "\n")
-  
-  # Read in the matrix, barcodes, and features
-  matrix_file <- dataset_info$matrix
-  barcodes_file <- dataset_info$barcodes
-  features_file <- dataset_info$features
-  
-  AlphaMatrix <- ReadMtx(matrix_file, barcodes_file, features_file)
-  
-  # Create a Seurat object
-  project_name <- dataset_info$project
-  assign(project_name, CreateSeuratObject(AlphaMatrix, project = project_name, min.cells = 3, min.features = 0))
-  
-  cat("Seurat object created for project:", dataset_info$project, "\n")
-}
 
-# Loop through the Seurat objects and perform the remaining steps
-projects <- c("alpha", "lambda", "untreated")
+# Working on Loop to preprocess individual datasets #####
+# Loop through the Seurat objects instead 
+projects <- list(alpha, lambda, untreated)
 
 for (project in projects) {
-  cat("Processing project:", project, "\n")
+  print("Processing project:", project, "\n")
   # Create meta data column for mitochondrial genes
   project[["percent.mt"]] <- PercentageFeatureSet(get(project), pattern = "^MT-")
+  project <- subset(project, project[["nFeature_RNA"]] > 200 & project[["nFeature_RNA"]] < 2500 & percent.mt < 10) # have to reference the metadata column specifically or else it won't be noticed
+  project <- subset(project,project[["nCount_RNA"]] > 10)
+  print("Quality control complete","\n")
+  # Normalize the data
+  test <- class(project)
+  print(test)
+  project <- NormalizeData(project, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE)
+  print("Data normalized for project:", project, "\n")
 }
 
 
-cat("Mitochondrial gene percentages calculated for project:", project, "\n")
 
-# Subset based on mitochondrial percentage and the number of features
-subset(project, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent_mt_col < 10)
-cat("Seurat object subset for project:", project, "\n")
 
-# Normalize the data
-NormalizeData(project, normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE)
-cat("Data normalized for project:", project, "\n")
-
-# Scale the data
+Scale the data
 all_genes <- rownames(project)
 ScaleData(project, features = all_genes)
 cat("Data scaled for project:", project, "\n")
@@ -279,26 +211,12 @@ cat("Variable features identified for project:", project, "\n")
 # saveRDS(project), paste("honours/work/1109/", project, "/", project, "CountMatrixFiltered.rds", sep = ""))
 
 cat("Filtered Seurat object saved for project:", project, "\n\n")
-}
+
+
++
 
 
 
-
-
-for (project in projects) {
-  cat("Processing project:", project, "\n")
-  
-  # Create meta data column for mitochondrial genes
-  percent_mt_col <- paste("percent.mt", project, sep = ".")
-  assign(project, PercentageFeatureSet(get(project), pattern = "^MT-"))
-  
-  cat("Mitochondrial gene percentages calculated for project:", project, "\n")
-  
-  # Subset based on mitochondrial percentage and the number of features
-  subset_expr <- paste("nFeature_RNA > 200 & nFeature_RNA < 2500 &", percent_mt_col, "< 10")
-  assign(project, subset(get(project), subset = eval(parse(text = subset_expr))))
-  cat("Seurat object subset for project:", project, "\n")
-  
   # Normalize the data
   assign(project, NormalizeData(get(project), normalization.method = "LogNormalize", scale.factor = 10000, verbose = TRUE))
   cat("Data normalized for project:", project, "\n")
@@ -319,22 +237,3 @@ for (project in projects) {
 }
 
 
-##### 
-
-
-# noted : sizes alpha, lambda, untreated : 193, 219, 243 MB
-# fixes new sizes : 193,  219, 198 MB
-# final sizes : 249 286 257 MB
-
-# Alternative way to read in datasets using Read10X function : 
-alpha <- Read10X(data.dir = "honours/work/ifnalpha/seurat_matrix/")
-alpha <- CreateSeuratObject(counts=alpha, project='ifnalpha', min.cells=3, min.features=200)
-
-# Quick access to save the worked on Seurat objects : 
-alpha <- saveRDS(alpha, "honours/work/RObjects/")
-lambda <- saveRDS(lambda, "honours/work/RObjects/")
-untreated <- saveRDS(untreated, "honours/work/RObjects/")
-treatment <- saveRDS(treatment, "honours/work/1109/treatment.rds")
-
-# To read in the saved Seurat objects : 
-treatment <- readRDS("honours/work/1109/treatment.rds")
