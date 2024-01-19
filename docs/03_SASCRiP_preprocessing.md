@@ -110,7 +110,6 @@ NOTE: before using Juypter notebook (lab) on the Ubuntu computer, ensure that th
 ## (iii) Preparing fastq files for SASCRiP 
 
 This step was not necessary for the fastq files used in my project as they were obtained from the 10xv3 chemistry, not the 10xv1 chemistry. This function searches for the RA fastq file that contains both the UMI and transcript sequences that are then separated into their own fastq files to be used as input for the next stage of allignment. 
-? Still need to make sure from literature that version 3 was used 
 
 ```juypter-lab
 edit_10xv1_fastq
@@ -245,7 +244,7 @@ sascrip_functions.sctransform_normalize(
 
 # (viii) sascrip_preprocess 
 
-Alternatively to running the individual functions, SASCRiP provides the option to run the entire pre=processing workflow alltogether with a single function. I did this for in addition to running the functions indiviudally to see if the results would be any different. This however is more complicated because there are no default ways to add the path to the directory where the fastq files are stored (knowledge of python and dictionary). 
+Alternatively to running the individual functions, SASCRiP provides the option to run the entire pre-processing workflow alltogether with a single function. I did this for in addition to running the functions indiviudally to see if the results would be any different. This however is more complicated because there are no default ways to add the path to the directory where the fastq files are stored (knowledge of python and dictionary). 
 
 
 ```
