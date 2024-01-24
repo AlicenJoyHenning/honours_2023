@@ -1,7 +1,7 @@
 
 ![Alt text](https://github.com/AlicenJoyHenning/honours_2023/blob/main/images/00_other/1.png)
 ## **SINGLE CELL RNA SEQUENCING WORKFLOW**  
-## 1. Downloading and assess the data
+## 1. Download and assess the data
 ### _10X BAM to FASTQ converter_
 For the dataset used in this analysis, FASTQ files are not directly available. Rather, the BAM files have been made available that can be downloaded and converted into FASTQ files using the flowing steps [(download data)](https://github.com/AlicenJoyHenning/honours_2023/edit/main/docs/00_downloading_files.md) 
 with the use of `bamtofastq_linux`. 
