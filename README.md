@@ -19,7 +19,7 @@ Before running the downstream analysis, some quality control checks need to be d
 ><br>
 <br>
 
-## 2. Alignment and quantification 
+## 2. Pre-psuedoalignment processes
 ### _Building the reference transcriptome input for *Kallisto* to be used in the SASCRiP pipeline_
 #### (i) Install and download the necessary dependencies
 To run the pseudo alignment tool (**Kallisto**), an index of the reference transcriptome is needed. Although the SASCRiP function **kallisto_bustools** is able to do this automatically by changing some parameters, I needed to know how to do this manually.<br> 
@@ -51,4 +51,15 @@ After downloading the full transcriptome file, you now need to build the index i
 #### (iii) Build the transcripts to gene file 
 Once the index is created, the transcripts to genes text file must also be compiled. This can be done using a function from `kb_python` called `create_t2g_from_gtf` . This requires gtf (gene transfer format) files as input that must be downloaded. 
 To download gtf files go to ensembl website > human > latest genome assembly > GRCh38 (or latest version) > access the gtf file (Homo_sapiens.GRCh38.110.gtf.gz). Once downloaded, store the gtf file in a specific directory and complete [the following](scripts/02_kallisto_index/manual_kb_python.ipynb). 
- 
+
+#### (iv) Adjust the transcripts to gene file for Kallisto 
+
+### 3. SASCRiP: psuedoalignment and quantification pipeline 
+
+### 4. Cell and data quality control 
+
+### 5. Integration of study samples
+
+### 6. Dimensionality reduction and clustering of integrated dataset
+
+### 7. Differential gene expression analyses 
