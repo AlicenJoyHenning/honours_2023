@@ -1,7 +1,7 @@
 # FastQC: Sequencing Quality Control
 
 Before running the downstream analysis, some quality control checks need to be done to ensure the raw data has no underlying problems, or inform problems that you may have.
-**FastQC** provides a QC report that can be run in a non-interactive mode where it would be suitable for integrating into a larger analysis pipeline. 
+**FastQC** provides a QC report that can be run in a non-interactive mode where it would be suitable for integrating into a larger analysis pipeline. NB: FastQC requires a suitable Java runtime environment to be operational on your device prior to installation. 
 
 ```Unix Command Prompt
 # check is the FastQC is installed on the system : 
