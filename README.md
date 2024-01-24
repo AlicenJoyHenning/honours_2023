@@ -34,7 +34,6 @@ This process also requires Kallisto to be installed (<a href="https://github.com
 From this point, the full transcriptome from Ensembl (files ending in cdna.all.fa.gz) must be downloaded. To build the human transcriptome index, first download the transcriptome, which is available under cDNA on the [Ensembl website](http://ftp.ensembl.org/pub/release-94/fasta/homo_sapiens/cdna/) 
 and execute [the following](https://github.com/AlicenJoyHenning/honours_2023/blob/main/scripts/02_kallisto_index/download_transcriptome.sh) in the command prompt. 
 
-
 > _STUDY OUTCOME 2 | Successful download of the full transcriptome_<br>
 > <div style="text-align:center">
 >    <img src="https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/7c5f8b9b-e275-4dd4-b79f-1ddc0e55b37f" alt="image">
@@ -45,12 +44,9 @@ and execute [the following](https://github.com/AlicenJoyHenning/honours_2023/blo
 #### (ii) Build the index file 
 After downloading the full transcriptome file, you now need to build the index itself. This was done in the command prompt using Kallisto [as follows](https://github.com/AlicenJoyHenning/honours_2023/blob/main/scripts/02_kallisto_index/kallisto_index.sh).
 
-```
 > _STUDY OUTCOME 3 | Successful building of the pseudoalignment index_<br>
-> <div style="thttps://github.com/AlicenJoyHenning/honours_2023/assets/129797527/ecef3b27-fc09-4847-801e-42bc643877d6ext-align:center">
->    <img src="" alt="image">
-> </div>
-<br><br>
+> ![image](https://github.com/AlicenJoyHenning/honours_2023/assets/129797527/ecef3b27-fc09-4847-801e-42bc643877d6)<br>
+
 
 #### (iii) Build the transcripts to gene file 
 Once the index is created, the transcripts to genes text file must also be compiled. This can be done using a function from `kb_python` called `create_t2g_from_gtf` . This requires gtf (gene transfer format) files as input that must be downloaded. 
