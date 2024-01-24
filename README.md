@@ -43,19 +43,7 @@ and execute [the following](https://github.com/AlicenJoyHenning/honours_2023/blo
 <br>
 
 #### (ii) Build the index file 
-After downloading the full transcriptome file, you now need to build the index itself. This was done in the command prompt using Kallisto as shown below.
-
-```
-# Run kallisto index. kallisto will work on .fa and .fz.gz files so there is no need to unzip the downloaded file:
-
-kallisto index -i 	Homo_sapiens.GRCh38.cdna.all.release-94_k31.idx	Homo_sapiens.GRCh38.cdna.all.fa.gz
-# -i Homo_sapiens.GRCh38.cdna.all.release-94_k31.idx: specifies the output index file name
-# Homo_sapiens.GRCh38.cdna.all.fa.gz: input transcriptome reference file where -i flag indicates that you want to build an index from this file
-# OUTPUT :
-[build] building MPHF
-[build] creating equivalence classes ...
-[build] target de Bruijn graph has k-mer length 31 and minimizer length 23
-[build] target de Bruijn graph has 936536 contigs and contains 108619921 k-mers 
+After downloading the full transcriptome file, you now need to build the index itself. This was done in the command prompt using Kallisto [as follows](https://github.com/AlicenJoyHenning/honours_2023/blob/main/scripts/02_kallisto_index/kallisto_index.sh).
 
 ```
 > _STUDY OUTCOME 3 | Successful building of the pseudoalignment index_<br>
