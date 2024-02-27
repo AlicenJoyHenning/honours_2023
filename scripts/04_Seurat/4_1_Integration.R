@@ -10,7 +10,6 @@ treatment <- saveRDS(treatment, "honours/work/1109/treatment.rds")
 # To read in the saved Seurat objects : 
 treatment <- readRDS("honours/work/1109/treatment.rds")
 ##### [1] Load dependencies #####
-.libPaths("/home/alicen/R/x86_64-pc-linux-gnu-library/4.3")
 
 BiocManager::install("BiocVersion", force = TRUE)
 
@@ -18,7 +17,7 @@ library(BiocManager)
 
 BiocManager::install(c("Seurat","Matrix","xlsx","XLConnect","writexl","openxlsx","readxl","dplyr","tidyverse")) 
 
-BiocManager::install("XLConnect", force = TRUE)
+BiocManager::install("tlibxml2-dev")
 
 
 # data manipulation 
