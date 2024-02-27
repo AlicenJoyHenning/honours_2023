@@ -141,7 +141,7 @@ alpha <- ggplot(alphapie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Metric)
     geom_rect() + 
 # geom_rect(color = "black", size = 0.65) +
 # geom_label( x=3.5, aes(y=labelPosition, label=label), size=8) +
-  geom_text(aes(x = 3.75, y = labelPosition, color = "white", label = label,  fontface = "bold"), size = 6) +  # Add labels with percentages
+ # geom_text(aes(x = 3.5, y = labelPosition,label = label), size = 6) +  # Add labels with percentages
   scale_fill_manual(values = palette.e)+ 
   coord_polar(theta="y") + # makes it a circle 
   xlim(c(2.7, 4)) +
@@ -149,6 +149,7 @@ alpha <- ggplot(alphapie, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Metric)
   theme(legend.position = "right",
         legend.title = element_text(face = "bold"))
 
+alpha
 
 # LAMBDA : 
 # Create data frame 
