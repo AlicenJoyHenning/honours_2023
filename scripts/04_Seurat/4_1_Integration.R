@@ -10,16 +10,16 @@ treatment <- saveRDS(treatment, "honours/work/1109/treatment.rds")
 # To read in the saved Seurat objects : 
 treatment <- readRDS("honours/work/1109/treatment.rds")
 ##### [1] Load dependencies #####
-getwd()
+.libPaths("/home/alicen/R/x86_64-pc-linux-gnu-library/4.3")
+
+BiocManager::install("BiocVersion", force = TRUE)
+
 library(BiocManager)
-BiocManager::install("Seurat", version = "4.1")
-BiocManager::install('Matrix')
-BiocManager::install('xlsx')
-BiocManager::install('XLConnect')
-BiocManager::install('writexl')
-BiocManager::install('openxlsx')
-BiocManager::install('readxl')
-BiocManager::install('dplyr')
+
+BiocManager::install(c("Seurat","Matrix","xlsx","XLConnect","writexl","openxlsx","readxl","dplyr","tidyverse")) 
+
+BiocManager::install("XLConnect", force = TRUE)
+
 
 # data manipulation 
 library(tidyverse)
@@ -48,7 +48,9 @@ library(metap)
 
 
 # Load datasets: alpha, lambda, and untreated using Read10X function : 
+getwd()
 alpha <- Read10X("honours/work/1109/alpha/")
+alpha <- Read10X("home/alicen/2024/interferon_dataset/alpha")
 alpha <- CreateSeuratObject(alpha, project="alpha",  min.cells=3, min.features=0)
 
 lambda <- Read10X("honours/work/1109/lambda/")
