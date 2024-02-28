@@ -17,20 +17,20 @@ library(BiocManager)
 
 BiocManager::install(c("Seurat","Matrix","xlsx","XLConnect","writexl","openxlsx","readxl","dplyr","tidyverse")) 
 
-BiocManager::install("tlibxml2-dev")
+BiocManager::install("tidyverse")
 
 
 # data manipulation 
-library(tidyverse)
-library(dplyr)
+library(tidyverse) # error
+library(dplyr) 
 # storing data outputs in excel sheet 
 library(writexl) 
 library(openxlsx)
 library(XLConnect)
 library(readxl)
-# Seurat package (we love her) 
-library(SeuratObject) 
-library(Seurat)
+# Seurat package
+library(SeuratObject) # error
+library(Seurat) # error
 # plotting help 
 library(ggplot2) 
 library(grid)
@@ -38,8 +38,8 @@ library(patchwork)
 # support 
 library(readr)
 library(Matrix)
-library(metap)
-
+library(metap) # error
+# 
 # VIEWING PACKAGE VERSION #s for DEVICE COMPARISONS : 
 # remotes::install_version("Matrix", version = "1.5.3")
 # packageVersion("Matrix")
