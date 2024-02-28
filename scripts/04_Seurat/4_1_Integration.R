@@ -1,16 +1,6 @@
 # INTEGRATION AND DIMENSIONALITY REDUCTION 
 # Seurat v3 workflow for pre-processing, dimensionality reduction, and visualisation 
 
-# Quick access to save the worked on Seurat objects : ####
-alpha <- saveRDS(alpha, "honours/work/RObjects/")
-lambda <- saveRDS(lambda, "honours/work/RObjects/")
-untreated <- saveRDS(untreated, "honours/work/RObjects/")
-treatment <- saveRDS(treatment, "honours/work/1109/treatment.rds")
-
-# To read in the saved Seurat objects : 
-treatment <- readRDS("honours/work/1109/treatment.rds")
-
-
 ##### [1] Load dependencies #####
 
 #  Package names 
@@ -26,42 +16,45 @@ if (any(installed_packages == FALSE)) {
 invisible(lapply(packages, library, character.only = TRUE))
 
 
-##### [2] Load datasets: alpha, lambda, and untreated using Read10X function : ####
+##### [2] Load datasets using Read10X function ####
+
+# Access folders in directory where matrix.mtx.gz, barcodes.tsv.gz, and features.tsv.gz are stored
+# Windows home computer : honours/work/1109/alpha/" 
+# Ubuntu lab compute : /home/alicen/2024/interferon_dataset/alpha/"
+
 getwd()
-alpha <- Read10X("honours/work/1109/alpha/")
-alpha <- Read10X("home/alicen/2024/interferon_dataset/alpha")
+
+alpha <- Read10X("/home/alicen/2024/interferon_dataset/alpha/")
 alpha <- CreateSeuratObject(alpha, project="alpha",  min.cells=3, min.features=0)
 
-lambda <- Read10X("honours/work/1109/lambda/")
+lambda <- Read10X("/home/alicen/2024/interferon_dataset/lambda/")
 lambda <- CreateSeuratObject(lambda, project="lambda", min.cells=3, min.features = 0)
 
-untreated <- Read10X("honours/work/1109/untreated/")
+untreated <- Read10X("/home/alicen/2024/interferon_dataset/untreated/")
 untreated <- CreateSeuratObject(untreated, project="untreated", min.cells=3, min.features = 0)
-
-
-
 
 
 ##### [3] Perform cell and gene level quality control independently on the datasets #####
 
 # Removing unwanted cells based on # genes expressed and mitochondrial gene expression
+
 # Create meta data column for mitochondrial gene identified by genes starting with MT : 
 alpha[["percent.mt"]] <- PercentageFeatureSet(alpha, pattern = "^MT-")
 lambda[["percent.mt"]] <- PercentageFeatureSet(lambda, pattern = "^MT-")
 untreated[["percent.mt"]] <- PercentageFeatureSet(untreated, pattern = "^MT-")
 
-# Subset the seurat objects based on mitochondrial percentage and the number of features : 
+# Subset the Seurat objects based on mitochondrial percentage and the number of features : 
 alpha <- subset(alpha, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 lambda <- subset(lambda, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 untreated <- subset(untreated, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 10)
 
 
-
-# Normalise according to LOG scale (good for integration) : 
+# Normalize according to LOG scale (good for integration) : 
 # 1 : actual normalization 
 alpha <- NormalizeData(alpha, normalization.method = "LogNormalize", scale.factor = 10000)
 lambda <- NormalizeData(lambda, normalization.method = "LogNormalize", scale.factor = 10000)
 untreated <- NormalizeData(untreated, normalization.method = "LogNormalize", scale.factor = 10000)
+
 # 2 : scaling the data :
 # The results of this are stored in object[["RNA"]]@scale.data
 all.alpha.genes <- rownames(alpha)
@@ -76,22 +69,20 @@ alpha <- FindVariableFeatures(alpha, selection.method = "vst", nfeatures = 2000)
 lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 2000)
 untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
 
-saveRDS(alpha, "honours/work/1109/lambda/alphaCountMatrixFiltered.rds")
-saveRDS(lambda, "honours/work/1109/lambda/lambdaCountMatrixFiltered.rds")
-saveRDS(untreated, "honours/work/1109/lambda/untreatedCountMatrixFiltered.rds")
+
+saveRDS(alpha, "/home/alicen/2024/interferon_dataset/R_objects/alphaCountMatrixFiltered.rds")
+saveRDS(lambda, "/home/alicen/2024/interferon_dataset/R_objects/lambdaCountMatrixFiltered.rds")
+saveRDS(untreated, "/home/alicen/2024/interferon_dataset/R_objects/untreatedCountMatrixFiltered.rds")
 
 
-##### [4] Prepare datasets for integration #####
+##### [4] Perform integration among the datasets #####
 
 # Create a list of Seurat objects : 
 TreatmentList <- list(alpha, lambda, untreated) 
 # Select features that are repeatedly variable across datasets for integration : 
 TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList)
 
-##### [5] Perform integration #####
-
 # Identify integration anchors : 
-
 anchors <- FindIntegrationAnchors(
   object.list = TreatmentList, 
   reference = 3, # untreated
@@ -103,9 +94,9 @@ anchors <- FindIntegrationAnchors(
 treatment <- IntegrateData(anchorset = anchors)
 
 # Specify integrated data assay : 
-DefaultAssay(treatment) <- "integrated"  
-# designating an integrated data assay for a Seurat object. This step is crucial for integrating multiple scRNA-seq datasets and performing downstream analyses on the integrated data
+DefaultAssay(treatment) <- "integrated"  # designating an integrated data assay for a Seurat object. This step is crucial for integrating multiple scRNA-seq datasets and performing downstream analyses on the integrated data
 
+##### [5] Dimensionality reduction #####
 
 # Run standard workflow for visualization and clustering : 
 treatment <- ScaleData(treatment, verbose = FALSE)
@@ -114,11 +105,6 @@ treatment <- RunUMAP(treatment, reduction = "pca", dims = 1:30) # 30
 treatment <- FindNeighbors(treatment, reduction = "pca", dims = 1:30) # 30 
 treatment <- FindClusters(treatment, resolution = 0.5)
 
-class(treatment)
-SpatialPlot(
-  treatment,
-  features = "MS4A1"
-)
 
 ##### [6] Preliminary visualization of clusters #####
 # Change name of metadata column header to stim : 
@@ -127,6 +113,7 @@ colnames(treatment@meta.data)[1] <- "treatment"
 # View whether the treatment datasets cluster together : 
 colours <- c("#c35cad","#6ab5ba","#d3d3d3")
 p1 <- DimPlot(treatment, reduction = "umap",pt.size = 1,group.by = "treatment") + scale_color_manual(values = colours) + ggtitle("") 
+p1
 
 # View the total number of clusters :
 # Define color palette : 
@@ -150,13 +137,18 @@ palette <- c("#15c284", #0
                "#a0d9e9" #17
 )
 p2 <- DimPlot(treatment, reduction = "umap", pt.size = 1.5, label = TRUE, label.color = "black",label.box = FALSE, label.size = 6, repel = TRUE) + scale_color_manual(values = palette)
+p2
 
 
 
-# WORKING EDIT: change subseting to be based on outliers not arbitrary boundaries ####
-# (1) extract vector of all Feature values 
-x <- alpha[["nFeature_RNA"]]
+# Quick access to save the worked on Seurat objects ####
+alpha <- saveRDS(alpha, "honours/work/RObjects/")
+lambda <- saveRDS(lambda, "honours/work/RObjects/")
+untreated <- saveRDS(untreated, "honours/work/RObjects/")
+treatment <- saveRDS(treatment, "honours/work/1109/treatment.rds")
 
+# To read in the saved Seurat objects : 
+treatment <- readRDS("honours/work/1109/treatment.rds")
 
 # Working on Loop to preprocess individual datasets #####
 # Loop through the Seurat objects instead 
@@ -215,6 +207,10 @@ cat("Filtered Seurat object saved for project:", project, "\n\n")
   # saveRDS(get(project), paste("honours/work/1109/", project, "/", project, "CountMatrixFiltered.rds", sep = ""))
   
   cat("Filtered Seurat object saved for project:", project, "\n\n")
-}
 
+
+
+# WORKING EDIT: change subsetting to be based on outliers not arbitrary boundaries
+# (1) extract vector of all Feature values 
+x <- alpha[["nFeature_RNA"]]
 
