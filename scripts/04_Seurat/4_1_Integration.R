@@ -1,5 +1,5 @@
 # INTEGRATION AND DIMENSIONALITY REDUCTION 
-# Seurat workflow after preprocessing
+# Seurat v3 workflow for pre-processing, dimensionality reduction, and visualisation 
 
 # Quick access to save the worked on Seurat objects : ####
 alpha <- saveRDS(alpha, "honours/work/RObjects/")
@@ -9,44 +9,24 @@ treatment <- saveRDS(treatment, "honours/work/1109/treatment.rds")
 
 # To read in the saved Seurat objects : 
 treatment <- readRDS("honours/work/1109/treatment.rds")
+
+
 ##### [1] Load dependencies #####
 
-BiocManager::install("BiocVersion", force = TRUE)
+#  Package names 
+packages <- c("BiocVersion", "Seurat","Matrix","writexl","openxlsx","readxl","dplyr","tidyverse")
 
-library(BiocManager)
+# Install packages not yet installed 
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
 
-BiocManager::install(c("Seurat","Matrix","xlsx","XLConnect","writexl","openxlsx","readxl","dplyr","tidyverse")) 
-
-BiocManager::install("tidyverse")
-
-
-# data manipulation 
-library(tidyverse) # error
-library(dplyr) 
-# storing data outputs in excel sheet 
-library(writexl) 
-library(openxlsx)
-library(XLConnect)
-library(readxl)
-# Seurat package
-library(SeuratObject) # error
-library(Seurat) # error
-# plotting help 
-library(ggplot2) 
-library(grid)
-library(patchwork)
-# support 
-library(readr)
-library(Matrix)
-library(metap) # error
-# 
-# VIEWING PACKAGE VERSION #s for DEVICE COMPARISONS : 
-# remotes::install_version("Matrix", version = "1.5.3")
-# packageVersion("Matrix")
-# remove.packages("SeuratObject")
+#  Packages loading
+invisible(lapply(packages, library, character.only = TRUE))
 
 
-# Load datasets: alpha, lambda, and untreated using Read10X function : 
+##### [2] Load datasets: alpha, lambda, and untreated using Read10X function : ####
 getwd()
 alpha <- Read10X("honours/work/1109/alpha/")
 alpha <- Read10X("home/alicen/2024/interferon_dataset/alpha")
@@ -62,7 +42,7 @@ untreated <- CreateSeuratObject(untreated, project="untreated", min.cells=3, min
 
 
 
-##### [2] Perform cell and gene level quality control independently on the datasets #####
+##### [3] Perform cell and gene level quality control independently on the datasets #####
 
 # Removing unwanted cells based on # genes expressed and mitochondrial gene expression
 # Create meta data column for mitochondrial gene identified by genes starting with MT : 
@@ -101,14 +81,14 @@ saveRDS(lambda, "honours/work/1109/lambda/lambdaCountMatrixFiltered.rds")
 saveRDS(untreated, "honours/work/1109/lambda/untreatedCountMatrixFiltered.rds")
 
 
-##### [3] Prepare datasets for integration #####
+##### [4] Prepare datasets for integration #####
 
 # Create a list of Seurat objects : 
 TreatmentList <- list(alpha, lambda, untreated) 
 # Select features that are repeatedly variable across datasets for integration : 
 TreatmentFeatures <- SelectIntegrationFeatures(object.list = TreatmentList)
 
-##### [4] Perform integration #####
+##### [5] Perform integration #####
 
 # Identify integration anchors : 
 
@@ -140,7 +120,7 @@ SpatialPlot(
   features = "MS4A1"
 )
 
-##### [5] Preliminary visualization of clusters #####
+##### [6] Preliminary visualization of clusters #####
 # Change name of metadata column header to stim : 
 colnames(treatment@meta.data)[1] <- "treatment"
 
