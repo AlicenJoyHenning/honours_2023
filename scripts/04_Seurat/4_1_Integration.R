@@ -24,10 +24,13 @@ invisible(lapply(packages, library, character.only = TRUE))
 
 getwd()
 
-alpha <- Read10X("/home/alicen/2024/interferon_dataset/alpha/")
-alpha <- CreateSeuratObject(alpha, project="alpha",  min.cells=3, min.features=0)
+alpha <- Read10X("/home/alicen/2023/interferon_dataset/alpha/")
+alpha <- CreateSeuratObject(alpha, project="alpha",  min.cells=0, min.features=0)
 
-lambda <- Read10X("/home/alicen/2024/interferon_dataset/lambda/")
+test <- Read10X("/home/alicen/filtered")
+test <- CreateSeuratObject(test, project="alpha",  min.cells=3, min.features=200)
+
+lambda <- Read10X("/home/alicen/2023/interferon_dataset/lambda/")
 lambda <- CreateSeuratObject(lambda, project="lambda", min.cells=3, min.features = 0)
 
 untreated <- Read10X("/home/alicen/2024/interferon_dataset/untreated/")
@@ -70,7 +73,7 @@ lambda <- FindVariableFeatures(lambda, selection.method = "vst", nfeatures = 200
 untreated <- FindVariableFeatures(untreated, selection.method = "vst", nfeatures = 2000)
 
 
-saveRDS(alpha, "/home/alicen/2024/interferon_dataset/R_objects/alphaCountMatrixFiltered.rds")
+saveRDS(alpha, "/home/alicen/202/interferon_dataset/R_objects/alphaCountMatrixFiltered.rds")
 saveRDS(lambda, "/home/alicen/2024/interferon_dataset/R_objects/lambdaCountMatrixFiltered.rds")
 saveRDS(untreated, "/home/alicen/2024/interferon_dataset/R_objects/untreatedCountMatrixFiltered.rds")
 
